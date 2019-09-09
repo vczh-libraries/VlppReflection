@@ -1,10 +1,4 @@
-#include "../../Source/UnitTest/UnitTest.h"
-#include "../../Source/Stream/FileStream.h"
-#include "../../Source/Stream/Accessor.h"
-#include "../../Source/Stream/CharFormat.h"
-#include "../../Source/Collections/Operation.h"
-#include "../../Source/Parsing/Xml/ParsingXml.h"
-#include "../../Source/Parsing/Json/ParsingJson.h"
+#include "../../Source/Reflection/GuiTypeDescriptorReflection.h"
 #include <limits>
 #include <float.h>
 
@@ -13,10 +7,7 @@ using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 using namespace vl::stream;
-using namespace vl::parsing::xml;
-using namespace vl::parsing::json;
 
-extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
@@ -1491,12 +1482,6 @@ namespace reflection_test
 			auto prop = td->GetPropertyByName(L"b", false);
 			TEST_ASSERT(CppExists(prop));
 		}
-		{
-			auto td = GetTypeDescriptor<XmlElement>();
-			auto prop = td->GetPropertyByName(L"name", false);
-			TEST_ASSERT(CppExists(prop));
-			TEST_ASSERT(CppGetReferenceTemplate(prop) == L"$This->$Name.value");
-		}
 
 		{
 			auto td = GetTypeDescriptor<Base>();
@@ -1559,11 +1544,6 @@ namespace reflection_test
 			TEST_ASSERT(CppExists(method));
 			TEST_ASSERT(CppGetInvokeTemplate(method) == L"::vl::reflection::description::ITypeDescriptor_GetTypeDescriptorCount($Arguments)");
 		}
-		{
-			auto td = GetTypeDescriptor<XmlElement>();
-			auto method = td->GetMethodGroupByName(L"get_name", false)->GetMethod(0);
-			TEST_ASSERT(!CppExists(method));
-		}
 	}
 
 	template<typename TReturn, typename TArgument>
@@ -1603,8 +1583,6 @@ using namespace reflection_test;
 	TEST_CASE(NAME)\
 	{\
 		TEST_ASSERT(LoadPredefinedTypes());\
-		TEST_ASSERT(XmlLoadTypes());\
-		TEST_ASSERT(JsonLoadTypes());\
 		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(new TestTypeLoader));\
 		TEST_ASSERT(GetGlobalTypeManager()->Load());\
 		{\

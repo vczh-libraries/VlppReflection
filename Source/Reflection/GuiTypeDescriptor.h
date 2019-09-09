@@ -9,17 +9,7 @@ Interfaces:
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTOR
 #define VCZH_REFLECTION_GUITYPEDESCRIPTOR
 
-#include "../Basic.h"
-#include "../Pointer.h"
-#include "../String.h"
-#include "../Locale.h"
-#include "../Exception.h"
-#include "../Function.h"
-#include "../Event.h"
-#include "../Collections/List.h"
-#include "../Collections/Dictionary.h"
-#include "../Collections/Operation.h"
-#include "../Stream/Accessor.h"
+#include "../../Import/VlppOS.h"
 
 namespace vl
 {

@@ -1,8 +1,4 @@
-#include "../../../Source/String.h"
-#include "../../../Source/Threading.h"
-#include "../../../Source/GlobalStorage.h"
-#include "../../../Source/FileSystem.h"
-#include "../../../Source/UnitTest/UnitTest.h"
+#include "../../../Import/VlppOS.h"
 #include <windows.h>
 
 using namespace vl;
@@ -23,15 +19,6 @@ WString GetExePath()
 		index++;
 	}
 	return WString(buffer, pos + 1);
-}
-
-WString GetTestResourcePath()
-{
-#ifdef _WIN64
-	return GetExePath() + L"../../../Resources/";
-#else
-	return GetExePath() + L"../../Resources/";
-#endif
 }
 
 WString GetTestOutputPath()

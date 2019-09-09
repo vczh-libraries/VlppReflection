@@ -11,7 +11,6 @@ Interfaces:
 
 #include <math.h>
 #include "GuiTypeDescriptor.h"
-#include "../Threading.h"
 
 namespace vl
 {

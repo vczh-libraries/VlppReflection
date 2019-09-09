@@ -1,6 +1,5 @@
 #include "GuiTypeDescriptorMacros.h"
 #include "GuiTypeDescriptorReflection.h"
-#include "../Threading.h"
 
 namespace vl
 {
