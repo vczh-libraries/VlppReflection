@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<codegen>
+  <folders>
+    <folder path="..\Source" />
+    <folder path="..\Import" />
+  </folders>
+  <categories>
+    <category name="vlpp" pattern="\Import\Vlpp."/>
+    <category name="vlppos" pattern="\Import\VlppOS."/>
+    <category name="vlppregex" pattern="\Import\VlppRegex."/>
+    <category name="vlppreflection" pattern="\Source\"/>
+  </categories>
+  <output path=".">
+    <codepair category="vlpp" filename="Vlpp" generate="false"/>
+    <codepair category="vlppos" filename="VlppOS" generate="false"/>
+    <codepair category="vlppregex" filename="VlppRegex" generate="false"/>
+    <codepair category="vlppreflection" filename="VlppReflection" generate="true"/>
+  </output>
+</codegen>
