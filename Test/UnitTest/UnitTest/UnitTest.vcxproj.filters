@@ -54,6 +54,9 @@
     <ClCompile Include="..\..\..\Import\VlppOS.cpp">
       <Filter>Import</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptor.h">
