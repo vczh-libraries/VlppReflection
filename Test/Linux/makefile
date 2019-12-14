@@ -17,7 +17,7 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/Vlpp.o ./Obj/VlppOS.o ./Obj/VlppRegex.o ./Obj/GuiTypeDescriptor.o ./Obj/GuiTypeDescriptorBuilder.o ./Obj/GuiTypeDescriptorPredefined.o ./Obj/GuiTypeDescriptorReflection.o ./Obj/GuiTypeDescriptor_Log.o ./Obj/TestReflection.o ./Obj/Main.o
+./Bin/UnitTest:./Obj/Vlpp.o ./Obj/VlppOS.o ./Obj/VlppRegex.o ./Obj/GuiTypeDescriptor.o ./Obj/GuiTypeDescriptorBuilder.o ./Obj/GuiTypeDescriptorPredefined.o ./Obj/GuiTypeDescriptorReflection.o ./Obj/GuiTypeDescriptor_Log.o ./Obj/TestBoxing.o ./Obj/TestPredefinedTypes.o ./Obj/TestReflection.o ./Obj/Main.o
 	$(CPP_LINK)
 
 ./Obj/Vlpp.o: ../../Import/Vlpp.cpp ../../Import/Vlpp.h
@@ -42,6 +42,12 @@ all:pre-build ./Bin/UnitTest
 	$(CPP_COMPILE)
 
 ./Obj/GuiTypeDescriptor_Log.o: ../../Source/Reflection/GuiTypeDescriptor_Log.cpp ../../Source/Reflection/GuiTypeDescriptorReflection.h ../../Source/Reflection/GuiTypeDescriptorMacros.h ../../Source/Reflection/GuiTypeDescriptorBuilder.h ../../Source/Reflection/GuiTypeDescriptorPredefined.h ../../Source/Reflection/GuiTypeDescriptor.h ../../Source/Reflection/../../Import/VlppOS.h ../../Source/Reflection/../../Import/Vlpp.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h
+	$(CPP_COMPILE)
+
+./Obj/TestBoxing.o: ../Source/TestBoxing.cpp ../Source/../../Source/Reflection/GuiTypeDescriptorReflection.h ../Source/../../Source/Reflection/GuiTypeDescriptorMacros.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder.h ../Source/../../Source/Reflection/GuiTypeDescriptorPredefined.h ../Source/../../Source/Reflection/GuiTypeDescriptor.h ../Source/../../Source/Reflection/../../Import/VlppOS.h ../Source/../../Source/Reflection/../../Import/Vlpp.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h
+	$(CPP_COMPILE)
+
+./Obj/TestPredefinedTypes.o: ../Source/TestPredefinedTypes.cpp ../Source/../../Source/Reflection/GuiTypeDescriptorReflection.h ../Source/../../Source/Reflection/GuiTypeDescriptorMacros.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder.h ../Source/../../Source/Reflection/GuiTypeDescriptorPredefined.h ../Source/../../Source/Reflection/GuiTypeDescriptor.h ../Source/../../Source/Reflection/../../Import/VlppOS.h ../Source/../../Source/Reflection/../../Import/Vlpp.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h
 	$(CPP_COMPILE)
 
 ./Obj/TestReflection.o: ../Source/TestReflection.cpp ../Source/../../Source/Reflection/GuiTypeDescriptorReflection.h ../Source/../../Source/Reflection/GuiTypeDescriptorMacros.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder.h ../Source/../../Source/Reflection/GuiTypeDescriptorPredefined.h ../Source/../../Source/Reflection/GuiTypeDescriptor.h ../Source/../../Source/Reflection/../../Import/VlppOS.h ../Source/../../Source/Reflection/../../Import/Vlpp.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h
