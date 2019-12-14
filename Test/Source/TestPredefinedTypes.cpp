@@ -140,7 +140,11 @@ namespace test
 			_I64_MAX-1,
 			_I64_MAX,
 		};
-		TestNumber<T, vint64_t, sizeof(values)/sizeof(*values), &i64tow>(values, std::numeric_limits<T>::min(), std::numeric_limits<T>::max(), true);
+
+		TEST_CATEGORY(L"Test signed integers")
+		{
+			TestNumber<T, vint64_t, sizeof(values) / sizeof(*values), &i64tow>(values, std::numeric_limits<T>::min(), std::numeric_limits<T>::max(), true);
+		});
 	}
 	
 	template<typename T>
@@ -159,7 +163,11 @@ namespace test
 			_UI64_MAX-1,
 			_UI64_MAX,
 		};
-		TestNumber<T, vuint64_t, sizeof(values)/sizeof(*values), &u64tow>(values, std::numeric_limits<T>::min(), std::numeric_limits<T>::max(), true);
+
+		TEST_CATEGORY(L"Test unsigned integers")
+		{
+			TestNumber<T, vuint64_t, sizeof(values) / sizeof(*values), &u64tow>(values, std::numeric_limits<T>::min(), std::numeric_limits<T>::max(), true);
+		});
 	}
 
 	template<typename T>
@@ -179,7 +187,11 @@ namespace test
 			FLT_MAX,
 			DBL_MAX,
 		};
-		TestNumber<T, double, sizeof(values)/sizeof(*values), &ftow>(values, -std::numeric_limits<T>::max(), std::numeric_limits<T>::max(), false);
+
+		TEST_CATEGORY(L"Test floats")
+		{
+			TestNumber<T, double, sizeof(values) / sizeof(*values), &ftow>(values, -std::numeric_limits<T>::max(), std::numeric_limits<T>::max(), false);
+		});
 	}
 
 	void TestBool()
@@ -187,13 +199,21 @@ namespace test
 		WString legalsText[]={L"true", L"false"};
 		WString illegalsText[]={L"TRUE", L"True", L"FALSE", L"False", L""};
 		bool legals[]={true, false};
-		TestLiteral<bool, sizeof(legalsText)/sizeof(*legalsText), sizeof(illegalsText)/sizeof(*illegalsText)>(legalsText, illegalsText, legals);
+
+		TEST_CATEGORY(L"Test booleans")
+		{
+			TestLiteral<bool, sizeof(legalsText) / sizeof(*legalsText), sizeof(illegalsText) / sizeof(*illegalsText)>(legalsText, illegalsText, legals);
+		});
 	}
 
 	void TestString()
 	{
 		WString legals[]={L"a", L"b", L"c"};
-		TestLiteral<WString, sizeof(legals)/sizeof(*legals), 0>(legals, 0, legals);
+
+		TEST_CATEGORY(L"Test strings")
+		{
+			TestLiteral<WString, sizeof(legals) / sizeof(*legals), 0>(legals, 0, legals);
+		});
 	}
 
 	void TestDateTime()
@@ -201,14 +221,22 @@ namespace test
 		WString legalsText[]={L"2000-01-01 00:00:00.000", L"2012-12-21 13:30:45.123", L"2013-06-11 14:30:00.000"};
 		WString illegalsText[]={L"2000-01-01", L"00:00:00.000", L"2000-01-01 00:00:00"};
 		DateTime legals[]={DateTime::FromDateTime(2000, 1, 1), DateTime::FromDateTime(2012, 12, 21, 13, 30, 45, 123), DateTime::FromDateTime(2013, 6, 11, 14, 30, 0)};
-		TestLiteral<DateTime, sizeof(legalsText)/sizeof(*legalsText), sizeof(illegalsText)/sizeof(*illegalsText)>(legalsText, illegalsText, legals);
+
+		TEST_CATEGORY(L"Test datetime")
+		{
+			TestLiteral<DateTime, sizeof(legalsText) / sizeof(*legalsText), sizeof(illegalsText) / sizeof(*illegalsText)>(legalsText, illegalsText, legals);
+		});
 	}
 
 	void TestLocale()
 	{
 		WString legalsText[]={L"zh-CN", L"en-US"};
 		Locale legals[]={Locale(L"zh-CN"), Locale(L"en-US")};
-		TestLiteral<Locale, sizeof(legalsText)/sizeof(*legalsText), 0>(legalsText, 0, legals);
+
+		TEST_CATEGORY(L"Test locales")
+		{
+			TestLiteral<Locale, sizeof(legalsText) / sizeof(*legalsText), 0>(legalsText, 0, legals);
+		});
 	}
 }
 using namespace test;
