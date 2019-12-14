@@ -8,7 +8,7 @@ using namespace vl::stream;
 
 extern WString GetTestOutputPath();
 
-namespace test
+namespace TestReflection_TestObjects
 {
 	enum Season
 	{
@@ -268,58 +268,58 @@ namespace test
 
 #endif
 }
-using namespace test;
+using namespace TestReflection_TestObjects;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define _ ,
 
 #define TYPE_LIST(F)\
-	F(test::Season)\
-	F(test::ResetOption)\
-	F(test::Base)\
-	F(test::Derived)\
-	F(test::BaseSummer)\
-	F(test::DictionaryHolder)\
-	F(test::EventRaiser)\
-	F(test::Point)\
-	F(test::Size)\
-	F(test::Rect)\
-	F(test::RectPair)\
-	F(test::Agg)\
-	F(test::AggParentShared)\
-	F(test::AggParentRaw)\
-	F(test::AggParentBase)\
-	F(test::AggParentDerived)\
-	F(test::HintTester)\
+	F(Season)\
+	F(ResetOption)\
+	F(Base)\
+	F(Derived)\
+	F(BaseSummer)\
+	F(DictionaryHolder)\
+	F(EventRaiser)\
+	F(Point)\
+	F(Size)\
+	F(Rect)\
+	F(RectPair)\
+	F(Agg)\
+	F(AggParentShared)\
+	F(AggParentRaw)\
+	F(AggParentBase)\
+	F(AggParentDerived)\
+	F(HintTester)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
 	TYPE_LIST(DECL_TYPE_INFO)
 	TYPE_LIST(IMPL_CPP_TYPE_INFO)
 
-	BEGIN_ENUM_ITEM(test::Season)
+	BEGIN_ENUM_ITEM(Season)
 		ENUM_ITEM(Spring)
 		ENUM_ITEM(Summer)
 		ENUM_ITEM(Autumn)
 		ENUM_ITEM(Winter)
-	END_ENUM_ITEM(test::Season)
+	END_ENUM_ITEM(Season)
 
-	BEGIN_ENUM_ITEM_MERGABLE(test::ResetOption)
+	BEGIN_ENUM_ITEM_MERGABLE(ResetOption)
 		ENUM_ITEM(ResetNone)
 		ENUM_ITEM(ResetA)
 		ENUM_ITEM(ResetB)
-	END_ENUM_ITEM(test::ResetOption)
+	END_ENUM_ITEM(ResetOption)
 
-	BEGIN_CLASS_MEMBER(test::Base)
+	BEGIN_CLASS_MEMBER(Base)
 		CLASS_MEMBER_FIELD(a)
 		CLASS_MEMBER_FIELD(season)
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<Base>(), NO_PARAMETER)
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<Base>(vint), {L"_a"})
-		CLASS_MEMBER_EXTERNALCTOR(Ptr<Base>(vint, vint), {L"_a" _ L"_b"}, test::Base::Create)
-	END_CLASS_MEMBER(test::Base)
+		CLASS_MEMBER_EXTERNALCTOR(Ptr<Base>(vint, vint), {L"_a" _ L"_b"}, Base::Create)
+	END_CLASS_MEMBER(Base)
 
-	BEGIN_CLASS_MEMBER(test::Derived)
+	BEGIN_CLASS_MEMBER(Derived)
 		CLASS_MEMBER_BASE(Base)
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<Derived>(), NO_PARAMETER)
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<Derived>(vint _ vint), {L"_a" _ L"_b"})
@@ -334,31 +334,31 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_METHOD_OVERLOAD(Reset, NO_PARAMETER, void(Derived::*)())
 		CLASS_MEMBER_METHOD_OVERLOAD(Reset, {L"_a" _ L"_b"}, void(Derived::*)(vint _ vint))
 		CLASS_MEMBER_METHOD_RENAME(Reset, Reset2, {L"opt"})
-		CLASS_MEMBER_EXTERNALMETHOD(Reset, {L"derived"}, void(Derived::*)(Derived*), test::Derived::Reset3)
+		CLASS_MEMBER_EXTERNALMETHOD(Reset, {L"derived"}, void(Derived::*)(Derived*), Derived::Reset3)
 
 		CLASS_MEMBER_FIELD(c)
 		CLASS_MEMBER_PROPERTY_FAST(C)
-	END_CLASS_MEMBER(test::Derived)
+	END_CLASS_MEMBER(Derived)
 
-	BEGIN_STRUCT_MEMBER(test::Point)
+	BEGIN_STRUCT_MEMBER(Point)
 		STRUCT_MEMBER(x)
 		STRUCT_MEMBER(y)
-	END_STRUCT_MEMBER(test::Point)
+	END_STRUCT_MEMBER(Point)
 
-	BEGIN_STRUCT_MEMBER(test::Size)
+	BEGIN_STRUCT_MEMBER(Size)
 		STRUCT_MEMBER(cx)
 		STRUCT_MEMBER(cy)
-	END_STRUCT_MEMBER(test::Size)
+	END_STRUCT_MEMBER(Size)
 
-	BEGIN_STRUCT_MEMBER(test::Rect)
+	BEGIN_STRUCT_MEMBER(Rect)
 		STRUCT_MEMBER(point)
 		STRUCT_MEMBER(size)
-	END_STRUCT_MEMBER(test::Rect)
+	END_STRUCT_MEMBER(Rect)
 
-	BEGIN_STRUCT_MEMBER(test::RectPair)
+	BEGIN_STRUCT_MEMBER(RectPair)
 		STRUCT_MEMBER(a)
 		STRUCT_MEMBER(b)
-	END_STRUCT_MEMBER(test::RectPair)
+	END_STRUCT_MEMBER(RectPair)
 
 	Ptr<IValueReadonlyList> BaseSummer_GetBases(BaseSummer* thisObject)
 	{
@@ -397,22 +397,22 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_PROPERTY_EVENT_FAST(Value, ValueChanged)
 	END_CLASS_MEMBER(EventRaiser)
 
-	BEGIN_CLASS_MEMBER(test::Agg)
-	END_CLASS_MEMBER(test::Agg)
+	BEGIN_CLASS_MEMBER(Agg)
+	END_CLASS_MEMBER(Agg)
 
-	BEGIN_CLASS_MEMBER(test::AggParentShared)
-	END_CLASS_MEMBER(test::AggParentShared)
+	BEGIN_CLASS_MEMBER(AggParentShared)
+	END_CLASS_MEMBER(AggParentShared)
 
-	BEGIN_CLASS_MEMBER(test::AggParentRaw)
-	END_CLASS_MEMBER(test::AggParentRaw)
+	BEGIN_CLASS_MEMBER(AggParentRaw)
+	END_CLASS_MEMBER(AggParentRaw)
 
-	BEGIN_CLASS_MEMBER(test::AggParentBase)
-	END_CLASS_MEMBER(test::AggParentBase)
+	BEGIN_CLASS_MEMBER(AggParentBase)
+	END_CLASS_MEMBER(AggParentBase)
 
-	BEGIN_CLASS_MEMBER(test::AggParentDerived)
-	END_CLASS_MEMBER(test::AggParentDerived)
+	BEGIN_CLASS_MEMBER(AggParentDerived)
+	END_CLASS_MEMBER(AggParentDerived)
 
-	BEGIN_CLASS_MEMBER(test::HintTester)
+	BEGIN_CLASS_MEMBER(HintTester)
 		CLASS_MEMBER_METHOD(GetLazyList, {L"x"})
 		CLASS_MEMBER_METHOD(GetArray, { L"x" })
 		CLASS_MEMBER_METHOD(GetList, { L"x" })
@@ -424,7 +424,7 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
 		CLASS_MEMBER_METHOD(GetHintTester, { L"x" })
 		CLASS_MEMBER_METHOD(GetInt, { L"x" })
-	END_CLASS_MEMBER(test::HintTester)
+	END_CLASS_MEMBER(HintTester)
 
 	class TestTypeLoader : public Object, public ITypeLoader
 	{
@@ -507,28 +507,28 @@ namespace reflection_test
 	void TestReflectionInvoke()
 	{
 		{
-			Value base=Value::Create(L"test::Base");
+			Value base=Value::Create(L"Base");
 			TEST_ASSERT(base.GetTypeDescriptor());
-			TEST_ASSERT(base.GetTypeDescriptor()->GetTypeName()==L"test::Base");
+			TEST_ASSERT(base.GetTypeDescriptor()->GetTypeName()==L"Base");
 			TEST_ASSERT(UnboxValue<vint>(base.GetProperty(L"a"))==0);
 
 			base.SetProperty(L"a", BoxValue<vint>(100));
 			TEST_ASSERT(UnboxValue<vint>(base.GetProperty(L"a"))==100);
 
-			Value base2=Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(200)));
+			Value base2=Value::Create(L"Base", (Value_xs(), BoxValue<vint>(200)));
 			TEST_ASSERT(base2.GetTypeDescriptor());
-			TEST_ASSERT(base2.GetTypeDescriptor()->GetTypeName()==L"test::Base");
+			TEST_ASSERT(base2.GetTypeDescriptor()->GetTypeName()==L"Base");
 			TEST_ASSERT(UnboxValue<vint>(base2.GetProperty(L"a"))==200);
 
-			Value base3=Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(100), BoxValue<vint>(200)));
+			Value base3=Value::Create(L"Base", (Value_xs(), BoxValue<vint>(100), BoxValue<vint>(200)));
 			TEST_ASSERT(base3.GetTypeDescriptor());
-			TEST_ASSERT(base3.GetTypeDescriptor()->GetTypeName()==L"test::Base");
+			TEST_ASSERT(base3.GetTypeDescriptor()->GetTypeName()==L"Base");
 			TEST_ASSERT(UnboxValue<vint>(base3.GetProperty(L"a"))==300);
 		}
 		{
-			Value derived=Value::Create(L"test::Derived");
+			Value derived=Value::Create(L"Derived");
 			TEST_ASSERT(derived.GetTypeDescriptor());
-			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName()==L"test::Derived");
+			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName()==L"Derived");
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==0);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==0);
 
@@ -538,9 +538,9 @@ namespace reflection_test
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==200);
 		}
 		{
-			Value derived=Value::Create(L"test::Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			TEST_ASSERT(derived.GetTypeDescriptor());
-			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName()==L"test::Derived");
+			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName()==L"Derived");
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 
@@ -556,7 +556,7 @@ namespace reflection_test
 			TEST_ASSERT(d->a==30);
 			TEST_ASSERT(d->GetB()==40);
 		
-			Value derived2=Value::InvokeStatic(L"test::Derived", L"Create", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived2=Value::InvokeStatic(L"Derived", L"Create", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			derived2.Invoke(L"Reset", (Value_xs(), derived));
 			TEST_ASSERT(UnboxValue<vint>(derived2.GetProperty(L"a"))==30);
 			TEST_ASSERT(UnboxValue<vint>(derived2.GetProperty(L"b"))==40);
@@ -600,7 +600,7 @@ namespace reflection_test
 
 	void TestReflectionEvent()
 	{
-		Value eventRaiser = Value::Create(L"test::EventRaiser");
+		Value eventRaiser = Value::Create(L"EventRaiser");
 		vint oldValue = 0;
 		vint newValue = 0;
 		auto eventHandler = eventRaiser.AttachEvent(
@@ -640,41 +640,41 @@ namespace reflection_test
 	void TestReflectionEnum()
 	{
 		{
-			Value base=Value::Create(L"test::Base");
+			Value base=Value::Create(L"Base");
 			TEST_ASSERT(UnboxValue<Season>(base.GetProperty(L"season"))==Spring);
 
 			base.SetProperty(L"season", BoxValue<Season>(Winter));
 			TEST_ASSERT(UnboxValue<Season>(base.GetProperty(L"season"))==Winter);
 		}
 		{
-			Value derived=Value::Create(L"test::Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 
-			derived.Invoke(L"Reset", (Value_xs(), BoxValue<test::ResetOption>(ResetNone)));
+			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>(ResetNone)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 		}
 		{
-			Value derived=Value::Create(L"test::Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 
-			derived.Invoke(L"Reset", (Value_xs(), BoxValue<test::ResetOption>(ResetA)));
+			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>(ResetA)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==0);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 		}
 		{
-			Value derived=Value::Create(L"test::Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 
-			derived.Invoke(L"Reset", (Value_xs(), BoxValue<test::ResetOption>(ResetB)));
+			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>(ResetB)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==0);
 		}
 		{
-			Value derived=Value::Create(L"test::Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
 			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
 
@@ -687,7 +687,7 @@ namespace reflection_test
 	void TestReflectionNullable()
 	{
 		{
-			Value derived=Value::Create(L"test::Derived");
+			Value derived=Value::Create(L"Derived");
 			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c"))==false);
 			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C"))==false);
 
@@ -769,12 +769,12 @@ namespace reflection_test
 	{
 		{
 			Value bases=Value::Create(L"system::List");
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(1)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(2)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(3)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(4)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
-			Value baseSummer=Value::Create(L"test::BaseSummer");
+			Value baseSummer=Value::Create(L"BaseSummer");
 			baseSummer.Invoke(L"SetBases", (Value_xs(), bases));
 			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum"))==10);
 
@@ -787,12 +787,12 @@ namespace reflection_test
 		}
 		{
 			Value bases=Value::Create(L"system::List");
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(1)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(2)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(3)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(4)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
-			Value baseSummer=Value::Create(L"test::BaseSummer");
+			Value baseSummer=Value::Create(L"BaseSummer");
 			baseSummer.Invoke(L"SetBases2", (Value_xs(), bases));
 			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum2"))==10);
 
@@ -805,12 +805,12 @@ namespace reflection_test
 		}
 		{
 			Value bases=Value::Create(L"system::List");
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(1)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(2)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(3)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"test::Base", (Value_xs(), BoxValue<vint>(4)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
+			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
-			Value baseSummer=Value::Create(L"test::BaseSummer");
+			Value baseSummer=Value::Create(L"BaseSummer");
 			baseSummer.SetProperty(L"bases3", bases);
 			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum2"))==10);
 
@@ -822,7 +822,7 @@ namespace reflection_test
 			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a"))==4);
 		}
 		{
-			Value baseSummer=Value::Create(L"test::BaseSummer");
+			Value baseSummer=Value::Create(L"BaseSummer");
 			Value f1=BoxParameter<Func<vint(vint)>>(LAMBDA([](vint i){return i+1;}));
 			Value f2=BoxParameter<Func<vint(vint)>>(LAMBDA([](vint i){return i+2;}));
 			Value f=baseSummer.Invoke(L"Sum3", (Value_xs(), f1, f2));
@@ -1137,15 +1137,15 @@ namespace reflection_test
 		}
 		{
 			auto typeInfo = TypeInfoRetriver<Base*>::CreateTypeInfo();
-			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"test::Base*");
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"Base*");
 		}
 		{
 			auto typeInfo = TypeInfoRetriver<Ptr<Base>>::CreateTypeInfo();
-			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"test::Base^");
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"Base^");
 		}
 		{
 			auto typeInfo = TypeInfoRetriver<List<Ptr<Base>>>::CreateTypeInfo();
-			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::List<test::Base^>^");
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::List<Base^>^");
 		}
 		{
 			auto typeInfo = TypeInfoRetriver<Func<void(vint32_t)>>::CreateTypeInfo();
@@ -1173,7 +1173,7 @@ namespace reflection_test
 		{
 			auto td = GetTypeDescriptor<Base>();
 			TEST_ASSERT(CppExists(td));
-			TEST_ASSERT(CppGetFullName(td) == L"::test::Base");
+			TEST_ASSERT(CppGetFullName(td) == L"::Base");
 		}
 
 		{
@@ -1212,7 +1212,7 @@ namespace reflection_test
 				auto ctor = td->GetConstructorGroup()->GetMethod(2);
 				TEST_ASSERT(ctor->GetParameterCount() == 2);
 				TEST_ASSERT(CppExists(ctor));
-				TEST_ASSERT(CppGetInvokeTemplate(ctor) == L"::test::Base::Create($Arguments)");
+				TEST_ASSERT(CppGetInvokeTemplate(ctor) == L"::Base::Create($Arguments)");
 			}
 		}
 
@@ -1246,7 +1246,7 @@ namespace reflection_test
 				auto method = td->GetMethodGroupByName(L"Reset", false)->GetMethod(3);
 				TEST_ASSERT(method->GetParameterCount() == 1);
 				TEST_ASSERT(CppExists(method));
-				TEST_ASSERT(CppGetInvokeTemplate(method) == L"::test::Derived::Reset3($This, $Arguments)");
+				TEST_ASSERT(CppGetInvokeTemplate(method) == L"::Derived::Reset3($This, $Arguments)");
 			}
 		}
 		{
@@ -1291,7 +1291,7 @@ namespace reflection_test
 using namespace reflection_test;
 
 #define TEST_CASE_REFLECTION(NAME)\
-	TEST_CASE(NAME)\
+	TEST_CASE(L ## #NAME)\
 	{\
 		TEST_ASSERT(LoadPredefinedTypes());\
 		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(new TestTypeLoader));\
@@ -1300,25 +1300,28 @@ using namespace reflection_test;
 			NAME();\
 		}\
 		TEST_ASSERT(ResetGlobalTypeManager());\
-	}\
+	});\
 
-TEST_CASE_REFLECTION(TestReflectionBuilder)
-TEST_CASE_REFLECTION(TestReflectionInvoke)
-TEST_CASE_REFLECTION(TestReflectionInvokeIndirect)
-TEST_CASE_REFLECTION(TestReflectionEvent)
-TEST_CASE_REFLECTION(TestReflectionEnum)
-TEST_CASE_REFLECTION(TestReflectionNullable)
-TEST_CASE_REFLECTION(TestReflectionStruct)
-TEST_CASE_REFLECTION(TestReflectionList)
-TEST_CASE_REFLECTION(TestReflectionDictionary)
-TEST_CASE_REFLECTION(TestSharedRawPtrConverting)
-TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
-TEST_CASE_REFLECTION(TestInterfaceProxy)
-TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
-TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
-TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
-TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
-TEST_CASE_REFLECTION(TestCpp)
-TEST_CASE_REFLECTION(TestHint)
+TEST_FILE
+{
+	TEST_CASE_REFLECTION(TestReflectionBuilder)
+	TEST_CASE_REFLECTION(TestReflectionInvoke)
+	TEST_CASE_REFLECTION(TestReflectionInvokeIndirect)
+	TEST_CASE_REFLECTION(TestReflectionEvent)
+	TEST_CASE_REFLECTION(TestReflectionEnum)
+	TEST_CASE_REFLECTION(TestReflectionNullable)
+	TEST_CASE_REFLECTION(TestReflectionStruct)
+	TEST_CASE_REFLECTION(TestReflectionList)
+	TEST_CASE_REFLECTION(TestReflectionDictionary)
+	TEST_CASE_REFLECTION(TestSharedRawPtrConverting)
+	TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
+	TEST_CASE_REFLECTION(TestInterfaceProxy)
+	TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
+	TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
+	TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
+	TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
+	TEST_CASE_REFLECTION(TestCpp)
+	TEST_CASE_REFLECTION(TestHint)
+}
 
 #endif
