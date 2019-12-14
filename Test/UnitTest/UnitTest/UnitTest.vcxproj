@@ -223,6 +223,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp" />
+    <ClCompile Include="..\..\Source\TestBoxing.cpp" />
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
     <ClCompile Include="..\..\Source\TestReflection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

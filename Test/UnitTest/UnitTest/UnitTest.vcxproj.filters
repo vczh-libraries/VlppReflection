@@ -57,6 +57,9 @@
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestBoxing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptor.h">

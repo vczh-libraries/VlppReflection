@@ -309,7 +309,7 @@ Class
 				protected:\
 					bool IsAggregatable()override\
 					{\
-						return AcceptValue<typename RequiresConvertable<TYPENAME, AggregatableDescription<TYPENAME>>::YesNoType>::Result;\
+						return AcceptValue<typename PointerConvertable<TYPENAME, AggregatableDescription<TYPENAME>>::YesNoType>::Result;\
 					}\
 					void LoadInternal()override\
 					{
