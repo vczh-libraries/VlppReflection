@@ -9,7 +9,7 @@ Interfaces:
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTOR
 #define VCZH_REFLECTION_GUITYPEDESCRIPTOR
 
-#include "../../Import/VlppOS.h"
+#include <VlppOS.h>
 
 namespace vl
 {

@@ -1,7 +1,7 @@
 #include <limits.h>
 #include <float.h>
 #include "GuiTypeDescriptorReflection.h"
-#include "../../Import/VlppRegex.h"
+#include <VlppRegex.h>
 
 namespace vl
 {
