@@ -360,7 +360,18 @@ Attribute
 		///                 Classes in reflection and Workflow script mean reference types.
 		///                 </p>
 		///                 <p>
+		///                 Here are all macros that register content of classes
 		///                 <ul>
+		///                     <li>CLASS_MEMBER_BASE</li>
+		///                     <li>CLASS_MEMBER_FIELD</li>
+		///                     <li>CLASS_MEMBER_CONSTRUCTOR</li>
+		///                     <li>CLASS_MEMBER_EXTERNALCTOR(_TEMPLATE)?</li>
+		///                     <li>CLASS_MEMBER_METHOD(_OVERLOAD)?_RENAME</li>
+		///                     <li>CLASS_MEMBER_(STATIC_)?METHOD(_OVERLOAD)?</li>
+		///                     <li>CLASS_MEMBER_(STATIC_)?EXTERNALMETHOD(_TEMPLATE)?</li>
+		///                     <li>CLASS_MEMBER_PROPERTY(_EVENT)?(_READONLY)?(_FAST)?</li>
+		///                     <li>CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE</li>
+		///                     <li>CLASS_MEMBER_EVENT</li>
 		///                 </ul>
 		///                 </p>
 		///                 <p>
@@ -418,41 +429,41 @@ Attribute
 		///                         CLASS_MEMBER_STATIC_METHOD(MyFunction5, {L"parameter1" _ L"parameter2"})
 		///
 		///                         // 15) Add overloaded static functions
-		///                         CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, NO_PARAMETER, int(*)())
-		///                         CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, {L"parameter"}, int(*)(int))
-		///                         CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&))
+		///                         CLASS_MEMBER_STATIC_METHOD_OVERLOAD(MyFunction6, NO_PARAMETER, int(*)())
+		///                         CLASS_MEMBER_STATIC_METHOD_OVERLOAD(MyFunction6, {L"parameter"}, int(*)(int))
+		///                         CLASS_MEMBER_STATIC_METHOD_OVERLOAD(MyFunction6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&))
 		///
 		///                         // 16) Inject global functions as static methods:
 		///                         CLASS_MEMBER_STATIC_EXTERNALMETHOD(MyNewName6, {L"parameter"}, int(*)(int), mynamespace::AGlobalFunction2)
 		///
 		///                         // 17) Inject a static method and specify how to generate C++ code, "*" means not able to generate.
-		///                         CLASS_MEMBER_STATIC_EXTERNALMETHOD_INVOKETEMPLATE(MyNewName6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&), [](int b, const WString& c){return 0;}, L"*")
+		///                         CLASS_MEMBER_STATIC_EXTERNALMETHOD_TEMPLATE(MyNewName6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&), [](int b, const WString& c){return 0;}, L"*")
 		///
-		///                         XIV) Add a getter function as a property
+		///                         // 18) Add a getter function as a property
 		///                         CLASS_MEMBER_PROPERTY_READONLY_FAST(X)
-		///                         which is short for
+		///                         // which is short for
 		///                         CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
 		///                         CLASS_MEMBER_PROPERTY_READONLY(X, GetX)
 		///
-		///                         XV) Add a pair of getter and setter functions as a property
+		///                         // 19) Add a pair of getter and setter functions as a property
 		///                         CLASS_MEMBER_PROPERTY_FAST(X)
-		///                         which is short for
+		///                         // which is short for
 		///                         CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
 		///                         CLASS_MEMBER_METHOD(SetX, {L"value"})
 		///                         CLASS_MEMBER_PROPERTY(X, GetX, SetX)
 		///
-		///                         XVI) Add a getter function as a property with a property changed event
+		///                         // 20) Add a getter function as a property with a property changed event
 		///                         CLASS_MEMBER_EVENT(XChanged)
 		///                         CLASS_MEMBER_PROPERTY_EVENT_READONLY_FAST(X)
-		///                         which is short for
+		///                         // which is short for
 		///                         CLASS_MEMBER_EVENT(XChanged)
 		///                         CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
 		///                         CLASS_MEMBER_PROPERTY_EVENT_READONLY(X, GetX, XChanged)
 		///
-		///                         XVII) Add a pair of getter and setter functions as a property with a property changed event
+		///                         // 21) Add a pair of getter and setter functions as a property with a property changed event
 		///                         CLASS_MEMBER_EVENT(XChanged)
 		///                         CLASS_MEMBER_PROPERTY_EVENT_FAST(X)
-		///                         which is short for
+		///                         // which is short for
 		///                         CLASS_MEMBER_EVENT(XChanged)
 		///                         CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
 		///                         CLASS_MEMBER_METHOD(SetX, {L"value"})
@@ -461,73 +472,92 @@ Attribute
 		///                     END_CLASS_MEMBER(MyClass)
 		///                 ]]></code></program>
 		///                 </p>
+		///                 <p>
+		///                 If the code compiles, the class should look like this:
+		///                 <program><code><![CDATA[
+		///                     class MyClass : public Description<MyClass>
+		///                     {
+		///                     public:
+		///                         MyClass();
+		///                         MyClass(int numberParameter, const WString& stringParameter);
 		///
-		///            If the code compiles, the class should look like this:
-		///            class MyClass : public Description<MyClass>
-		///            {
-		///            public:
-		///                MyClass();
-		///                MyClass(int numberParameter, const WString& stringParameter);
+		///                         int MyFunction1();
+		///                         int MyFunction2(int parameter1, const WString& parameter2);
+		///                         int MyFunction3();
+		///                         int MyFunction3(int parameter);
+		///                         int MyFunction3(int parameter1, const WString& parameter2);
 		///
-		///                int MyFunction1();
-		///                int MyFunction2(int parameter1, const WString& parameter2);
-		///                int MyFunction3();
-		///                int MyFunction3(int parameter);
-		///                int MyFunction3(int parameter1, const WString& parameter2);
+		///                         static int MyFunction4();
+		///                         static int MyFunction5(int parameter1, const WString& parameter2);
+		///                         static int MyFunction6();
+		///                         static int MyFunction6(int parameter);
+		///                         static int MyFunction6(int parameter1, const WString& parameter2);
 		///
-		///                static int MyFunction4();
-		///                static int MyFunction5(int parameter1, const WString& parameter2);
-		///                static int MyFunction6();
-		///                static int MyFunction6(int parameter);
-		///                static int MyFunction6(int parameter1, const WString& parameter2);
+		///                         Event<void()> XChanged;
+		///                         int GetX();
+		///                         void SetX(int value);
+		///                     };
 		///
-		///                Event<void()> XChanged;
-		///                int GetX();
-		///                void SetX(int value);
-		///            };
-		///
-		///            Ptr<MyClass> CreateMyClass(int numberParameter, const WString7 stringParameter);
-		///            int GlobalFunction(MyClass* self, int parameter);
+		///                     Ptr<MyClass> CreateMyClass(int numberParameter, const WString7 stringParameter);
+		///                     int GlobalFunction(MyClass* self, int parameter);
+		///                 ]]></code></program>
+		///                 </p>
 		///             </li>
 		///             <li>
-		///        e) interface:
-		///            An interface is defined by
-		///            I) Directly or indirectly inherits [T:vl.reflection.IDescriptable]
-		///            II) The only registered constructor (if exists) should use Ptr<[T:vl.reflection.description.IValueInterfaceProxy]> as a parameter
+		///                 <p>
+		///                 <b>interface</b>:
+		///                 A C++ class can be registered as a reflectable interface if:
+		///                 <ul>
+		///                     <li>Directly or indirectly inherits [T:vl.reflection.IDescriptable]</li>
+		///                     <li>The only registered constructor (if exists) should use Ptr&lt;[T:vl.reflection.description.IValueInterfaceProxy]&gt; as a parameter, so that a Workflow script class could implement this interface.</li>
+		///                 </ul>
+		///                 </p>
+		///                 <p>
+		///                 Suppose you have an interface like this:
+		///                 <program><code><![CDATA[
+		///                     class IMyInterface : public virtual IDescriptable, public Description<IMyInterface>
+		///                     {
+		///                     public:
+		///                         int GetX();
+		///                         void SetX(int value);
+		///                     };
+		///                 ]]></code></program>
+		///                 </p>
+		///                 <p>
+		///                 If you want to allow a Workflow script class implement this interface, you should first add a proxy like this:
+		///                 <program><code><![CDATA[
+		///                     #pragma warning(push)
+		///                     #pragma warning(disable:4250)
+		///                     BEGIN_INTERFACE_PROXY_NOPARENT_RAWPTR(IMyInterface)
+		///                         // or BEGIN_INTERFACE_PROXY_RAWPTR(IMyInterface, baseInterfaces...)
+		///                         // or BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IMyInterface)
+		///                         // or BEGIN_INTERFACE_PROXY_SHAREDPTR(IMyInterface, baseInterfaces...)
+		///                         int GetX()override
+		///                         {
+		///                             INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetX)
+		///                         }
 		///
-		///            Suppose you have an interface like this:
-		///            class IMyInterface : public virtual IDescriptable, public Description<IMyInterface>
-		///            {
-		///            public:
-		///                int GetX();
-		///                void SetX(int value);
-		///            };
-		///
-		///            If you want this interface implementable by Workflow script, you should first add a proxy like this:
-		///            #pragma warning(push)
-		///            #pragma warning(disable:4250)
-		///            BEGIN_INTERFACE_PROXY_NOPARENT_RAWPTR(IMyInterface)
-		///             or BEGIN_INTERFACE_PROXY_RAWPTR(IMyInterface, baseInterfaces...)
-		///             or BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IMyInterface)
-		///             or BEGIN_INTERFACE_PROXY_SHAREDPTR(IMyInterface, baseInterfaces...)
-		///                int GetX()override
-		///                {
-		///                    INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetX)
-		///                }
-		///
-		///                void SetX(int value)override
-		///                {
-		///                    INVOKE_INTERFACE_PROXY(SetX, value)
-		///                }
-		///            END_INTERFACE_PROXY(IMyInterface)
-		///            #pragma warning(pop)
-		///
-		///            And then use this code to register the interface:
-		///            BEGIN_INTERFACE_MEMBER(IMyInterface)
-		///                ...
-		///            END_INTERFACE_MEMBER(IMyInterface)
-		///
-		///            Everything else is the same as registering classes. Use BEGIN_INTERFACE_MEMBER_NOPROXY to register an interface without a proxy, which means you cannot implement it in runtime dynamically.
+		///                         void SetX(int value)override
+		///                         {
+		///                             INVOKE_INTERFACE_PROXY(SetX, value)
+		///                         }
+		///                     END_INTERFACE_PROXY(IMyInterface)
+		///                     #pragma warning(pop)
+		///                 ]]></code></program>
+		///                 </p>
+		///                 <p>
+		///                 And then use this code to register the interface:
+		///                 <program><code><![CDATA[
+		///                     BEGIN_INTERFACE_MEMBER(IMyInterface)
+		///                         ...
+		///                     END_INTERFACE_MEMBER(IMyInterface)
+		///                 ]]></code></program>
+		///                 </p>
+		///                 <p>
+		///                 Everything else is the same as registering classes.
+		///                 Use <b>BEGIN_INTERFACE_MEMBER_NOPROXY</b> to register an interface without a proxy,
+		///                 which means a Workflow script class cannot implement this interface.
+		///                 </p>
 		///             </li>
 		///             <li>
 		///                 Undefine the macro for comma:
@@ -538,28 +568,32 @@ Attribute
 		///         </ul>
 		///     </li>
 		///     <li>
-		/// 5) (in cpp files) Create a type loader:
-		///        class MyTypeLoader : public Object, public ITypeLoader
-		///        {
-		///        public:
-		///            void Load(ITypeManager* manager)
-		///            {
-		///                MY_TYPELIST(ADD_TYPE_INFO)
-		///            }
+		///         <b>(in cpp files)</b> Create a type loader:
+		///         <program><code><![CDATA[
+		///             class MyTypeLoader : public Object, public ITypeLoader
+		///             {
+		///             public:
+		///                 void Load(ITypeManager* manager)
+		///                 {
+		///                     MY_TYPELIST(ADD_TYPE_INFO)
+		///                 }
 		///
-		///            void Unload(ITypeManager* manager)
-		///            {
-		///            }
-		///        };
+		///                 void Unload(ITypeManager* manager)
+		///                 {
+		///                 }
+		///             };
+		///         ]]></code></program>
 		///     </li>
 		///     <li>
-		///    6) Load types when you think is a good timing using this code:
-		///        vl::reflection::description::GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+		///         Before using reflection on registered types, you need to register the type loader:
+		///         <program><code><![CDATA[
+		///             vl::reflection::description::GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+		///         ]]></code></program>
 		///     </li>
 		/// </ol>
 		/// </p>
 		/// </summary>
-		/// <typeparam name="T">Type of your created reflection class.</typeparam>
+		/// <typeparam name="T">Type that inherit this class.</typeparam>
 		template<typename T>
 		class Description : public virtual DescriptableObject
 		{
@@ -596,6 +630,10 @@ Attribute
 #endif
 		};
 
+		/// <summary>
+		/// Inherit from this class when you want to create a reflectable class that can be inherited by Workflow script classes.
+		/// </summary>
+		/// <typeparam name="T">Type that inherit this class.</typeparam>
 		template<typename T>
 		class AggregatableDescription : public Description<T>
 		{
@@ -606,7 +644,7 @@ Attribute
 		description::ITypeDescriptor* Description<T>::associatedTypeDescriptor=0;
 #endif
 
-		/// <summary>Base types of all reflectable interfaces. All reflectable interface types should be virtual inherited.</summary>
+		/// <summary>Base type of all reflectable interfaces. All reflectable interface types should be virtual inherited.</summary>
 		class IDescriptable : public virtual Interface, public Description<IDescriptable>
 		{
 		public:
