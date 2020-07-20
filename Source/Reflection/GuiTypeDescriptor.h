@@ -707,19 +707,28 @@ Value
 			};
 
 			/// <summary>A type to store all values of reflectable types.</summary>
+			/// <remarks>
+			/// To convert between <b>Value</b> and its real C++ type, the following functions are recommended:
+			/// <ul>
+			///     <li>[F:vl.reflection.description.BoxValue`1]</li>
+			///     <li>[F:vl.reflection.description.UnboxValue`1]</li>
+			///     <li>[F:vl.reflection.description.BoxParameter`1]</li>
+			///     <li>[F:vl.reflection.description.UnboxParameter`1]</li>
+			/// </ul>
+			/// </remarks>
 			class Value : public Object
 			{
 			public:
-				/// <summary>Representing how the value is stored.</summary>
+				/// <summary>How the value is stored.</summary>
 				enum ValueType
 				{
 					/// <summary>The value is null.</summary>
 					Null,
-					/// <summary>The value stored using a raw pointer.</summary>
+					/// <summary>The reference value is stored using a raw pointer.</summary>
 					RawPtr,
-					/// <summary>The value stored using a smart pointer.</summary>
+					/// <summary>The reference value is stored using a shared pointer.</summary>
 					SharedPtr,
-					/// <summary>The value stored using a boxed value.</summary>
+					/// <summary>The value is stored by boxing.</summary>
 					BoxedValue,
 				};
 			protected:
@@ -737,6 +746,7 @@ Value
 
 				vint							Compare(const Value& a, const Value& b)const;
 			public:
+				/// <summary>Create a null value.</summary>
 				Value();
 				Value(const Value& value);
 				Value&							operator=(const Value& value);
@@ -747,61 +757,160 @@ Value
 				bool							operator>(const Value& value)const { return Compare(*this, value)>0; }
 				bool							operator>=(const Value& value)const { return Compare(*this, value) >= 0; }
 
-				/// <summary>Get how the value is stored.</summary>
-				/// <returns>How the value is stored.</returns>
+				/// <summary>Find out how the value is stored.</summary>
+				/// <returns>Returns How the value is stored.</returns>
 				ValueType						GetValueType()const;
-				/// <summary>Get the stored raw pointer if possible.</summary>
+				/// <summary>Get the stored raw pointer if <b>GetValueType()</b> returns <b>RawPtr</b> or <b>SharedPtr</b>.</summary>
 				/// <returns>The stored raw pointer. Returns null if failed.</returns>
 				DescriptableObject*				GetRawPtr()const;
-				/// <summary>Get the stored shared pointer if possible.</summary>
+				/// <summary>Get the stored shared pointer if <b>GetValueType()</b> returns <b>SharedPtr</b>.</summary>
 				/// <returns>The stored shared pointer. Returns null if failed.</returns>
 				Ptr<DescriptableObject>			GetSharedPtr()const;
-				/// <summary>Get the stored text if possible.</summary>
+				/// <summary>Get the stored value if <b>GetValueType()</b> returns <b>BoxedValue</b>.</summary>
 				/// <returns>The stored text. Returns empty if failed.</returns>
 				Ptr<IBoxedValue>				GetBoxedValue()const;
-				/// <summary>Get the real type of the stored object.</summary>
-				/// <returns>The real type. Returns null if the value is null.</returns>
-
+				/// <summary>Test if this value isnull.</summary>
+				/// <returns>Returns true if this value is null.</returns>
 				bool							IsNull()const;
 #ifndef VCZH_DEBUG_NO_REFLECTION
+				/// <summary>Get the real type of the stored object.</summary>
+				/// <returns>The real type. Returns null if the value is null.</returns>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				ITypeDescriptor*				GetTypeDescriptor()const;
 				WString							GetTypeFriendlyName()const;
 				bool							CanConvertTo(ITypeDescriptor* targetType, ValueType targetValueType)const;
 				bool							CanConvertTo(ITypeInfo* targetType)const;
 #endif
 
-				/// <summary>Store a raw pointer.</summary>
-				/// <returns>The boxed value.</returns>
+				/// <summary>Create a value from a raw pointer.</summary>
+				/// <returns>The created value.</returns>
 				/// <param name="value">The raw pointer to store.</param>
 				static Value					From(DescriptableObject* value);
-				/// <summary>Store a shared pointer.</summary>
-				/// <returns>The boxed value.</returns>
+				/// <summary>Create a value from a shared pointer.</summary>
+				/// <returns>The created value.</returns>
 				/// <param name="value">The shared pointer to store.</param>
 				static Value					From(Ptr<DescriptableObject> value);
-				/// <summary>Store a text.</summary>
-				/// <returns>The boxed value.</returns>
-				/// <param name="value">The text to store.</param>
-				/// <param name="type">The type that you expect to interpret the text.</param>
+				/// <summary>Create a boxed value.</summary>
+				/// <returns>The created value.</returns>
+				/// <param name="value">The boxed value to store.</param>
+				/// <param name="type">The type of the boxed value.</param>
 				static Value					From(Ptr<IBoxedValue> value, ITypeDescriptor* type);
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static IMethodInfo*				SelectMethod(IMethodGroupInfo* methodGroup, collections::Array<Value>& arguments);
+
+				/// <summary>Call the default constructor of the specified type to create a value.</summary>
+				/// <returns>The created value.</returns>
+				/// <param name="type">The type to create the value.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				static Value					Create(ITypeDescriptor* type);
+
+				/// <summary>Call the constructor of the specified type to create a value.</summary>
+				/// <returns>The created value.</returns>
+				/// <param name="type">The type to create the value.</param>
+				/// <param name="arguments">Arguments for the constructor.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				static Value					Create(ITypeDescriptor* type, collections::Array<Value>& arguments);
+
+				/// <summary>Call the default constructor of the specified type to create a value.</summary>
+				/// <returns>The created value.</returns>
+				/// <param name="typeName">The registered full name for the type to create the value.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				static Value					Create(const WString& typeName);
+
+				/// <summary>Call the constructor of the specified type to create a value.</summary>
+				/// <returns>The created value.</returns>
+				/// <param name="typeName">The registered full name for the type to create the value.</param>
+				/// <param name="arguments">Arguments for the constructor.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				static Value					Create(const WString& typeName, collections::Array<Value>& arguments);
+
+				/// <summary>Call a static method of the specified type.</summary>
+				/// <returns>The return value from that method.</returns>
+				/// <param name="typeName">The registered full name for the type.</param>
+				/// <param name="name">The registered name for the method.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				static Value					InvokeStatic(const WString& typeName, const WString& name);
+
+				/// <summary>Call a static method of the specified type.</summary>
+				/// <returns>The return value from that method.</returns>
+				/// <param name="typeName">The registered full name for the type.</param>
+				/// <param name="name">The registered name for the method.</param>
+				/// <param name="arguments">Arguments for the method.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				static Value					InvokeStatic(const WString& typeName, const WString& name, collections::Array<Value>& arguments);
+
+				/// <summary>Call the getter function for a property.</summary>
+				/// <returns>The value of the property.</returns>
+				/// <param name="name">The registered name for the property.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				Value							GetProperty(const WString& name)const;
+
+				/// <summary>Call the setter function for a property.</summary>
+				/// <param name="name">The registered name for the property.</param>
+				/// <param name="newValue">The value to set the property.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				void							SetProperty(const WString& name, const Value& newValue);
+
+				/// <summary>Call a non-static method.</summary>
+				/// <returns>The return value from that method.</returns>
+				/// <param name="name">The registered name for the method.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				Value							Invoke(const WString& name)const;
+
+				/// <summary>Call a non-static method.</summary>
+				/// <returns>The return value from that method.</returns>
+				/// <param name="name">The registered name for the method.</param>
+				/// <param name="arguments">Arguments for the method.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				Value							Invoke(const WString& name, collections::Array<Value>& arguments)const;
+
+				/// <summary>Attach a callback function for the event.</summary>
+				/// <returns>The event handler for this attachment. You need to keep it to detach the callback function.</returns>
+				/// <param name="name">The registered name for the event.</param>
+				/// <param name="function">The callback function.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				Ptr<IEventHandler>				AttachEvent(const WString& name, const Value& function)const;
+
+				/// <summary>Detach a callback function from the event.</summary>
+				/// <param name="name">The registered name for the event.</param>
+				/// <param name="handler">The event handler returned from <see cref="AttachEvent"/>.</param>
+				/// <remarks>
+				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+				/// </remarks>
 				bool							DetachEvent(const WString& name, Ptr<IEventHandler> handler)const;
 #endif
 
-				/// <summary>Dispose the object is it is stored as a raw pointer.</summary>
-				/// <returns>Returns true if the object is disposed. Returns false if the object cannot be disposed. An exception will be thrown if the reference counter is not 0.</returns>
+				/// <summary>Dispose the object if <b>GetValueType()</b> returns <b>RawPtr</b>.</summary>
+				/// <returns>
+				/// Returns true if the object is disposed.
+				/// Returns false if the object cannot be disposed.
+				/// An exception will be thrown if the reference counter is not 0.
+				///</returns>
 				bool							DeleteRawPtr();
 			};
 
