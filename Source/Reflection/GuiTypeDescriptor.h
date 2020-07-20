@@ -52,7 +52,41 @@ Attribute
 			};
 		}
 
-		/// <summary>Base class of all reflectable object. You can use pointer or smart pointer to DescriptableObject to define variables, but if you want to create a reflectable class, you should inherit from [T:vl.reflection.Description`1].</summary>
+		/// <summary>
+		/// <p>
+		/// Base class of all reflectable value types (class).
+		/// If you want to create a reflectable class, you should inherit from [T:vl.reflection.Description`1].
+		/// </p>
+		/// <p>
+		/// Inheriting from [T:vl.reflection.Description`1] is necessary even if you turned on "VCZH_DEBUG_NO_REFLECTION" preprocessor definition.
+		/// In this case, some members will be removed from this class to reduce the object size.
+		/// </p>
+		/// <p>
+		/// <b>Ptr&lt;DescriptableObject&gt;</b> is recommended to replace <b>Ptr&lt;Object&gt;</b> for holding a reflectable object.
+		/// When a class <b>T</b> inherits from [T:vl.reflection.Description`1], including <b>DescriptableObject</b> itself,
+		/// <b>Ptr&lt;T&gt;</b> is safe to be created directly from a <b>T*</b> hold by another <b>Ptr&lt;T&gt;</b>.
+		/// This is not allowed for all classes that do not inherit from [T:vl.reflection.Description`1].
+		/// </p>
+		/// </summary>
+		/// <remarks>
+		/// <p>
+		/// When a class in Workflow script inherits from a class in C++,
+		/// since it is not possible to actually create a class in runtime,
+		/// so the created object from this Workflow class is multiple <b>DescriptableObject</b> grouping together.
+		/// </p>
+		/// <p>
+		/// This is called <b>aggregation</b>.
+		/// </p>
+		/// <p>
+		/// In this case, <see cref="SafeAggregationCast`1"/> is required to do pointer casting to a C++ class.
+		/// </p>
+		/// <p>
+		/// To allow a C++ class to be aggregated,
+		/// use [T:vl.reflection.AggregatableDescription`1] instead of [T:vl.reflection.Description`1],
+		/// and call <see cref="FinalizeAggregation"/> in the destructor.
+		/// If A inherits B and they are all aggregatable, do it in both destructors.
+		/// </p>
+		/// </remarks>
 		class DescriptableObject
 		{
 			template<typename T, typename Enabled>
@@ -83,15 +117,31 @@ Attribute
 		protected:
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
+			// Returns true if this object inherits other objects by aggregation.</returns>
 			bool									IsAggregated();
+
+			// Returnd the number of aggregated base objects.</returns>
 			vint									GetAggregationSize();
+
+			// Return the object that inherit this object.</returns>
 			DescriptableObject*						GetAggregationRoot();
+
+			// Notice that an object inherit this object, it is called by SetAggregationParent
 			void									SetAggregationRoot(DescriptableObject* value);
+
+			// Return the specified aggregated base object
 			DescriptableObject*						GetAggregationParent(vint index);
+
+			// Set an aggregated base class
 			void									SetAggregationParent(vint index, DescriptableObject* value);
+
+			// Set an aggregated base class
 			void									SetAggregationParent(vint index, Ptr<DescriptableObject>& value);
+
+			// Must be called in Workflow generated classes that inherit from aggregatable C++ classes.
 			void									InitializeAggregation(vint size);
 #endif
+			/// <summary>A function that must be called in destructors of all classes inheriting from [T:vl.reflection.AggregatableDescription`1].</summary>
 			void									FinalizeAggregation();
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
@@ -121,16 +171,29 @@ Attribute
 			virtual ~DescriptableObject();
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
-			/// <summary>Get the type descriptor that describe the real type of this object.</summary>
+			/// <summary>
+			/// <p>Get the type descriptor that describe the real type of this object.</p>
+			/// </summary>
 			/// <returns>The real type.</returns>
+			/// <remarks>
+			/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+			/// </remarks>
 			description::ITypeDescriptor*			GetTypeDescriptor();
 #endif
 
-			/// <summary>Get an internal property of this object. This map is totally for customization.</summary>
+			/// <summary>
+			/// Get an internal property of this object.
+			/// Internal properties are totally for customization,
+			/// they do not affect the object in anyway.
+			/// </summary>
 			/// <returns>Value of the internal property of this object.</returns>
 			/// <param name="name">Name of the property.</param>
 			Ptr<Object>								GetInternalProperty(const WString& name);
-			/// <summary>Set an internal property of this object. This map is totally for customization.</summary>
+			/// <summary>
+			/// Set an internal property of this object.
+			/// Internal properties are totally for customization,
+			/// they do not affect the object in anyway.
+			/// </summary>
 			/// <param name="name">Name of the property.</param>
 			/// <param name="value">Value of the internal property of this object.</param>
 			void									SetInternalProperty(const WString& name, Ptr<Object> value);
@@ -140,14 +203,32 @@ Attribute
 			bool									Dispose(bool forceDisposing);
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
-			/// <summary>Get the aggregation root object.</summary>
+			/// <summary>
+			/// <p>Get the aggregation root object, which is the object that inherits this object by aggregation.</p>
+			/// </summary>
 			/// <returns>The aggregation root object. If this object is not aggregated, or it is the root object of others, than this function return itself.</returns>
+			/// <remarks>
+			/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
+			/// </remarks>
 			DescriptableObject*						SafeGetAggregationRoot();
 
 #endif
-			/// <summary>Cast the object to another type, considered aggregation.</summary>
-			/// <returns>The object with the expected type in all aggregated objects.</returns>
+			/// <summary>Cast the object to another type, this is required when the object is involved in aggregation.</summary>
+			/// <returns>The object with the expected type in all involved aggregated objects. It will crash when multiple objects are found to be qualified.</returns>
 			/// <typeparam name="T">The expected type to cast.</typeparam>
+			/// <remarks>
+			/// <p>
+			/// A workflow class could inherit from multiple aggregatable C++ classes.
+			/// </p>
+			/// <p>
+			/// In order to do pointer casting correctly,
+			/// this function allow you to cast from one aggregated C++ base object to another aggregated C++ base object,
+			/// even when these two objects are not involved in inheriting in C++.
+			/// </p>
+			/// <p>
+			/// When <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>on</b>, it performs dynamic_cast.
+			/// </p>
+			/// </remarks>
 			template<typename T>
 			T* SafeAggregationCast()
 			{
