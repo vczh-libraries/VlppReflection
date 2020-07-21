@@ -246,20 +246,36 @@ Interface Implementation Proxy
 				virtual Value					Invoke(IMethodInfo* methodInfo, Ptr<IValueList> arguments) = 0;
 			};
 
+			/// <summary>A reflectable version of <see cref="Func`1"/>.</summary>
+			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a function.</remarks>
 			class IValueFunctionProxy : public virtual IDescriptable, public Description<IValueFunctionProxy>
 			{
 			public:
+				/// <summary>Call the function.</summary>
+				/// <returns>Return value from the function.</returns>
+				/// <param name="arguments">Arguments to call the function.</param>
 				virtual Value					Invoke(Ptr<IValueList> arguments) = 0;
 			};
 
+			/// <summary>A reflectable subscription, usually created by the <b>bind</b> expression in Workflow script.</summary>
 			class IValueSubscription : public virtual IDescriptable, public Description<IValueSubscription>
 			{
 				typedef void ValueChangedProc(const Value& newValue);
 			public:
+				/// <summary>Event that triggered when the binding source is changed.</summary>
+				/// <remarks>The first argument is the new value of the binding source.</remarks>
 				Event<ValueChangedProc>			ValueChanged;
 
+				/// <summary>Start the subscription.</summary>
+				/// <returns>Returns true if this operation succeeded.</summary>
 				virtual bool					Open() = 0;
+
+				/// <summary>Manually trigger the event.</summary>
+				/// <returns>Returns true if this operation succeeded.</summary>
 				virtual bool					Update() = 0;
+
+				/// <summary>Stop the subscription.</summary>
+				/// <returns>Returns true if this operation succeeded.</summary>
 				virtual bool					Close() = 0;
 			};
 
