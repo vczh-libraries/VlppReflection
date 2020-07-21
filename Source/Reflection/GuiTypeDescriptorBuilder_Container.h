@@ -923,10 +923,14 @@ ParameterAccessor<TContainer>
 			/// <param name="start">The index of the first item that are changed.</param>
 			/// <param name="count">The number of items that are changed, the default value is 1.</param>
 			/// <remarks>
+			/// <p>
 			/// This is useful when the container is not actually changed, but data in some items are changed.
 			/// For example, in an observable list of shared pointers,
 			/// properties of elements are changed does not trigger callbacks because it doesn't change pointers in the list.
+			/// </p>
+			/// <p>
 			/// If subscribers need to know about such change, calling this function is an easy way to do it.
+			/// </p>
 			/// </remarks>
 			bool NotifyUpdate(vint start, vint count = 1)
 			{
@@ -1098,10 +1102,12 @@ ParameterAccessor<TContainer>
 			/// </summary>
 			/// <returns>The maintained observable list.</returns>
 			/// <remarks>
+			/// <p>
 			/// <see cref="reflection::description::BoxParameter`1"/>
 			/// cannot turn any predefined C++ object to an reflectable observable list
 			/// and keep it binding to the C++ object.
 			/// When an reflectable observable list is required, ObservableList is strongly recommended.
+			/// </p>
 			/// </remarks>
 			Ptr<reflection::description::IValueObservableList> GetWrapper()
 			{

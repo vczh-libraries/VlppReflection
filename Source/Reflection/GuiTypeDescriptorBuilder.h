@@ -805,7 +805,7 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 			{
 			};
 			
-			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&gt;T&gt;), etc.</summary>
+			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&lt;T&gt;), etc.</summary>
 			/// <returns>The boxed value.</returns>
 			/// <typeparam name="T">Type of the object.</typeparam>
 			/// <param name="object">The object to box.</param>
@@ -816,7 +816,7 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 				return ParameterAccessor<typename TypeInfoRetriver<T>::ResultNonReferenceType, TypeInfoRetriver<T>::TypeFlag>::BoxParameter(object, typeDescriptor);
 			}
 			
-			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&gt;T&gt;), etc.</summary>
+			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&lt;T&gt;), etc.</summary>
 			/// <typeparam name="T">Type of the object.</typeparam>
 			/// <param name="value">The value to unbox.</param>
 			/// <param name="result">The unboxed object.</param>
