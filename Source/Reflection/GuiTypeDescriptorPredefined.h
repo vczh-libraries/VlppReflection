@@ -21,6 +21,7 @@ namespace vl
 Collections
 ***********************************************************************/
 
+			/// <summary>The reflectable version of <see cref="collections::IEnumerator`1"/>.</summary>
 			class IValueEnumerator : public virtual IDescriptable, public Description<IValueEnumerator>
 			{
 			public:
@@ -29,14 +30,25 @@ Collections
 				virtual bool					Next() = 0;
 			};
 
+			/// <summary>The reflectable version of <see cref="collections::IEnumerable`1"/>.</summary>
+			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from an enumerable.</remarks>
 			class IValueEnumerable : public virtual IDescriptable, public Description<IValueEnumerable>
 			{
 			public:
 				virtual Ptr<IValueEnumerator>	CreateEnumerator() = 0;
 
+				/// <summary>Create an enumerable from another lazy list.</summary>
+				/// <returns>The created enumerable.</returns>
+				/// <param name="values">The lazy list to wrap.</param>
 				static Ptr<IValueEnumerable>	Create(collections::LazyList<Value> values);
 			};
 
+			/// <summary>
+			/// The reflectable version of readonly
+			/// <see cref="collections::Array`2"/>,
+			/// <see cref="collections::List`2"/> or
+			/// <see cref="collections::SortedList`2"/>
+			/// </summary>
 			class IValueReadonlyList : public virtual IValueEnumerable, public Description<IValueReadonlyList>
 			{
 			public:
@@ -46,6 +58,13 @@ Collections
 				virtual vint					IndexOf(const Value& value) = 0;
 			};
 
+			/// <summary>
+			/// The reflectable version of readonly
+			/// <see cref="collections::Array`2"/> or
+			/// <see cref="collections::List`2"/>
+			/// </summary>
+
+			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a container.</remarks>
 			class IValueList : public virtual IValueReadonlyList, public Description<IValueList>
 			{
 			public:
@@ -56,22 +75,60 @@ Collections
 				virtual bool					RemoveAt(vint index) = 0;
 				virtual void					Clear() = 0;
 
+				/// <summary>Create an empty list.</summary>
+				/// <returns>The created list.</returns>
 				static Ptr<IValueList>			Create();
+
+				/// <summary>Create a list with elements copied from another readonly list.</summary>
+				/// <returns>The created list.</returns>
+				/// <param name="values">Elements to copy.</param>
 				static Ptr<IValueList>			Create(Ptr<IValueReadonlyList> values);
+
+				/// <summary>Create a list with elements copied from another lazy list.</summary>
+				/// <returns>The created list.</returns>
+				/// <param name="values">Elements to copy.</param>
 				static Ptr<IValueList>			Create(collections::LazyList<Value> values);
 			};
 
+			/// <summary>
+			/// The reflectable version of list container which triggers an event whenever items are changed.
+			/// </summary>
 			class IValueObservableList : public virtual IValueList, public Description<IValueObservableList>
 			{
 				typedef void ItemChangedProc(vint index, vint oldCount, vint newCount);
 			public:
+				/// <summary>
+				/// <p>Event that is triggered whenever items are changed.</p>
+				/// <p>The first argument is the index of the first item that is changed.</p>
+				/// <p>The second argument is the number of original items that are replaced by new items.</p>
+				/// <p>The third argument is the number of new items that replace original items.</p>
+				/// </summary>
+				/// <remarks>
+				/// <p>If an item is changed, oldCount and newCount are both 1.</p>
+				/// <p>If several items are removed from the list, newCount is 0.</p>
+				/// <p>If several items are inserted to the list, oldCount is 0.</p>
+				/// <p>This event is triggered when the updating is done, original items are not possible to access at the moment.</p>
+				/// </remarks>
 				Event<ItemChangedProc>			ItemChanged;
 
+				/// <summary>Create an empty list.</summary>
+				/// <returns>The created list.</returns>
 				static Ptr<IValueObservableList>	Create();
+
+				/// <summary>Create a list with elements copied from another readonly list.</summary>
+				/// <returns>The created list.</returns>
+				/// <param name="values">Elements to copy.</param>
 				static Ptr<IValueObservableList>	Create(Ptr<IValueReadonlyList> values);
+
+				/// <summary>Create a list with elements copied from another lazy list.</summary>
+				/// <returns>The created list.</returns>
+				/// <param name="values">Elements to copy.</param>
 				static Ptr<IValueObservableList>	Create(collections::LazyList<Value> values);
 			};
 
+			/// <summary>
+			/// The reflectable version of readonly <see cref="collections::Dictionary`4"/>.
+			/// </summary>
 			class IValueReadonlyDictionary : public virtual IDescriptable, public Description<IValueReadonlyDictionary>
 			{
 			public:
@@ -81,6 +138,10 @@ Collections
 				virtual Value					Get(const Value& key) = 0;
 			};
 
+			/// <summary>
+			/// The reflectable version of <see cref="collections::Dictionary`4"/>.
+			/// </summary>
+			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a dictionary.</remarks>
 			class IValueDictionary : public virtual IValueReadonlyDictionary, public Description<IValueDictionary>
 			{
 			public:
@@ -88,8 +149,18 @@ Collections
 				virtual bool					Remove(const Value& key) = 0;
 				virtual void					Clear() = 0;
 
+				/// <summary>Create an empty dictionary.</summary>
+				/// <returns>The created dictionary.</returns>
 				static Ptr<IValueDictionary>	Create();
+
+				/// <summary>Create a dictionary with elements copied from another readonly dictionary.</summary>
+				/// <returns>The created dictionary.</returns>
+				/// <param name="values">Elements to copy.</param>
 				static Ptr<IValueDictionary>	Create(Ptr<IValueReadonlyDictionary> values);
+
+				/// <summary>Create a dictionary with elements copied from another lazy list.</summary>
+				/// <returns>The created dictionary.</returns>
+				/// <param name="values">Elements to copy.</param>
 				static Ptr<IValueDictionary>	Create(collections::LazyList<collections::Pair<Value, Value>> values);
 			};
 

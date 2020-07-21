@@ -85,12 +85,20 @@ Enumerable Wrappers
 				}
 			};
 
+			/// <summary>Convert a reflectable container to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="T">The expected element type.</typeparam>
+			/// <param name="value">The reflectable container.</param>
 			template<typename T>
 			collections::LazyList<T> GetLazyList(Ptr<IValueEnumerable> value)
 			{
 				return collections::LazyList<T>(new TypedEnumerator<T>(value));
 			}
 
+			/// <summary>Convert a reflectable container to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="T">The expected element type.</typeparam>
+			/// <param name="value">The reflectable container.</param>
 			template<typename T>
 			collections::LazyList<T> GetLazyList(Ptr<IValueReadonlyList> value)
 			{
@@ -101,18 +109,31 @@ Enumerable Wrappers
 					});
 			}
 
+			/// <summary>Convert a reflectable container to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="T">The expected element type.</typeparam>
+			/// <param name="value">The reflectable container.</param>
 			template<typename T>
 			collections::LazyList<T> GetLazyList(Ptr<IValueList> value)
 			{
 				return GetLazyList<T>(Ptr<IValueReadonlyList>(value));
 			}
 
+			/// <summary>Convert a reflectable container to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="T">The expected element type.</typeparam>
+			/// <param name="value">The reflectable container.</param>
 			template<typename T>
 			collections::LazyList<T> GetLazyList(Ptr<IValueObservableList> value)
 			{
 				return GetLazyList<T>(Ptr<IValueReadonlyList>(value));
 			}
 
+			/// <summary>Convert a reflectable dictionary to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="K">The expected key type.</typeparam>
+			/// <typeparam name="V">The expected value type.</typeparam>
+			/// <param name="value">The reflectable dictionary.</param>
 			template<typename K, typename V>
 			collections::LazyList<collections::Pair<K, V>> GetLazyList(Ptr<IValueReadonlyDictionary> value)
 			{
@@ -123,6 +144,11 @@ Enumerable Wrappers
 					});
 			}
 
+			/// <summary>Convert a reflectable dictionary to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="K">The expected key type.</typeparam>
+			/// <typeparam name="V">The expected value type.</typeparam>
+			/// <param name="value">The reflectable dictionary.</param>
 			template<typename K, typename V>
 			collections::LazyList<collections::Pair<K, V>> GetLazyList(Ptr<IValueDictionary> value)
 			{
@@ -817,6 +843,31 @@ ParameterAccessor<TContainer>
 
 	namespace collections
 	{
+		/// <summary>Base type of observable container which triggers callbacks whenever items are changed.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
+		/// <remarks>
+		/// <p>Methods are the same to <see cref="List`2"/>, except that operator[] is readonly.</p>
+		/// <p>
+		/// When an item is being inserted to the list,
+		/// <b>QueryInsert</b> will be called to determine if this item can be inserted,
+		/// <b>BeforeInsert</b> will be called before inserting,
+		/// <b>AfterInsert</b> will be called after inserting.
+		/// </p>
+		/// <p>
+		/// When an item is being removed from the list,
+		/// <b>QueryRemove</b> will be called to determine if this item can be removed,
+		/// <b>BeforeRemove</b> will be called before removing,
+		/// <b>AfterRemove</b> will be called after removing.
+		/// </p>
+		/// <p>
+		/// When an item is being replaced, it is considered as removing the original item and inserting the new item.
+		/// </p>
+		/// <p>
+		/// After any changing happens, <b>NotifyUpdateInternal</b> is called.
+		/// Arguments is exactly the same as <see cref="reflection::description::IValueObservableList::ItemChanged"/>.
+		/// </p>
+		/// </remarks>
 		template<typename T, typename K = typename KeyType<T>::Type>
 		class ObservableListBase : public Object, public virtual collections::IEnumerable<T>
 		{
@@ -867,6 +918,16 @@ ParameterAccessor<TContainer>
 				return items.CreateEnumerator();
 			}
 
+			/// <summary>Trigger <b>NotifyUpdateInternal</b> manually.</summary>
+			/// <returns>Returns true if arguments are not out of range.</returns>
+			/// <param name="start">The index of the first item that are changed.</param>
+			/// <param name="count">The number of items that are changed, the default value is 1.</param>
+			/// <remarks>
+			/// This is useful when the container is not actually changed, but data in some items are changed.
+			/// For example, in an observable list of shared pointers,
+			/// properties of elements are changed does not trigger callbacks because it doesn't change pointers in the list.
+			/// If subscribers need to know about such change, calling this function is an easy way to do it.
+			/// </remarks>
 			bool NotifyUpdate(vint start, vint count = 1)
 			{
 				if (start<0 || start >= items.Count() || count <= 0 || start + count>items.Count())
@@ -1012,6 +1073,9 @@ ParameterAccessor<TContainer>
 			}
 		};
 
+		/// <summary>An observable container that maintain an implementation of <see cref="reflection::description::IValueObservableList"/>.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		template<typename T>
 		class ObservableList : public ObservableListBase<T>
 		{
@@ -1027,6 +1091,18 @@ ParameterAccessor<TContainer>
 			}
 		public:
 
+			/// <summary>
+			/// Get the maintained observable list.
+			/// <see cref="reflection::description::IValueObservableList::ItemChanged"/> of the observable list
+			/// will be automatically triggered when any changing happens.
+			/// </summary>
+			/// <returns>The maintained observable list.</returns>
+			/// <remarks>
+			/// <see cref="reflection::description::BoxParameter`1"/>
+			/// cannot turn any predefined C++ object to an reflectable observable list
+			/// and keep it binding to the C++ object.
+			/// When an reflectable observable list is required, ObservableList is strongly recommended.
+			/// </remarks>
 			Ptr<reflection::description::IValueObservableList> GetWrapper()
 			{
 				if (!observableList)
