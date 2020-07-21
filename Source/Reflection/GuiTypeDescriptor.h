@@ -894,6 +894,7 @@ Value
 				Ptr<IEventHandler>				AttachEvent(const WString& name, const Value& function)const;
 
 				/// <summary>Detach a callback function from the event.</summary>
+				/// <returns>Returns true if this operation succeeded.</returns>
 				/// <param name="name">The registered name for the event.</param>
 				/// <param name="handler">The event handler returned from <see cref="AttachEvent"/>.</param>
 				/// <remarks>
