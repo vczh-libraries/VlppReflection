@@ -25,8 +25,17 @@ Collections
 			class IValueEnumerator : public virtual IDescriptable, public Description<IValueEnumerator>
 			{
 			public:
+				/// <summary>Get the reference to the current value in the enumerator.</summary>
+				/// <returns>The current value.</returns>
+				/// <remarks><see cref="Next"/> needs to be called to make the first value available.</remarks>
 				virtual Value					GetCurrent() = 0;
+
+				/// <summary>Get the position of the current value in the enumerator.</summary>
+				/// <returns>The position of the current value.</returns>
 				virtual vint					GetIndex() = 0;
+
+				/// <summary>Prepare for the next value.</summary>
+				/// <returns>Returns false if there is no more value.</returns>
 				virtual bool					Next() = 0;
 			};
 
@@ -35,6 +44,10 @@ Collections
 			class IValueEnumerable : public virtual IDescriptable, public Description<IValueEnumerable>
 			{
 			public:
+				/// <summary>
+				/// Create an enumerator. <see cref="IValueEnumerator::Next"/> should be called before reading the first value.
+				/// </summary>
+				/// <returns>The enumerator.</returns>
 				virtual Ptr<IValueEnumerator>	CreateEnumerator() = 0;
 
 				/// <summary>Create an enumerable from another lazy list.</summary>
@@ -52,9 +65,23 @@ Collections
 			class IValueReadonlyList : public virtual IValueEnumerable, public Description<IValueReadonlyList>
 			{
 			public:
+				/// <summary>Get the number of elements in the container.</summary>
+				/// <returns>The number of elements.</returns>
 				virtual vint					GetCount() = 0;
+
+				/// <summary>Get the reference to the specified element.</summary>
+				/// <returns>The reference to the specified element. It will crash when the index is out of range.</returns>
+				/// <param name="index">The index of the element.</param>
 				virtual Value					Get(vint index) = 0;
+
+				/// <summary>Test does the list contain a value or not.</summary>
+				/// <returns>Returns true if the list contains the specified value.</returns>
+				/// <param name="value">The value to test.</param>
 				virtual bool					Contains(const Value& value) = 0;
+
+				/// <summary>Get the position of a value in this list.</summary>
+				/// <returns>Returns the position of first element that equals to the specified value. Returns -1 if failed to find.</returns>
+				/// <param name="value">The value to find.</param>
 				virtual vint					IndexOf(const Value& value) = 0;
 			};
 
@@ -68,11 +95,34 @@ Collections
 			class IValueList : public virtual IValueReadonlyList, public Description<IValueList>
 			{
 			public:
+				/// <summary>Replace an element in the specified position.</summary>
+				/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
+				/// <param name="index">The position of the element to replace.</param>
+				/// <param name="value">The new value to replace.</param>
 				virtual void					Set(vint index, const Value& value) = 0;
+
+				/// <summary>Append a value at the end of the list.</summary>
+				/// <returns>The index of the added item.</returns>
+				/// <param name="value">The value to add.</param>
 				virtual vint					Add(const Value& value) = 0;
+
+				/// <summary>Insert a value at the specified position.</summary>
+				/// <returns>The index of the added item. It will crash if the index is out of range</returns>
+				/// <param name="index">The position to insert the value.</param>
+				/// <param name="value">The value to add.</param>
 				virtual vint					Insert(vint index, const Value& value) = 0;
+
+				/// <summary>Remove an element from the list. If multiple elements equal to the specified value, only the first one will be removed.</summary>
+				/// <returns>Returns true if the element is removed.</returns>
+				/// <param name="value">The item to remove.</param>
 				virtual bool					Remove(const Value& value) = 0;
+
+				/// <summary>Remove an element at a specified position.</summary>
+				/// <returns>Returns true if the element is removed. It will crash when the index is out of range.</returns>
+				/// <param name="index">The index of the element to remove.</param>
 				virtual bool					RemoveAt(vint index) = 0;
+
+				/// <summary>Remove all elements.</summary>
 				virtual void					Clear() = 0;
 
 				/// <summary>Create an empty list.</summary>
@@ -132,9 +182,21 @@ Collections
 			class IValueReadonlyDictionary : public virtual IDescriptable, public Description<IValueReadonlyDictionary>
 			{
 			public:
+				/// <summary>Get all keys.</summary>
+				/// <returns>All keys.</returns>
 				virtual Ptr<IValueReadonlyList>	GetKeys() = 0;
+
+				/// <summary>Get all values.</summary>
+				/// <returns>All values.</returns>
 				virtual Ptr<IValueReadonlyList>	GetValues() = 0;
+
+				/// <summary>Get the number of keys.</summary>
+				/// <returns>The number of keys. It is also the number of values.</returns>
 				virtual vint					GetCount() = 0;
+
+				/// <summary>Get the value associated to a specified key.</summary>
+				/// <returns>The reference to the value. It will crash if the key does not exist.</returns>
+				/// <param name="key">The key to find.</param>
 				virtual Value					Get(const Value& key) = 0;
 			};
 
@@ -145,8 +207,18 @@ Collections
 			class IValueDictionary : public virtual IValueReadonlyDictionary, public Description<IValueDictionary>
 			{
 			public:
+				/// <summary>Replace the value associated to a specified key.</summary>
+				/// <returns>Returns true if the value is replaced.</returns>
+				/// <param name="key">The key to find. If the key does not exist, it will be added to the dictionary.</param>
+				/// <param name="value">The associated value to replace.</param>
 				virtual void					Set(const Value& key, const Value& value) = 0;
+
+				/// <summary>Remove a key with the associated value.</summary>
+				/// <returns>Returns true if the key and the value is removed.</returns>
+				/// <param name="key">The key to find.</param>
 				virtual bool					Remove(const Value& key) = 0;
+
+				/// <summary>Remove all elements.</summary>
 				virtual void					Clear() = 0;
 
 				/// <summary>Create an empty dictionary.</summary>
