@@ -84,6 +84,29 @@ Attribute
 		/// If A inherits B and they are all aggregatable, do it in both destructors.
 		/// </p>
 		/// </remarks>
+		/// <example><![CDATA[
+		/// class MyClass : public Object, public Description<MyClass>
+		/// {
+		/// public:
+		///     WString data;
+		/// };
+		/// 
+		/// int main()
+		/// {
+		///     auto myClass = MakePtr<MyClass>();
+		///     myClass->data = L"Hello, world!";
+		/// 
+		///     Ptr<DescriptableObject> obj = myClass;
+		///     Console::WriteLine(obj.Cast<MyClass>()->data);
+		/// 
+		///     // usually you cannot do this directly
+		///     // because obj and myClass share the same reference counter, but myClass2 doesn't
+		///     // this will cause the destructor delete MyClass twice and crash
+		///     // but it is different when MyClass inherits from Description<MyClass> or AggregatableDescription<MyClass>
+		///     auto myClass2 = Ptr<MyClass>(dynamic_cast<MyClass*>(obj.Obj()));
+		///     Console::WriteLine(myClass2->data);
+		/// }
+		/// ]]></example>
 		class DescriptableObject
 		{
 			template<typename T, typename Enabled>
@@ -303,7 +326,7 @@ Attribute
 		///     <li>
 		///         <b>(in cpp files)</b> Connect type names and types:
 		///         <program><code><![CDATA[
-		///             MY_TYPELIST(IMPL_VL_TYPE_INFO)
+		///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
 		///         ]]></code></program>
 		///     </li>
 		///     <li>
@@ -451,7 +474,7 @@ Attribute
 		///
 		///                         // 20) Add a getter function as a property with a property changed event
 		///                         CLASS_MEMBER_EVENT(XChanged)
-		///                         CLASS_MEMBER_PROPERTY_EVENT_READONLY_FAST(X)
+		///                         CLASS_MEMBER_PROPERTY_EVENT_READONLY_FAST(X, XChanged)
 		///                         // which is short for
 		///                         CLASS_MEMBER_EVENT(XChanged)
 		///                         CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
@@ -459,7 +482,7 @@ Attribute
 		///
 		///                         // 21) Add a pair of getter and setter functions as a property with a property changed event
 		///                         CLASS_MEMBER_EVENT(XChanged)
-		///                         CLASS_MEMBER_PROPERTY_EVENT_FAST(X)
+		///                         CLASS_MEMBER_PROPERTY_EVENT_FAST(X, XChanged)
 		///                         // which is short for
 		///                         CLASS_MEMBER_EVENT(XChanged)
 		///                         CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
@@ -813,6 +836,99 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     public:
+				///         MyClass()
+				///             :data(L"Hello, world!")
+				///         {
+				///         }
+				/// 
+				///         MyClass(const WString& _data)
+				///             :data(_data)
+				///         {
+				///         }
+				/// 
+				///         WString data;
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(const WString&), { L"data" })
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto myClass = Value::Create(GetTypeDescriptor(L"mynamespace::MyClass"), (Value_xs(), WString(L"Hello, world!!!")));
+				/// 
+				///         auto ptrMyClass1 = UnboxValue<Ptr<MyClass>>(myClass);
+				///         Console::WriteLine(ptrMyClass1->data);
+				/// 
+				///         Ptr<MyClass> ptrMyClass2;
+				///         UnboxParameter(myClass, ptrMyClass2);
+				///         Console::WriteLine(ptrMyClass2->data);
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				static Value					Create(ITypeDescriptor* type, collections::Array<Value>& arguments);
 
 				/// <summary>Call the default constructor of the specified type to create a value.</summary>
@@ -830,6 +946,99 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     public:
+				///         MyClass()
+				///             :data(L"Hello, world!")
+				///         {
+				///         }
+				/// 
+				///         MyClass(const WString& _data)
+				///             :data(_data)
+				///         {
+				///         }
+				/// 
+				///         WString data;
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(const WString&), { L"data" })
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto myClass = Value::Create(L"mynamespace::MyClass", (Value_xs(), WString(L"Hello, world!!!")));
+				/// 
+				///         auto ptrMyClass1 = UnboxValue<Ptr<MyClass>>(myClass);
+				///         Console::WriteLine(ptrMyClass1->data);
+				/// 
+				///         Ptr<MyClass> ptrMyClass2;
+				///         UnboxParameter(myClass, ptrMyClass2);
+				///         Console::WriteLine(ptrMyClass2->data);
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				static Value					Create(const WString& typeName, collections::Array<Value>& arguments);
 
 				/// <summary>Call a static method of the specified type.</summary>
@@ -849,6 +1058,84 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     public:
+				///         static void PrintHelloWorld(const WString& name)
+				///         {
+				///             Console::WriteLine(L"Hello, " + name + L"!");
+				///         }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_STATIC_METHOD(PrintHelloWorld, { L"name" })
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         Value::InvokeStatic(L"mynamespace::MyClass", L"PrintHelloWorld", (Value_xs(), WString(L"Gaclib")));
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				static Value					InvokeStatic(const WString& typeName, const WString& name, collections::Array<Value>& arguments);
 
 				/// <summary>Call the getter function for a property.</summary>
@@ -857,6 +1144,95 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     private:
+				///         WString prop;
+				///     public:
+				///         WString field;
+				/// 
+				///         WString GetProp() { return prop; };
+				///         void SetProp(const WString& value) { prop = value; }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_FIELD(field)
+				///                 CLASS_MEMBER_PROPERTY_FAST(Prop)
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
+				///         auto myClass = Value::Create(td);
+				/// 
+				///         myClass.SetProperty(L"field", BoxValue<WString>(L"Hello, world!"));
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Hello, Gaclib!"));
+				/// 
+				///         Console::WriteLine(UnboxValue<WString>(myClass.GetProperty(L"field")));
+				///         Console::WriteLine(UnboxValue<WString>(myClass.GetProperty(L"Prop")));
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				Value							GetProperty(const WString& name)const;
 
 				/// <summary>Call the setter function for a property.</summary>
@@ -865,6 +1241,95 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     private:
+				///         WString prop;
+				///     public:
+				///         WString field;
+				/// 
+				///         WString GetProp() { return prop; };
+				///         void SetProp(const WString& value) { prop = value; }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_FIELD(field)
+				///                 CLASS_MEMBER_PROPERTY_FAST(Prop)
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
+				///         auto myClass = Value::Create(td);
+				/// 
+				///         myClass.SetProperty(L"field", BoxValue<WString>(L"Hello, world!"));
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Hello, Gaclib!"));
+				/// 
+				///         Console::WriteLine(UnboxValue<WString>(myClass.GetProperty(L"field")));
+				///         Console::WriteLine(UnboxValue<WString>(myClass.GetProperty(L"Prop")));
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				void							SetProperty(const WString& name, const Value& newValue);
 
 				/// <summary>Call a non-static method.</summary>
@@ -882,6 +1347,87 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     public:
+				///         void PrintHelloWorld(const WString& name)
+				///         {
+				///             Console::WriteLine(L"Hello, " + name + L"!");
+				///         }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_METHOD(PrintHelloWorld, { L"name" })
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
+				///         auto myClass = Value::Create(td);
+				///         myClass.Invoke(L"PrintHelloWorld", (Value_xs(), WString(L"Gaclib")));
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				Value							Invoke(const WString& name, collections::Array<Value>& arguments)const;
 
 				/// <summary>Attach a callback function for the event.</summary>
@@ -891,6 +1437,114 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     private:
+				///         WString prop;
+				///     public:
+				///         Event<void(const WString&, const WString&)> PropChanged;
+				/// 
+				///         WString GetProp()
+				///         {
+				///             return prop;
+				///         }
+				/// 
+				///         void SetProp(const WString& value)
+				///         {
+				///             if (prop != value)
+				///             {
+				///                 auto old = prop;
+				///                 prop = value;
+				///                 PropChanged(old, prop);
+				///             }
+				///         }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_EVENT(PropChanged)
+				///                 CLASS_MEMBER_PROPERTY_EVENT_FAST(Prop, PropChanged)
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
+				///         auto myClass = Value::Create(td);
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Zero"));
+				/// 
+				///         using CallbackType = Func<void(const WString&, const WString&)>;
+				///         CallbackType callbackFunction = [](const WString& oldProp, const WString& newProp)
+				///         {
+				///             Console::WriteLine(L"myClass.Prop changed: " + oldProp + L" -> " + newProp);
+				///         };
+				///         auto handler = myClass.AttachEvent(L"PropChanged", BoxParameter<CallbackType>(callbackFunction));
+				/// 
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"One"));
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Two"));
+				///         myClass.DetachEvent(L"PropChanged", handler);
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Three"));
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				Ptr<IEventHandler>				AttachEvent(const WString& name, const Value& function)const;
 
 				/// <summary>Detach a callback function from the event.</summary>
@@ -900,6 +1554,114 @@ Value
 				/// <remarks>
 				/// <p>Only available when <b>VCZH_DEBUG_NO_REFLECTION</b> is <b>off</b>.</p>
 				/// </remarks>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class MyClass : public Object, public Description<MyClass>
+				///     {
+				///     private:
+				///         WString prop;
+				///     public:
+				///         Event<void(const WString&, const WString&)> PropChanged;
+				/// 
+				///         WString GetProp()
+				///         {
+				///             return prop;
+				///         }
+				/// 
+				///         void SetProp(const WString& value)
+				///         {
+				///             if (prop != value)
+				///             {
+				///                 auto old = prop;
+				///                 prop = value;
+				///                 PropChanged(old, prop);
+				///             }
+				///         }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::MyClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(MyClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+				///                 CLASS_MEMBER_EVENT(PropChanged)
+				///                 CLASS_MEMBER_PROPERTY_EVENT_FAST(Prop, PropChanged)
+				///             END_CLASS_MEMBER(MyClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
+				///         auto myClass = Value::Create(td);
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Zero"));
+				/// 
+				///         using CallbackType = Func<void(const WString&, const WString&)>;
+				///         CallbackType callbackFunction = [](const WString& oldProp, const WString& newProp)
+				///         {
+				///             Console::WriteLine(L"myClass.Prop changed: " + oldProp + L" -> " + newProp);
+				///         };
+				///         auto handler = myClass.AttachEvent(L"PropChanged", BoxParameter<CallbackType>(callbackFunction));
+				/// 
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"One"));
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Two"));
+				///         myClass.DetachEvent(L"PropChanged", handler);
+				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Three"));
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				bool							DetachEvent(const WString& name, Ptr<IEventHandler> handler)const;
 #endif
 
@@ -909,6 +1671,114 @@ Value
 				/// Returns false if the object cannot be disposed.
 				/// An exception will be thrown if the reference counter is not 0.
 				///</returns>
+				/// <example><![CDATA[
+				/// // reflectable C++ types
+				/// 
+				/// namespace mynamespace
+				/// {
+				///     class SharedClass : public Object, public Description<SharedClass>
+				///     {
+				///     public:
+				///         SharedClass()
+				///         {
+				///             Console::WriteLine(L"SharedClass::SharedClass()");
+				///         }
+				/// 
+				///         ~SharedClass()
+				///         {
+				///             Console::WriteLine(L"SharedClass::~SharedClass()");
+				///         }
+				///     };
+				/// 
+				///     class RawClass : public Object, public Description<RawClass>
+				///     {
+				///     public:
+				///         RawClass()
+				///         {
+				///             Console::WriteLine(L"RawClass::RawClass()");
+				///         }
+				/// 
+				///         ~RawClass()
+				///         {
+				///             Console::WriteLine(L"RawClass::~RawClass()");
+				///         }
+				///     };
+				/// }
+				/// 
+				/// #define MY_TYPELIST(F)\
+				///     F(mynamespace::SharedClass)\
+				///     F(mynamespace::RawClass)\
+				/// 
+				/// // it is recommended to put the content below in a separated header file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             MY_TYPELIST(DECL_TYPE_INFO)
+				///         }
+				///     }
+				/// }
+				/// 
+				/// // it is recommended to put the content below in a separated cpp file
+				/// 
+				/// namespace vl
+				/// {
+				///     namespace reflection
+				///     {
+				///         namespace description
+				///         {
+				///             using namespace mynamespace;
+				/// 
+				/// #define _ ,
+				/// 
+				///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+				/// 
+				///             BEGIN_CLASS_MEMBER(SharedClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<SharedClass>(), NO_PARAMETER)
+				///             END_CLASS_MEMBER(SharedClass)
+				/// 
+				///             BEGIN_CLASS_MEMBER(RawClass)
+				///                 CLASS_MEMBER_CONSTRUCTOR(RawClass*(), NO_PARAMETER)
+				///             END_CLASS_MEMBER(RawClass)
+				/// 
+				/// #undef  _
+				///         }
+				///     }
+				/// }
+				/// 
+				/// class MyTypeLoader : public Object, public ITypeLoader
+				/// {
+				/// public:
+				///     void Load(ITypeManager* manager)
+				///     {
+				///         MY_TYPELIST(ADD_TYPE_INFO)
+				///     }
+				/// 
+				///     void Unload(ITypeManager* manager)
+				///     {
+				///     }
+				/// };
+				/// 
+				/// // main function
+				/// 
+				/// int main()
+				/// {
+				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     {
+				///         auto sharedClass = Value::Create(L"mynamespace::SharedClass");
+				///         auto rawClass = Value::Create(L"mynamespace::RawClass");
+				/// 
+				///         Console::WriteLine(L"sharedClass is " + WString(sharedClass.GetValueType() == Value::SharedPtr ? L"SharedPtr" : L"RawPtr"));
+				///         Console::WriteLine(L"rawClass is " + WString(rawClass.GetValueType() == Value::SharedPtr ? L"SharedPtr" : L"RawPtr"));
+				/// 
+				///         rawClass.DeleteRawPtr();
+				///     }
+				///     DestroyGlobalTypeManager();
+				/// }
+				/// ]]></example>
 				bool							DeleteRawPtr();
 			};
 
