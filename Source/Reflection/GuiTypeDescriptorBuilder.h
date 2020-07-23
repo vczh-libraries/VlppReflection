@@ -57,7 +57,7 @@ TypeInfo
 			/// <remarks>
 			/// Returning null means the type registration is declared but the type manager has not started.
 			/// Failing to compile means that the type registration is not declared.
-			/// See <see cref="Description"/> about how to register a type.
+			/// See <see cref="Description`1"/> about how to register a type.
 			/// </remarks>
 			template<typename T>
 			ITypeDescriptor* GetTypeDescriptor()

@@ -269,6 +269,7 @@ LoadPredefinedTypes
 ***********************************************************************/
 
 			/// <summary>Register all reflectable types in <b>VlppReflection</b>.</summary>
+			/// <returns>Returns true if this operation succeeded.</returns>
 			extern bool										LoadPredefinedTypes();
 		}
 	}

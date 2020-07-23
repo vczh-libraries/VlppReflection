@@ -300,6 +300,8 @@ Attribute
 		///     <li>[F:vl.reflection.description.JsonLoadTypes]</li>
 		///     <li>[F:vl.reflection.description.XmlLoadTypes]</li>
 		/// </ul>
+		/// But if you link <b>GacUIReflection.cpp</b> in your project and set <b>VCZH_DEBUG_NO_REFLECTION</b> to off,
+		/// all types will be automatically loaded before <b>GuiMain</b> is called.
 		/// </p>
 		/// <p>
 		/// The order does not matter, because content of types are lazily loaded.
@@ -2279,6 +2281,10 @@ ITypeManager
 
 			/// <summary>Get a registered type given the registered name.</summary>
 			/// <returns>Returns the metadata class for this registered type.</returns>
+			/// <param name="name">
+			/// The registered name.
+			/// Note that this is not the full name of the C++ type,
+			/// it is the name what is used to registere this type.</param>
 			/// <remarks>
 			/// Returning null means the type registration is declared but the type manager has not started.
 			/// </remarks>
