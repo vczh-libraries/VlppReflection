@@ -915,7 +915,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto myClass = Value::Create(GetTypeDescriptor(L"mynamespace::MyClass"), (Value_xs(), WString(L"Hello, world!!!")));
 				/// 
@@ -1025,7 +1027,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto myClass = Value::Create(L"mynamespace::MyClass", (Value_xs(), WString(L"Hello, world!!!")));
 				/// 
@@ -1129,7 +1133,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         Value::InvokeStatic(L"mynamespace::MyClass", L"PrintHelloWorld", (Value_xs(), WString(L"Gaclib")));
 				///     }
@@ -1219,7 +1225,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
 				///         auto myClass = Value::Create(td);
@@ -1316,7 +1324,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
 				///         auto myClass = Value::Create(td);
@@ -1419,7 +1429,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
 				///         auto myClass = Value::Create(td);
@@ -1524,7 +1536,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
 				///         auto myClass = Value::Create(td);
@@ -1641,7 +1655,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto td = GetTypeDescriptor(L"mynamespace::MyClass");
 				///         auto myClass = Value::Create(td);
@@ -1766,7 +1782,9 @@ Value
 				/// 
 				/// int main()
 				/// {
+				///     LoadPredefinedTypes();
 				///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+				///     GetGlobalTypeManager()->Load();
 				///     {
 				///         auto sharedClass = Value::Create(L"mynamespace::SharedClass");
 				///         auto rawClass = Value::Create(L"mynamespace::RawClass");

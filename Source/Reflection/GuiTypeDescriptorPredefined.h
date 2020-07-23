@@ -41,6 +41,113 @@ Collections
 
 			/// <summary>The reflectable version of <see cref="collections::IEnumerable`1"/>.</summary>
 			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from an enumerable.</remarks>
+			/// <example><![CDATA[
+			/// // reflectable C++ types
+			/// 
+			/// namespace mynamespace
+			/// {
+			///     class MyClass : public Object, public Description<MyClass>
+			///     {
+			///     public:
+			///         MyClass(vint _data = 0)
+			///             :data(_data)
+			///         {
+			///         }
+			/// 
+			///         vint data;
+			///     };
+			/// }
+			/// 
+			/// #define MY_TYPELIST(F)\
+			///     F(mynamespace::MyClass)\
+			/// 
+			/// // it is recommended to put the content below in a separated header file
+			/// 
+			/// namespace vl
+			/// {
+			///     namespace reflection
+			///     {
+			///         namespace description
+			///         {
+			///             MY_TYPELIST(DECL_TYPE_INFO)
+			///         }
+			///     }
+			/// }
+			/// 
+			/// // it is recommended to put the content below in a separated cpp file
+			/// 
+			/// namespace vl
+			/// {
+			///     namespace reflection
+			///     {
+			///         namespace description
+			///         {
+			///             using namespace mynamespace;
+			/// 
+			/// #define _ ,
+			/// 
+			///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+			/// 
+			///             BEGIN_CLASS_MEMBER(MyClass)
+			///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+			///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(vint), { L"data" })
+			///                 CLASS_MEMBER_FIELD(data)
+			///             END_CLASS_MEMBER(MyClass)
+			/// 
+			/// #undef  _
+			///         }
+			///     }
+			/// }
+			/// 
+			/// class MyTypeLoader : public Object, public ITypeLoader
+			/// {
+			/// public:
+			///     void Load(ITypeManager* manager)
+			///     {
+			///         MY_TYPELIST(ADD_TYPE_INFO)
+			///     }
+			/// 
+			///     void Unload(ITypeManager* manager)
+			///     {
+			///     }
+			/// };
+			/// 
+			/// // main function
+			/// 
+			/// int main()
+			/// {
+			///     LoadPredefinedTypes();
+			///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+			///     GetGlobalTypeManager()->Load();
+			///     {
+			///         LazyList<Ptr<MyClass>> cs = Range<vint>(1, 10)
+			///             .Select([](vint i)
+			///             {
+			///                 return MakePtr<MyClass>(i);
+			///             });
+			/// 
+			///         Value boxed = BoxParameter<LazyList<Ptr<MyClass>>>(cs);
+			///         {
+			///             auto enumerable = UnboxValue<Ptr<IValueEnumerable>>(boxed);
+			///             auto enumerator = enumerable->CreateEnumerator();
+			///             while (enumerator->Next())
+			///             {
+			///                 Console::Write(itow(UnboxValue<Ptr<MyClass>>(enumerator->GetCurrent())->data) + L" ");
+			///             }
+			///             Console::WriteLine(L"");
+			///         }
+			///         {
+			///             auto enumerator = boxed.Invoke(L"CreateEnumerator");
+			///             while (UnboxValue<bool>(enumerator.Invoke(L"Next")))
+			///             {
+			///                 Console::Write(itow(UnboxValue<vint>(enumerator.GetProperty(L"Current").GetProperty(L"data"))) + L" ");
+			///             }
+			///             Console::WriteLine(L"");
+			///         }
+			///     }
+			///     DestroyGlobalTypeManager();
+			/// }
+			/// ]]></example>
 			class IValueEnumerable : public virtual IDescriptable, public Description<IValueEnumerable>
 			{
 			public:
@@ -90,8 +197,120 @@ Collections
 			/// <see cref="collections::Array`2"/> or
 			/// <see cref="collections::List`2"/>
 			/// </summary>
-
 			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a container.</remarks>
+			/// <example><![CDATA[
+			/// // reflectable C++ types
+			/// 
+			/// namespace mynamespace
+			/// {
+			///     class MyClass : public Object, public Description<MyClass>
+			///     {
+			///     public:
+			///         MyClass(vint _data = 0)
+			///             :data(_data)
+			///         {
+			///         }
+			/// 
+			///         vint data;
+			///     };
+			/// }
+			/// 
+			/// #define MY_TYPELIST(F)\
+			///     F(mynamespace::MyClass)\
+			/// 
+			/// // it is recommended to put the content below in a separated header file
+			/// 
+			/// namespace vl
+			/// {
+			///     namespace reflection
+			///     {
+			///         namespace description
+			///         {
+			///             MY_TYPELIST(DECL_TYPE_INFO)
+			///         }
+			///     }
+			/// }
+			/// 
+			/// // it is recommended to put the content below in a separated cpp file
+			/// 
+			/// namespace vl
+			/// {
+			///     namespace reflection
+			///     {
+			///         namespace description
+			///         {
+			///             using namespace mynamespace;
+			/// 
+			/// #define _ ,
+			/// 
+			///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+			/// 
+			///             BEGIN_CLASS_MEMBER(MyClass)
+			///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+			///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(vint), { L"data" })
+			///                 CLASS_MEMBER_FIELD(data)
+			///             END_CLASS_MEMBER(MyClass)
+			/// 
+			/// #undef  _
+			///         }
+			///     }
+			/// }
+			/// 
+			/// class MyTypeLoader : public Object, public ITypeLoader
+			/// {
+			/// public:
+			///     void Load(ITypeManager* manager)
+			///     {
+			///         MY_TYPELIST(ADD_TYPE_INFO)
+			///     }
+			/// 
+			///     void Unload(ITypeManager* manager)
+			///     {
+			///     }
+			/// };
+			/// 
+			/// // main function
+			/// 
+			/// int main()
+			/// {
+			///     LoadPredefinedTypes();
+			///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+			///     GetGlobalTypeManager()->Load();
+			///     {
+			///         List<Ptr<MyClass>> cs;
+			///         CopyFrom(cs, Range<vint>(1, 10)
+			///             .Select([](vint i)
+			///             {
+			///                 return MakePtr<MyClass>(i);
+			///             })
+			///         );
+			/// 
+			///         Value boxed = BoxParameter<List<Ptr<MyClass>>>(cs);
+			///         {
+			///             auto list = UnboxValue<Ptr<IValueList>>(boxed);
+			///             for (vint i = 0; i < list->GetCount(); i++)
+			///             {
+			///                 Console::Write(itow(UnboxValue<Ptr<MyClass>>(list->Get(i))->data) + L" ");
+			///             }
+			///             Console::WriteLine(L"");
+			///         }
+			///
+			///         for (vint i = 1; i <= 5; i++)
+			///         {
+			///             cs.RemoveAt(i);
+			///         }
+			///
+			///         {
+			///             for (vint i = 0; i < UnboxValue<vint>(boxed.GetProperty(L"Count")); i++)
+			///             {
+			///                 Console::Write(itow(UnboxValue<vint>(boxed.Invoke(L"Get", (Value_xs(), i)).GetProperty(L"data"))) + L" ");
+			///             }
+			///             Console::WriteLine(L"");
+			///         }
+			///     }
+			///     DestroyGlobalTypeManager();
+			/// }
+			/// ]]></example>
 			class IValueList : public virtual IValueReadonlyList, public Description<IValueList>
 			{
 			public:
@@ -143,6 +362,8 @@ Collections
 			/// <summary>
 			/// The reflectable version of list container which triggers an event whenever items are changed.
 			/// </summary>
+			/// <example><![CDATA[
+			/// ]]></example>
 			class IValueObservableList : public virtual IValueList, public Description<IValueObservableList>
 			{
 				typedef void ItemChangedProc(vint index, vint oldCount, vint newCount);
@@ -204,6 +425,121 @@ Collections
 			/// The reflectable version of <see cref="collections::Dictionary`4"/>.
 			/// </summary>
 			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a dictionary.</remarks>
+			/// <example><![CDATA[
+			/// // reflectable C++ types
+			/// 
+			/// namespace mynamespace
+			/// {
+			///     class MyClass : public Object, public Description<MyClass>
+			///     {
+			///     public:
+			///         MyClass(vint _data = 0)
+			///             :data(_data)
+			///         {
+			///         }
+			/// 
+			///         vint data;
+			///     };
+			/// }
+			/// 
+			/// #define MY_TYPELIST(F)\
+			///     F(mynamespace::MyClass)\
+			/// 
+			/// // it is recommended to put the content below in a separated header file
+			/// 
+			/// namespace vl
+			/// {
+			///     namespace reflection
+			///     {
+			///         namespace description
+			///         {
+			///             MY_TYPELIST(DECL_TYPE_INFO)
+			///         }
+			///     }
+			/// }
+			/// 
+			/// // it is recommended to put the content below in a separated cpp file
+			/// 
+			/// namespace vl
+			/// {
+			///     namespace reflection
+			///     {
+			///         namespace description
+			///         {
+			///             using namespace mynamespace;
+			/// 
+			/// #define _ ,
+			/// 
+			///             MY_TYPELIST(IMPL_CPP_TYPE_INFO)
+			/// 
+			///             BEGIN_CLASS_MEMBER(MyClass)
+			///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(), NO_PARAMETER)
+			///                 CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(vint), { L"data" })
+			///                 CLASS_MEMBER_FIELD(data)
+			///             END_CLASS_MEMBER(MyClass)
+			/// 
+			/// #undef  _
+			///         }
+			///     }
+			/// }
+			/// 
+			/// class MyTypeLoader : public Object, public ITypeLoader
+			/// {
+			/// public:
+			///     void Load(ITypeManager* manager)
+			///     {
+			///         MY_TYPELIST(ADD_TYPE_INFO)
+			///     }
+			/// 
+			///     void Unload(ITypeManager* manager)
+			///     {
+			///     }
+			/// };
+			/// 
+			/// // main function
+			/// 
+			/// int main()
+			/// {
+			///     LoadPredefinedTypes();
+			///     GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+			///     GetGlobalTypeManager()->Load();
+			///     {
+			///         Dictionary<vint, Ptr<MyClass>> cs;
+			///         CopyFrom(cs, Range<vint>(1, 10)
+			///             .Select([](vint i) -> Pair<vint, Ptr<MyClass>>
+			///             {
+			///                 return { i, MakePtr<MyClass>(i * i) };
+			///             })
+			///         );
+			/// 
+			///         Value boxed = BoxParameter<Dictionary<vint, Ptr<MyClass>>>(cs);
+			///         {
+			///             auto dictionary = UnboxValue<Ptr<IValueDictionary>>(boxed);
+			///             for (vint i = 0; i < dictionary->GetCount(); i++)
+			///             {
+			///                 Value key = dictionary->GetKeys()->Get(i);
+			///                 Console::Write(itow(UnboxValue<Ptr<MyClass>>(dictionary->Get(key))->data) + L" ");
+			///             }
+			///             Console::WriteLine(L"");
+			///         }
+			/// 
+			///         for (vint i = 1; i <= 5; i++)
+			///         {
+			///             cs.Remove(i * 2);
+			///         }
+			/// 
+			///         {
+			///             for (vint i = 0; i < UnboxValue<vint>(boxed.GetProperty(L"Count")); i++)
+			///             {
+			///                 Value key = boxed.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), i));
+			///                 Console::Write(itow(UnboxValue<vint>(boxed.Invoke(L"Get", (Value_xs(), key)).GetProperty(L"data"))) + L" ");
+			///             }
+			///             Console::WriteLine(L"");
+			///         }
+			///     }
+			///     DestroyGlobalTypeManager();
+			/// }
+			/// ]]></example>
 			class IValueDictionary : public virtual IValueReadonlyDictionary, public Description<IValueDictionary>
 			{
 			public:
