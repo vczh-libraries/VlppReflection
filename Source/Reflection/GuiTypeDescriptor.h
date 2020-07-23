@@ -2130,6 +2130,7 @@ ITypeDescriptor
 				return (TypeDescriptorFlags)((vint)a | (vint)b);
 			}
 
+			/// <summary>Metadata class for reflectable types.</summary>
 			class ITypeDescriptor : public virtual IDescriptable, public Description<ITypeDescriptor>
 			{
 			public:
@@ -2188,23 +2189,57 @@ ITypeManager
 
 			class ITypeManager;
 
+			/// <summary>Delay loading for registering reflectable types.</summary>
 			class ITypeLoader : public virtual Interface
 			{
 			public:
+				/// <summary>Called when it is time to register types.</summary>
+				/// <param name="manager">The type manager.</param>
 				virtual void					Load(ITypeManager* manager)=0;
+
+				/// <summary>Called when it is time to unregister types.</summary>
+				/// <param name="manager">The type manager.</param>
+				/// <remarks>
+				/// Types cannot be unregistered one by one,
+				/// they are removed at the same time by calling
+				/// [F:vl.reflection.description.DestroyGlobalTypeManager] or
+				/// [F:vl.reflection.description.ResetGlobalTypeManager].
+				/// Here is just a chance for reverse extra steps, when these steps are taken in <see cref="Load"/>.
+				/// </remarks>
 				virtual void					Unload(ITypeManager* manager)=0;
 			};
 
+			/// <summary>A type manager to access all reflectable types.</summary>
 			class ITypeManager : public virtual Interface
 			{
 			public:
+				/// <summary>Get the number of all registered types.</summary>
+				/// <returns>The number of all registered types.</returns>
 				virtual vint					GetTypeDescriptorCount()=0;
+
+				/// <summary>Get one registered type.</summary>
+				/// <returns>A registered type specified by the index.</returns>
+				/// <param name="index">The index for retriving the registered type.</param>
+				/// <remarks>
+				/// The index itself does not has any specific meaning.
+				/// And it is no guarantee that an index will always return the same type for each execution of the same process.
+				/// </remarks>
 				virtual ITypeDescriptor*		GetTypeDescriptor(vint index)=0;
 				virtual ITypeDescriptor*		GetTypeDescriptor(const WString& name)=0;
 				virtual bool					SetTypeDescriptor(const WString& name, Ptr<ITypeDescriptor> typeDescriptor)=0;
 
+				/// <summary>Delay register some types.</summary>
+				/// <returns>Returns true if this operation succeeded.</returns>
+				/// <param name="typeLoader">A type loader for delay registering.</param>
+				/// <remarks>
+				/// You can still call this function after <see cref="Load"/> is called.
+				/// In this case, there is no delay registering, all types in this loader will be registered immediately.
+				/// </remarks>
 				virtual bool					AddTypeLoader(Ptr<ITypeLoader> typeLoader)=0;
 				virtual bool					RemoveTypeLoader(Ptr<ITypeLoader> typeLoader)=0;
+
+				/// <summary>Load all added type loaders.</summary>
+				/// <returns>Returns true if this operation succeeded.</returns>
 				virtual bool					Load()=0;
 				virtual bool					Unload()=0;
 				virtual bool					Reload()=0;
@@ -2212,9 +2247,41 @@ ITypeManager
 				virtual ITypeDescriptor*		GetRootType()=0;
 			};
 
+			/// <summary>Get the type manager.</summary>
+			/// <returns>Returns the type manager.</returns>
 			extern ITypeManager*				GetGlobalTypeManager();
+
+			/// <summary>Unload all types and free the type manager.</summary>
+			/// <returns>Returns true if this operation succeeded.</returns>
+			/// <remakrs>
+			/// After calling this function, you can no longer register new types,
+			/// and calling <see cref="GetGlobalTypeManager"/> will always get null.
+			/// </remarks>
+
 			extern bool							DestroyGlobalTypeManager();
+
+			/// <summary>Unload all types and reset the type manager.</summary>
+			/// <returns>Returns true if this operation succeeded.</returns>
+			/// <remakrs>
+			/// <p>
+			/// This function is similar to <see cref="DestroyGlobalTypeManager"/>,
+			/// but calling this function allows types to be registsred again.
+			/// </p>
+			/// <p>
+			/// This function is very useful for unit testing.
+			/// In each test case, you can first register all types,
+			/// and after the test case is finished, call this function to reset all types.
+			/// You can do this again and again in the other test cases,
+			/// so that these test cases don't affect each other.
+			/// </p>
+			/// </remarks>
 			extern bool							ResetGlobalTypeManager();
+
+			/// <summary>Get a registered type given the registered name.</summary>
+			/// <returns>Returns the metadata class for this registered type.</returns>
+			/// <remarks>
+			/// Returning null means the type registration is declared but the type manager has not started.
+			/// </remarks>
 			extern ITypeDescriptor*				GetTypeDescriptor(const WString& name);
 			extern bool							IsInterfaceType(ITypeDescriptor* typeDescriptor, bool& acceptProxy);
 			extern void							LogTypeManager(stream::TextWriter& writer);

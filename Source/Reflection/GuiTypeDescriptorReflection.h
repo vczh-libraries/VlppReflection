@@ -268,6 +268,7 @@ Helper Functions
 LoadPredefinedTypes
 ***********************************************************************/
 
+			/// <summary>Register all reflectable types in <b>VlppReflection</b>.</summary>
 			extern bool										LoadPredefinedTypes();
 		}
 	}

@@ -51,6 +51,14 @@ TypeInfo
 			{
 			};
 
+			/// <summary>Get a registered type given a C++ type.</summary>
+			/// <returns>Returns the metadata class for this registered type.</returns>
+			/// <typeparam name="T">The C++ type to get the registered type.</typeparam>
+			/// <remarks>
+			/// Returning null means the type registration is declared but the type manager has not started.
+			/// Failing to compile means that the type registration is not declared.
+			/// See <see cref="Description"/> about how to register a type.
+			/// </remarks>
 			template<typename T>
 			ITypeDescriptor* GetTypeDescriptor()
 			{
