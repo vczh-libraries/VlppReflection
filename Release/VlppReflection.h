@@ -1834,7 +1834,7 @@ ValueType
 					{
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdynamic-class-memaccess"
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #elif defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdynamic-class-memaccess"
@@ -3774,9 +3774,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::FunctionType>
 			{
 				template<typename T>
-				static void* Inherit(const Func<T>* source){}
-				static char Inherit(void* source){}
-				static char Inherit(const void* source){}
+				static void* Inherit(const Func<T>* source){ return {}; }
+				static char Inherit(void* source){ return {}; }
+				static char Inherit(const void* source){ return {}; }
 
 				static const TypeFlags									Result=sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer))==sizeof(void*)?TypeFlags::FunctionType:TypeFlags::NonGenericType;
 			};
@@ -3785,9 +3785,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::EnumerableType>
 			{
 				template<typename T>
-				static void* Inherit(const collections::LazyList<T>* source){}
-				static char Inherit(void* source){}
-				static char Inherit(const void* source){}
+				static void* Inherit(const collections::LazyList<T>* source){ return {}; }
+				static char Inherit(void* source){ return {}; }
+				static char Inherit(const void* source){ return {}; }
 
 				static const TypeFlags									Result=sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer))==sizeof(void*)?TypeFlags::EnumerableType:TypeFlags::NonGenericType;
 			};
@@ -3796,9 +3796,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::ReadonlyListType>
 			{
 				template<typename T>
-				static void* Inherit(const collections::IEnumerable<T>* source){}
-				static char Inherit(void* source){}
-				static char Inherit(const void* source){}
+				static void* Inherit(const collections::IEnumerable<T>* source){ return {}; }
+				static char Inherit(void* source){ return {}; }
+				static char Inherit(const void* source){ return {}; }
 
 				static const TypeFlags									Result=sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer))==sizeof(void*)?TypeFlags::ReadonlyListType:TypeFlags::NonGenericType;
 			};
@@ -3807,9 +3807,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::ListType>
 			{
 				template<typename T>
-				static void* Inherit(collections::IEnumerable<T>* source){}
-				static char Inherit(void* source){}
-				static char Inherit(const void* source){}
+				static void* Inherit(collections::IEnumerable<T>* source){ return {}; }
+				static char Inherit(void* source){ return {}; }
+				static char Inherit(const void* source){ return {}; }
 
 				static const TypeFlags									Result=sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer))==sizeof(void*)?TypeFlags::ListType:TypeFlags::NonGenericType;
 			};
@@ -3818,9 +3818,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::ObservableListType>
 			{
 				template<typename T>
-				static void* Inherit(collections::ObservableList<T>* source) {}
-				static char Inherit(void* source) {}
-				static char Inherit(const void* source) {}
+				static void* Inherit(collections::ObservableList<T>* source) { return {}; }
+				static char Inherit(void* source) { return {}; }
+				static char Inherit(const void* source) { return {}; }
 
 				static const TypeFlags									Result = sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer)) == sizeof(void*) ? TypeFlags::ObservableListType : TypeFlags::NonGenericType;
 			};
@@ -3829,9 +3829,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::ReadonlyDictionaryType>
 			{
 				template<typename K, typename V>
-				static void* Inherit(const collections::Dictionary<K, V>* source){}
-				static char Inherit(void* source){}
-				static char Inherit(const void* source){}
+				static void* Inherit(const collections::Dictionary<K, V>* source){ return {}; }
+				static char Inherit(void* source){ return {}; }
+				static char Inherit(const void* source){ return {}; }
 
 				static const TypeFlags									Result=sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer))==sizeof(void*)?TypeFlags::ReadonlyDictionaryType:TypeFlags::NonGenericType;
 			};
@@ -3840,9 +3840,9 @@ TypeFlagTester
 			struct TypeFlagTester<TDerived, TypeFlags::DictionaryType>
 			{
 				template<typename K, typename V>
-				static void* Inherit(collections::Dictionary<K, V>* source){}
-				static char Inherit(void* source){}
-				static char Inherit(const void* source){}
+				static void* Inherit(collections::Dictionary<K, V>* source){ return {}; }
+				static char Inherit(void* source){ return {}; }
+				static char Inherit(const void* source){ return {}; }
 
 				static const TypeFlags									Result=sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer))==sizeof(void*)?TypeFlags::DictionaryType:TypeFlags::NonGenericType;
 			};
