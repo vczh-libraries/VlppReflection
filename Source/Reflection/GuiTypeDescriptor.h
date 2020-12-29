@@ -1824,7 +1824,7 @@ ValueType
 					{
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdynamic-class-memaccess"
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #elif defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdynamic-class-memaccess"
