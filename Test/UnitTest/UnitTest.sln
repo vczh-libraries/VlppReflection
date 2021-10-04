@@ -1,16 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{F17D112F-3D02-4A6B-BB8D-14E7D409774E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VlppReflection", "VlppReflection\VlppReflection.vcxitems", "{5DC3725F-104B-4E12-8402-59BF3AA4EB4D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VlppImport", "VlppImport\VlppImport.vcxitems", "{7632EC25-D25A-4232-BC40-3E7BC2A23914}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		VlppReflection\VlppReflection.vcxitems*{5dc3725f-104b-4e12-8402-59bf3aa4eb4d}*SharedItemsImports = 9
+		VlppImport\VlppImport.vcxitems*{7632ec25-d25a-4232-bc40-3e7bc2a23914}*SharedItemsImports = 9
+		VlppImport\VlppImport.vcxitems*{f17d112f-3d02-4a6b-bb8d-14e7d409774e}*SharedItemsImports = 4
+		VlppReflection\VlppReflection.vcxitems*{f17d112f-3d02-4a6b-bb8d-14e7d409774e}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
-		DebugNoReflection|Win32 = DebugNoReflection|Win32
-		DebugNoReflection|x64 = DebugNoReflection|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -19,10 +27,6 @@ Global
 		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.Debug|Win32.Build.0 = Debug|Win32
 		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.Debug|x64.ActiveCfg = Debug|x64
 		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.Debug|x64.Build.0 = Debug|x64
-		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.DebugNoReflection|Win32.ActiveCfg = DebugNoReflection|Win32
-		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.DebugNoReflection|Win32.Build.0 = DebugNoReflection|Win32
-		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.DebugNoReflection|x64.ActiveCfg = DebugNoReflection|x64
-		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.DebugNoReflection|x64.Build.0 = DebugNoReflection|x64
 		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.Release|Win32.ActiveCfg = Release|Win32
 		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.Release|Win32.Build.0 = Release|Win32
 		{F17D112F-3D02-4A6B-BB8D-14E7D409774E}.Release|x64.ActiveCfg = Release|x64
@@ -30,5 +34,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {66B7F188-82BB-421C-A2F4-33622E499FF3}
 	EndGlobalSection
 EndGlobal
