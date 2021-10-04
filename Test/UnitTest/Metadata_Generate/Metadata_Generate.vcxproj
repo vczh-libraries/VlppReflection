@@ -38,6 +38,7 @@
     <ClCompile Include="..\..\Source\TestMetadataGeneration.cpp" />
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
     <ClCompile Include="..\UnitTest\Main.cpp" />
+    <ClCompile Include="GenerateMetadata.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
