@@ -182,8 +182,8 @@ Metadata
 			{
 				WString								referenceTemplate;
 				WString								name;
-				bool								readable = false;
-				bool								writable = false;
+				bool								isReadable = false;
+				bool								isWritable = false;
 				Ptr<MetaonlyTypeInfo>				returnType;
 				vint								getter = -1;
 				vint								setter = -1;
@@ -264,8 +264,8 @@ Serialization
 			BEGIN_SERIALIZATION(reflection::description::PropertyInfoMetadata)
 				SERIALIZE(referenceTemplate)
 				SERIALIZE(name)
-				SERIALIZE(readable)
-				SERIALIZE(writable)
+				SERIALIZE(isReadable)
+				SERIALIZE(isWritable)
 				SERIALIZE(returnType)
 				SERIALIZE(getter)
 				SERIALIZE(setter)
@@ -500,6 +500,26 @@ GenerateMetaonlyTypes
 			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* pi)
 			{
 				PropertyInfoMetadata metadata;
+				if (auto cpp = pi->GetCpp())
+				{
+					metadata.referenceTemplate = cpp->GetReferenceTemplate();
+				}
+				metadata.name = pi->GetName();
+				metadata.isReadable = pi->IsReadable();
+				metadata.isWritable = pi->IsWritable();
+				metadata.returnType = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetReturn());
+				if (auto mi = pi->GetGetter())
+				{
+					metadata.getter = writer.context->miIndex[mi];
+				}
+				if (auto mi = pi->GetSetter())
+				{
+					metadata.setter = writer.context->miIndex[mi];
+				}
+				if (auto ei = pi->GetValueChangedEvent())
+				{
+					metadata.valueChangedEvent = writer.context->eiIndex[ei];
+				}
 				writer << metadata;
 			}
 
