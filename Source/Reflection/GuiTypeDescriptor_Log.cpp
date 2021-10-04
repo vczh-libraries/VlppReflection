@@ -21,8 +21,11 @@ LogTypeManager (enum)
 
 			void LogTypeManager_Enum(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
-				writer.WriteLine((type->GetTypeDescriptorFlags() == TypeDescriptorFlags::FlagEnum ? L"flags " : L"enum ") + type->GetTypeName());
-				writer.WriteLine(L"{");
+				if (type->GetTypeDescriptorFlags() == TypeDescriptorFlags::FlagEnum)
+				{
+					writer.WriteLine(L"@Flags");
+				}
+				writer.WriteLine(L"enum " + type->GetTypeName() + L" {");
 
 				auto enumType = type->GetEnumType();
 				for (vint j = 0; j < enumType->GetItemCount(); j++)
@@ -37,14 +40,53 @@ LogTypeManager (enum)
 LogTypeManager (struct)
 ***********************************************************************/
 
+			void LogTypeManager_Property(stream::TextWriter& writer, IPropertyInfo* info)
+			{
+				if (auto cpp = info->GetCpp())
+				{
+					writer.WriteLine(L"    @ReferenceTemplate:" + cpp->GetReferenceTemplate());
+				}
+				writer.WriteString(L"    property " + info->GetName() + L" : " + info->GetReturn()->GetTypeFriendlyName());
+				if (info->IsReadable() && info->IsWritable() && !info->GetGetter() && !info->GetSetter() && !info->GetValueChangedEvent())
+				{
+					writer.WriteLine(L";");
+				}
+				else
+				{
+					writer.WriteString(L" { ");
+					if (info->IsReadable())
+					{
+						writer.WriteString(L"get");
+						if (auto mi = info->GetGetter())
+						{
+							writer.WriteString(L":" + mi->GetName());
+						}
+						writer.WriteString(L" ");
+					}
+					if (info->IsWritable())
+					{
+						writer.WriteString(L"set");
+						if (auto mi = info->GetSetter())
+						{
+							writer.WriteString(L":" + mi->GetName());
+						}
+						writer.WriteString(L" ");
+					}
+					if (auto ei = info->GetValueChangedEvent())
+					{
+						writer.WriteString(L"event:" + ei->GetName() + L" ");
+					}
+					writer.WriteLine(L"}");
+				}
+			}
+
 			void LogTypeManager_Struct(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
-				writer.WriteLine(L"struct " + type->GetTypeName());
-				writer.WriteLine(L"{");
+				writer.WriteLine(L"struct " + type->GetTypeName() + L" {");
 				for (vint j = 0; j<type->GetPropertyCount(); j++)
 				{
 					IPropertyInfo* info = type->GetProperty(j);
-					writer.WriteLine(L"    " + info->GetReturn()->GetTypeFriendlyName() + L" " + info->GetName() + L";");
+					LogTypeManager_Property(writer, info);
 				}
 				writer.WriteLine(L"}");
 			}
@@ -65,23 +107,33 @@ LogTypeManager (class)
 			void LogTypeManager_PrintEvents(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
 				bool printed = false;
-				for (vint j = 0; j<type->GetEventCount(); j++)
+				for (vint j = 0; j < type->GetEventCount(); j++)
 				{
 					printed = true;
 					IEventInfo* info = type->GetEvent(j);
-					writer.WriteString(L"    event " + info->GetHandlerType()->GetTypeFriendlyName() + L" " + info->GetName() + L"{");
-					if (info->GetObservingPropertyCount()>0)
+					if (auto cpp = info->GetCpp())
 					{
-						writer.WriteString(L" observing ");
-						vint count = +info->GetObservingPropertyCount();
-						for (vint i = 0; i<count; i++)
-						{
-							if (i>0) writer.WriteString(L", ");
-							writer.WriteString(info->GetObservingProperty(i)->GetName());
-						}
-						writer.WriteString(L";");
+						writer.WriteLine(L"    @AttachTemplate:" + cpp->GetAttachTemplate());
+						writer.WriteLine(L"    @DetachTemplate:" + cpp->GetDetachTemplate());
+						writer.WriteLine(L"    @InvokeTemplate:" + cpp->GetInvokeTemplate());
 					}
-					writer.WriteLine(L"};");
+
+					writer.WriteString(L"    event " + info->GetName() + L" : " + info->GetHandlerType()->GetTypeFriendlyName());
+
+					if (info->GetObservingPropertyCount() > 0)
+					{
+						writer.WriteString(L" observing {");
+						vint count = info->GetObservingPropertyCount();
+						for (vint i = 0; i < count; i++)
+						{
+							writer.WriteLine(L"        " + info->GetObservingProperty(i)->GetName() + L",");
+						}
+						writer.WriteString(L"}");
+					}
+					else
+					{
+						writer.WriteLine(L";");
+					}
 				}
 				if (printed)
 				{
@@ -89,29 +141,14 @@ LogTypeManager (class)
 				}
 			}
 
-			void LogTypeManager_PrintProperties(stream::TextWriter& writer, ITypeDescriptor* type, List<IMethodInfo*>& propertyAccessors)
+			void LogTypeManager_PrintProperties(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
 				bool printed = false;
-				for (vint j = 0; j<type->GetPropertyCount(); j++)
+				for (vint j = 0; j < type->GetPropertyCount(); j++)
 				{
 					printed = true;
 					IPropertyInfo* info = type->GetProperty(j);
-					writer.WriteString(L"    property " + info->GetReturn()->GetTypeFriendlyName() + L" " + info->GetName() + L"{");
-					if (info->GetGetter())
-					{
-						propertyAccessors.Add(info->GetGetter());
-						writer.WriteString(L" getter " + info->GetGetter()->GetName() + L";");
-					}
-					if (info->GetSetter())
-					{
-						propertyAccessors.Add(info->GetSetter());
-						writer.WriteString(L" setter " + info->GetSetter()->GetName() + L";");
-					}
-					if (info->GetValueChangedEvent())
-					{
-						writer.WriteString(L" raising " + info->GetValueChangedEvent()->GetName() + L";");
-					}
-					writer.WriteLine(L"}");
+					LogTypeManager_Property(writer, info);
 				}
 				if (printed)
 				{
@@ -119,27 +156,43 @@ LogTypeManager (class)
 				}
 			}
 
-			void LogTypeManager_PrintMethods(stream::TextWriter& writer, ITypeDescriptor* type, const List<IMethodInfo*>& propertyAccessors, bool isPropertyAccessor)
+			void LogTypeManager_Method(stream::TextWriter& writer, IMethodInfo* info, const wchar_t* title)
+			{
+				if (auto cpp = info->GetCpp())
+				{
+					writer.WriteLine(L"    @InvokeTemplate:" + cpp->GetInvokeTemplate());
+					writer.WriteLine(L"    @ClosureTemplate:" + cpp->GetClosureTemplate());
+				}
+
+				writer.WriteString(L"    ");
+				writer.WriteString(title);
+				writer.WriteString(L" " + info->GetName() + L"(");
+				for (vint l = 0; l < info->GetParameterCount(); l++)
+				{
+					if (l > 0) writer.WriteString(L", ");
+					IParameterInfo* parameter = info->GetParameter(l);
+					writer.WriteString(parameter->GetName() + L" : " + parameter->GetType()->GetTypeFriendlyName());
+				}
+				writer.WriteLine(L") : " + info->GetReturn()->GetTypeFriendlyName() + L";");
+			}
+
+			void LogTypeManager_PrintMethods(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
 				bool printed = false;
-				for (vint j = 0; j<type->GetMethodGroupCount(); j++)
+				for (vint j = 0; j < type->GetMethodGroupCount(); j++)
 				{
 					IMethodGroupInfo* group = type->GetMethodGroup(j);
-					for (vint k = 0; k<group->GetMethodCount(); k++)
+					for (vint k = 0; k < group->GetMethodCount(); k++)
 					{
+						printed = true;
 						IMethodInfo* info = group->GetMethod(k);
-						if (propertyAccessors.Contains(info) == isPropertyAccessor)
+						if (info->IsStatic())
 						{
-							printed = true;
-							writer.WriteString(WString(L"    ") + (info->IsStatic() ? L"static " : L"") + (isPropertyAccessor ? L"accessor " : L"function ") + info->GetReturn()->GetTypeFriendlyName());
-							writer.WriteString(L" " + info->GetName() + L"(");
-							for (vint l = 0; l<info->GetParameterCount(); l++)
-							{
-								if (l>0) writer.WriteString(L", ");
-								IParameterInfo* parameter = info->GetParameter(l);
-								writer.WriteString(parameter->GetType()->GetTypeFriendlyName() + L" " + parameter->GetName());
-							}
-							writer.WriteLine(L");");
+							LogTypeManager_Method(writer, info, L"static function");
+						}
+						else
+						{
+							LogTypeManager_Method(writer, info, L"function");
 						}
 					}
 				}
@@ -153,18 +206,10 @@ LogTypeManager (class)
 			{
 				if (IMethodGroupInfo* group = type->GetConstructorGroup())
 				{
-					for (vint k = 0; k<group->GetMethodCount(); k++)
+					for (vint k = 0; k < group->GetMethodCount(); k++)
 					{
 						IMethodInfo* info = group->GetMethod(k);
-						writer.WriteString(L"    constructor " + info->GetReturn()->GetTypeFriendlyName());
-						writer.WriteString(L" " + info->GetName() + L"(");
-						for (vint l = 0; l<info->GetParameterCount(); l++)
-						{
-							if (l>0) writer.WriteString(L", ");
-							IParameterInfo* parameter = info->GetParameter(l);
-							writer.WriteString(parameter->GetType()->GetTypeFriendlyName() + L" " + parameter->GetName());
-						}
-						writer.WriteLine(L");");
+						LogTypeManager_Method(writer, info, L"constructor");
 					}
 				}
 			}
@@ -179,14 +224,11 @@ LogTypeManager (class)
 					writer.WriteString(j == 0 ? L" : " : L", ");
 					writer.WriteString(type->GetBaseTypeDescriptor(j)->GetTypeName());
 				}
-				writer.WriteLine(L"");
-				writer.WriteLine(L"{");
+				writer.WriteLine(L" {");
 
-				List<IMethodInfo*> propertyAccessors;
 				LogTypeManager_PrintEvents(writer, type);
-				LogTypeManager_PrintProperties(writer, type, propertyAccessors);
-				LogTypeManager_PrintMethods(writer, type, propertyAccessors, false);
-				LogTypeManager_PrintMethods(writer, type, propertyAccessors, true);
+				LogTypeManager_PrintProperties(writer, type);
+				LogTypeManager_PrintMethods(writer, type);
 				LogTypeManager_PrintConstructors(writer, type);
 
 				writer.WriteLine(L"}");
@@ -247,6 +289,18 @@ LogTypeManager
 				for (vint i = 0; i < GetGlobalTypeManager()->GetTypeDescriptorCount(); i++)
 				{
 					ITypeDescriptor* type = GetGlobalTypeManager()->GetTypeDescriptor(i);
+					if (auto cpp = type->GetCpp())
+					{
+						writer.WriteLine(L"@FullName:" + cpp->GetFullName());
+					}
+					if (type->GetValueType())
+					{
+						writer.WriteLine(L"@ValueType");
+					}
+					if (type->GetSerializableType())
+					{
+						writer.WriteLine(L"@Serializable");
+					}
 
 					switch (type->GetTypeDescriptorFlags())
 					{
