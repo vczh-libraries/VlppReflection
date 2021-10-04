@@ -29,13 +29,19 @@ GenerateMetaonlyTypes
 				{
 					auto tm = GetGlobalTypeManager();
 					vint count = tm->GetTypeDescriptorCount();
-					writer << count;
 
 					for (vint i = 0; i < count; i++)
 					{
 						auto td = tm->GetTypeDescriptor(i);
-						auto name = td->GetTypeName();
-						tds.Add(name, td);
+						tds.Add(td->GetTypeName(), td);
+					}
+				}
+				{
+					vint count = tds.Count();
+					writer << count;
+					for (vint i = 0; i < count; i++)
+					{
+						auto name = tds.Keys()[i];
 						writer << name;
 					}
 				}
