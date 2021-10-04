@@ -173,8 +173,8 @@ Metadata
 				WString								closureTemplate;
 				WString								name;
 				vint								ownerProperty = -1;
-				Ptr<MetaonlyTypeInfo>				returnType;
 				List<ParameterInfoMetadata>			parameters;
+				Ptr<MetaonlyTypeInfo>				returnType;
 				bool								isStatic = false;
 			};
 
@@ -256,8 +256,8 @@ Serialization
 				SERIALIZE(closureTemplate)
 				SERIALIZE(name)
 				SERIALIZE(ownerProperty)
-				SERIALIZE(returnType)
 				SERIALIZE(parameters)
+				SERIALIZE(returnType)
 				SERIALIZE(isStatic)
 			END_SERIALIZATION
 
@@ -494,6 +494,26 @@ GenerateMetaonlyTypes
 			void GenerateMetaonlyMethodInfo(Writer& writer, IMethodInfo* mi)
 			{
 				MethodInfoMetadata metadata;
+				if (auto cpp = mi->GetCpp())
+				{
+					metadata.invokeTemplate = cpp->GetInvokeTemplate();
+					metadata.closureTemplate = cpp->GetClosureTemplate();
+				}
+				metadata.name = mi->GetName();
+				if (auto pi = mi->GetOwnerProperty())
+				{
+					metadata.ownerProperty = writer.context->piIndex[pi];
+				}
+				for (vint i = 0; i < mi->GetParameterCount(); i++)
+				{
+					auto pi = mi->GetParameter(i);
+					ParameterInfoMetadata piMetadata;
+					piMetadata.name = pi->GetName();
+					piMetadata.type = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetType());
+					metadata.parameters.Add(piMetadata);
+				}
+				metadata.returnType = new MetaonlyTypeInfo(*writer.context.Obj(), mi->GetReturn());
+				metadata.isStatic = mi->IsStatic();
 				writer << metadata;
 			}
 
