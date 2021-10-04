@@ -7,14 +7,12 @@ using namespace vl::reflection::description;
 
 extern WString GetTestOutputPath();
 
-bool LoadPredefinedTypesForTestCase()
+TEST_FILE
 {
-	TEST_ASSERT(LoadPredefinedTypes());
-	GetGlobalTypeManager()->Load();
-	static bool generated = false;
-	if (!generated)
+	TEST_CASE(L"Run GenerateMetaonlyTypes()")
 	{
-		generated = true;
+		TEST_ASSERT(LoadPredefinedTypes());
+		GetGlobalTypeManager()->Load();
 		{
 			FileStream fileStream(GetTestOutputPath() + L"Reflection.bin", FileStream::WriteOnly);
 			GenerateMetaonlyTypes(fileStream);
@@ -26,6 +24,11 @@ bool LoadPredefinedTypesForTestCase()
 			StreamWriter writer(encoderStream);
 			LogTypeManager(writer);
 		}
-	}
-	return true;
+		TEST_ASSERT(ResetGlobalTypeManager());
+	});
+}
+
+bool LoadPredefinedTypesForTestCase()
+{
+	return LoadPredefinedTypes();
 }
