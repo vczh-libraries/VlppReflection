@@ -65,6 +65,10 @@ TypeInfo
 				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
 			}
 
+#endif
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+
 /***********************************************************************
 TypeInfoImp
 ***********************************************************************/
