@@ -155,6 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\TestMetadata.cpp" />
+    <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
     <ClCompile Include="..\UnitTest\Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

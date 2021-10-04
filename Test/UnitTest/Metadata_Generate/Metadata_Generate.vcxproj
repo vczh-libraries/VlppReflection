@@ -35,6 +35,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\TestMetadataGeneration.cpp" />
+    <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
     <ClCompile Include="..\UnitTest\Main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

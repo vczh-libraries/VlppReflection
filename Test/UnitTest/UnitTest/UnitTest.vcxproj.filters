@@ -21,9 +21,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\TestBoxing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
