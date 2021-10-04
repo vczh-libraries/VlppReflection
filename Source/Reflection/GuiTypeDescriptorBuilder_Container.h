@@ -712,7 +712,7 @@ ParameterAccessor<TContainer>
 						);
 
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueEnumerable>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueEnumerable>>(result, td);
@@ -734,7 +734,7 @@ ParameterAccessor<TContainer>
 					Ptr<IValueReadonlyList> result=new ValueReadonlyListWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueReadonlyList>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueReadonlyList>>(result, td);
@@ -757,7 +757,7 @@ ParameterAccessor<TContainer>
 					Ptr<IValueList> result=new ValueListWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueList>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueList>>(result, td);
@@ -778,7 +778,7 @@ ParameterAccessor<TContainer>
 				static Value BoxParameter(collections::ObservableList<T>& object, ITypeDescriptor* typeDescriptor)
 				{
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueObservableList>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueObservableList>>(object.GetWrapper(), td);
@@ -793,7 +793,7 @@ ParameterAccessor<TContainer>
 					Ptr<IValueReadonlyDictionary> result=new ValueReadonlyDictionaryWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueReadonlyDictionary>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueReadonlyDictionary>>(result, td);
@@ -820,7 +820,7 @@ ParameterAccessor<TContainer>
 					Ptr<IValueDictionary> result=new ValueDictionaryWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueDictionary>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueDictionary>>(result, td);

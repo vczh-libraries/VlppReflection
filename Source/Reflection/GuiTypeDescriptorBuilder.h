@@ -65,83 +65,6 @@ TypeInfo
 				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
 			}
 
-#endif
-
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-
-/***********************************************************************
-SerializableTypeDescriptor
-***********************************************************************/
-
-			class TypeDescriptorImplBase : public Object, public ITypeDescriptor, private ITypeDescriptor::ICpp
-			{
-			private:
-				TypeDescriptorFlags							typeDescriptorFlags;
-				const TypeInfoContent*						typeInfoContent;
-				WString										typeName;
-				WString										cppFullTypeName;
-
-				const WString&								GetFullName()override;
-
-			protected:
-				const TypeInfoContent*						GetTypeInfoContentInternal();
-
-			public:
-				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
-				~TypeDescriptorImplBase();
-
-				ITypeDescriptor::ICpp*						GetCpp()override;
-				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
-				const WString&								GetTypeName()override;
-			};
-
-			class ValueTypeDescriptorBase : public TypeDescriptorImplBase
-			{
-			protected:
-				bool										loaded;
-				Ptr<IValueType>								valueType;
-				Ptr<IEnumType>								enumType;
-				Ptr<ISerializableType>						serializableType;
-
-				virtual void								LoadInternal();;
-				void										Load();
-			public:
-				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
-				~ValueTypeDescriptorBase();
-
-				bool										IsAggregatable()override;
-				IValueType*									GetValueType()override;
-				IEnumType*									GetEnumType()override;
-				ISerializableType*							GetSerializableType()override;
-
-				vint										GetBaseTypeDescriptorCount()override;
-				ITypeDescriptor*							GetBaseTypeDescriptor(vint index)override;
-				bool										CanConvertTo(ITypeDescriptor* targetType)override;
-				vint										GetPropertyCount()override;
-				IPropertyInfo*								GetProperty(vint index)override;
-				bool										IsPropertyExists(const WString& name, bool inheritable)override;
-				IPropertyInfo*								GetPropertyByName(const WString& name, bool inheritable)override;
-				vint										GetEventCount()override;
-				IEventInfo*									GetEvent(vint index)override;
-				bool										IsEventExists(const WString& name, bool inheritable)override;
-				IEventInfo*									GetEventByName(const WString& name, bool inheritable)override;
-				vint										GetMethodGroupCount()override;
-				IMethodGroupInfo*							GetMethodGroup(vint index)override;
-				bool										IsMethodGroupExists(const WString& name, bool inheritable)override;
-				IMethodGroupInfo*							GetMethodGroupByName(const WString& name, bool inheritable)override;
-				IMethodGroupInfo*							GetConstructorGroup()override;
-			};
-
-			template<typename T, TypeDescriptorFlags TDFlags>
-			class TypedValueTypeDescriptorBase : public ValueTypeDescriptorBase
-			{
-			public:
-				TypedValueTypeDescriptorBase()
-					:ValueTypeDescriptorBase(TDFlags, &TypeInfo<T>::content)
-				{
-				}
-			};
-
 /***********************************************************************
 TypeInfoImp
 ***********************************************************************/
@@ -226,6 +149,83 @@ TypeInfoImp
 				WString									GetTypeFriendlyName()override;
 
 				void									AddGenericArgument(Ptr<ITypeInfo> value);
+			};
+
+#endif
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+
+/***********************************************************************
+SerializableTypeDescriptor
+***********************************************************************/
+
+			class TypeDescriptorImplBase : public Object, public ITypeDescriptor, private ITypeDescriptor::ICpp
+			{
+			private:
+				TypeDescriptorFlags							typeDescriptorFlags;
+				const TypeInfoContent*						typeInfoContent;
+				WString										typeName;
+				WString										cppFullTypeName;
+
+				const WString&								GetFullName()override;
+
+			protected:
+				const TypeInfoContent*						GetTypeInfoContentInternal();
+
+			public:
+				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
+				~TypeDescriptorImplBase();
+
+				ITypeDescriptor::ICpp*						GetCpp()override;
+				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
+				const WString&								GetTypeName()override;
+			};
+
+			class ValueTypeDescriptorBase : public TypeDescriptorImplBase
+			{
+			protected:
+				bool										loaded;
+				Ptr<IValueType>								valueType;
+				Ptr<IEnumType>								enumType;
+				Ptr<ISerializableType>						serializableType;
+
+				virtual void								LoadInternal();;
+				void										Load();
+			public:
+				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
+				~ValueTypeDescriptorBase();
+
+				bool										IsAggregatable()override;
+				IValueType*									GetValueType()override;
+				IEnumType*									GetEnumType()override;
+				ISerializableType*							GetSerializableType()override;
+
+				vint										GetBaseTypeDescriptorCount()override;
+				ITypeDescriptor*							GetBaseTypeDescriptor(vint index)override;
+				bool										CanConvertTo(ITypeDescriptor* targetType)override;
+				vint										GetPropertyCount()override;
+				IPropertyInfo*								GetProperty(vint index)override;
+				bool										IsPropertyExists(const WString& name, bool inheritable)override;
+				IPropertyInfo*								GetPropertyByName(const WString& name, bool inheritable)override;
+				vint										GetEventCount()override;
+				IEventInfo*									GetEvent(vint index)override;
+				bool										IsEventExists(const WString& name, bool inheritable)override;
+				IEventInfo*									GetEventByName(const WString& name, bool inheritable)override;
+				vint										GetMethodGroupCount()override;
+				IMethodGroupInfo*							GetMethodGroup(vint index)override;
+				bool										IsMethodGroupExists(const WString& name, bool inheritable)override;
+				IMethodGroupInfo*							GetMethodGroupByName(const WString& name, bool inheritable)override;
+				IMethodGroupInfo*							GetConstructorGroup()override;
+			};
+
+			template<typename T, TypeDescriptorFlags TDFlags>
+			class TypedValueTypeDescriptorBase : public ValueTypeDescriptorBase
+			{
+			public:
+				TypedValueTypeDescriptorBase()
+					:ValueTypeDescriptorBase(TDFlags, &TypeInfo<T>::content)
+				{
+				}
 			};
 
 /***********************************************************************
