@@ -46,7 +46,7 @@ MetaonlyTypeInfo
 				MetaonlyReaderContext*			context = nullptr;
 				Decorator						decorator = TypeDescriptor;
 				TypeInfoHint					hint = TypeInfoHint::Normal;
-				Ptr<MetaonlyTypeInfo>			elementType = nullptr;
+				Ptr<MetaonlyTypeInfo>			elementType;
 				vint							typeDecriptor = -1;
 				List<Ptr<MetaonlyTypeInfo>>		genericArguments;
 
@@ -54,7 +54,19 @@ MetaonlyTypeInfo
 				MetaonlyTypeInfo() = default;
 
 				MetaonlyTypeInfo(MetaonlyWriterContext& _context, ITypeInfo* typeInfo)
+					: decorator(typeInfo->GetDecorator())
+					, hint(typeInfo->GetHint())
+					, typeDecriptor(_context.tdIndex[typeInfo->GetTypeDescriptor()])
 				{
+					if (auto et = typeInfo->GetElementType())
+					{
+						elementType = new MetaonlyTypeInfo(_context, et);
+					}
+					for (vint i = 0; i < typeInfo->GetGenericArgumentCount(); i++)
+					{
+						auto ga = typeInfo->GetGenericArgument(i);
+						genericArguments.Add(new MetaonlyTypeInfo(_context, ga));
+					}
 				}
 
 				void SetContext(MetaonlyReaderContext* _context)
