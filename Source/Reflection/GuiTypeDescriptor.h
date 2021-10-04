@@ -2301,7 +2301,7 @@ ITypeManager
 			extern bool							IsInterfaceType(ITypeDescriptor* typeDescriptor, bool& acceptProxy);
 			extern void							LogTypeManager(stream::TextWriter& writer);
 			extern void							GenerateMetaonlyTypes(stream::IStream& outputStream);
-			extern void							LoadMetaonlyTypes(stream::IStream& inputStream);
+			extern Ptr<ITypeLoader>				LoadMetaonlyTypes(stream::IStream& inputStream);
 
 /***********************************************************************
 Cpp Helper Functions

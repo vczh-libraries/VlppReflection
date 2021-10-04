@@ -1,6 +1,7 @@
 #include "../../../Source/Reflection/GuiTypeDescriptorReflection.h"
 
 using namespace vl;
+using namespace vl::filesystem;
 using namespace vl::stream;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
@@ -23,6 +24,11 @@ TEST_FILE
 			EncoderStream encoderStream(fileStream, encoder);
 			StreamWriter writer(encoderStream);
 			LogTypeManager(writer);
+		}
+		{
+			auto first = File(GetTestOutputPath() + L"Reflection.txt").ReadAllTextByBom();
+			auto second = File(GetTestOutputPath() + L"../Resources/Baseline/Reflection.txt").ReadAllTextByBom();
+			TEST_ASSERT(first == second);
 		}
 		TEST_ASSERT(ResetGlobalTypeManager());
 	});

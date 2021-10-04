@@ -668,9 +668,35 @@ GenerateMetaonlyTypes
 LoadMetaonlyTypes
 ***********************************************************************/
 
-			void LoadMetaonlyTypes(stream::IStream& inputStream)
+			class MetaonlyTypeLoader : public Object, public ITypeLoader
 			{
+			public:
+				Ptr<MetaonlyReaderContext>				context;
+				List<Ptr<MetaonlyTypeDescriptor>>		typeDescriptors;
+
+				void Load(ITypeManager* manager) override
+				{
+					for (vint i = 0; i < typeDescriptors.Count(); i++)
+					{
+						auto td = typeDescriptors[i];
+						manager->SetTypeDescriptor(td->GetTypeName(), td);
+					}
+				}
+
+				void Unload(ITypeManager* manager) override
+				{
+				}
+			};
+
+			Ptr<ITypeLoader> LoadMetaonlyTypes(stream::IStream& inputStream)
+			{
+				auto context = MakePtr<MetaonlyReaderContext>();
+				auto loader = MakePtr<MetaonlyTypeLoader>();
+				loader->context = context;
 				Reader reader(inputStream);
+				reader.context = context;
+
+				return loader;
 			}
 		}
 	}
