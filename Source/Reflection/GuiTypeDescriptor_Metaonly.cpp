@@ -15,6 +15,10 @@ namespace vl
 		{
 			using namespace collections;
 
+/***********************************************************************
+Context
+***********************************************************************/
+
 			struct MetaonlyWriterContext
 			{
 				Dictionary<ITypeDescriptor*, vint>		tdIndex;
@@ -31,30 +35,9 @@ namespace vl
 				List<IEventInfo*>						eis;
 			};
 
-			struct IdRange
-			{
-				vint			start = -1;
-				vint			count = 0;
-			};
-
-			struct TypeDescriptorMetadata
-			{
-				WString						fullName;
-				WString						typeName;
-				TypeDescriptorFlags			flags;
-				bool						isAggregatable;
-				bool						isValueType;
-				bool						isSerializable;
-				bool						isEnumType;
-				bool						isFlagEnum;
-				List<WString>				enumItems;
-				List<vint>					baseTypeDescriptors;
-				List<vint>					properties;
-				List<vint>					events;
-				List<vint>					methods;
-				List<IdRange>				methodGroups;
-				IdRange						constructorGroup;
-			};
+/***********************************************************************
+MetaonlyTypeInfo
+***********************************************************************/
 
 			class MetaonlyTypeInfo : public Object, public ITypeInfo
 			{
@@ -136,6 +119,74 @@ namespace vl
 					return result;
 				}
 			};
+
+/***********************************************************************
+Metadata
+***********************************************************************/
+
+			struct IdRange
+			{
+				vint								start = -1;
+				vint								count = 0;
+			};
+
+			struct TypeDescriptorMetadata
+			{
+				WString								fullName;
+				WString								typeName;
+				TypeDescriptorFlags					flags = TypeDescriptorFlags::Undefined;
+				bool								isAggregatable = false;
+				bool								isValueType = false;
+				bool								isSerializable = false;
+				bool								isEnumType = false;
+				bool								isFlagEnum = false;
+				List<WString>						enumItems;
+				List<vint>							baseTypeDescriptors;
+				List<vint>							properties;
+				List<vint>							events;
+				List<vint>							methods;
+				List<IdRange>						methodGroups;
+				IdRange								constructorGroup;
+			};
+
+			struct ParameterInfoMetadata
+			{
+				WString								name;
+				Ptr<MetaonlyTypeInfo>				type;
+			};
+
+			struct MethodInfoMetadata
+			{
+				WString								invokeTemplate;
+				WString								closureTemplate;
+				WString								name;
+				vint								ownerProperty = -1;
+				Ptr<MetaonlyTypeInfo>				returnType;
+				List<ParameterInfoMetadata>			parameters;
+				bool								isStatic = false;
+			};
+
+			struct PropertyInfoMetadata
+			{
+				WString								referenceTemplate;
+				WString								name;
+				bool								readable = false;
+				bool								writable = false;
+				Ptr<MetaonlyTypeInfo>				returnType;
+				vint								getter = -1;
+				vint								setter = -1;
+				vint								valueChangedEvent = -1;
+			};
+
+			struct EventInfoMetadata
+			{
+				WString								attachTemplate;
+				WString								detachTemplate;
+				WString								invokeTemplate;
+				WString								name;
+				Ptr<MetaonlyTypeInfo>				handlerType;
+				List<vint>							observingProperties;
+			};
 		}
 	}
 
@@ -143,6 +194,11 @@ namespace vl
 	{
 		namespace internal
 		{
+
+/***********************************************************************
+Serialization
+***********************************************************************/
+
 			SERIALIZE_ENUM(reflection::description::ITypeInfo::Decorator)
 			SERIALIZE_ENUM(reflection::description::TypeInfoHint)
 			SERIALIZE_ENUM(reflection::description::TypeDescriptorFlags)
@@ -345,11 +401,6 @@ GenerateMetaonlyTypes
 					{
 						metadata.enumItems.Add(enumType->GetItemName(i));
 					}
-				}
-				else
-				{
-					metadata.isEnumType = false;
-					metadata.isFlagEnum = false;
 				}
 
 				for (vint i = 0; i < td->GetBaseTypeDescriptorCount(); i++)
