@@ -57,7 +57,7 @@ namespace vl
 DetailTypeInfoRetriver<Func<R(TArgs...)>>
 ***********************************************************************/
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			namespace internal_helper
 			{
 				template<typename T>
@@ -91,7 +91,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
  
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					auto functionType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor(), hint);
@@ -177,7 +177,7 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 				{
 					if (!arguments || arguments->GetCount() != sizeof...(TArgs))
 					{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 						throw ArgumentCountMismtatchException();
 #else
 						CHECK_FAIL(L"Argument count mismatch.");
@@ -212,7 +212,7 @@ ParameterAccessor<Func<R(TArgs...)>>
 					Ptr<IValueFunctionProxy> result=new ValueFunctionProxyWrapper<RawFunctionType>(object);
 
 					ITypeDescriptor* td = nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor();
 #endif
 					return BoxValue<Ptr<IValueFunctionProxy>>(result, td);
@@ -250,7 +250,7 @@ ParameterAccessor<Func<R(TArgs...)>>
 			{
 			};
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
  
 /***********************************************************************
 MethodInfoImpl
