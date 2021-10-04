@@ -30,7 +30,9 @@ namespace test
 					{
 						TEST_ASSERT(serializer->Deserialize(ToString(i), value));
 						TEST_ASSERT(value.GetValueType() == Value::BoxedValue);
+#ifndef VCZH_DEBUG_METAONLY_REFLECTION
 						TEST_ASSERT(value.GetTypeDescriptor() == type);
+#endif
 						TEST_ASSERT(value.GetRawPtr() == 0);
 						TEST_ASSERT(value.GetSharedPtr().Obj() == 0);
 
@@ -54,7 +56,9 @@ namespace test
 					{
 						TEST_ASSERT(serializer->Deserialize(ToString(i), value) == false);
 						TEST_ASSERT(value.GetValueType() == Value::Null);
+#ifndef VCZH_DEBUG_METAONLY_REFLECTION
 						TEST_ASSERT(value.GetTypeDescriptor() == 0);
+#endif
 						TEST_ASSERT(value.GetRawPtr() == 0);
 						TEST_ASSERT(value.GetSharedPtr().Obj() == 0);
 					}
@@ -84,7 +88,9 @@ namespace test
 				{
 					TEST_ASSERT(serializer->Deserialize(i, value));
 					TEST_ASSERT(value.GetValueType() == Value::BoxedValue);
+#ifndef VCZH_DEBUG_METAONLY_REFLECTION
 					TEST_ASSERT(value.GetTypeDescriptor() == type);
+#endif
 					TEST_ASSERT(value.GetRawPtr() == 0);
 					TEST_ASSERT(value.GetSharedPtr().Obj() == 0);
 				}
@@ -108,7 +114,9 @@ namespace test
 				Value value;
 				TEST_ASSERT(serializer->Deserialize(i, value) == false);
 				TEST_ASSERT(value.GetValueType() == Value::Null);
+#ifndef VCZH_DEBUG_METAONLY_REFLECTION
 				TEST_ASSERT(value.GetTypeDescriptor() == 0);
+#endif
 				TEST_ASSERT(value.GetRawPtr() == 0);
 				TEST_ASSERT(value.GetSharedPtr().Obj() == 0);
 			});
@@ -245,7 +253,9 @@ TEST_FILE
 {
 	TEST_CATEGORY(L"Predefined types")
 	{
+#ifndef VCZH_DEBUG_METAONLY_REFLECTION
 		TEST_CASE_ASSERT(LoadPredefinedTypes());
+#endif
 		TestInt<vint8_t>();
 		TestInt<vint16_t>();
 		TestInt<vint32_t>();

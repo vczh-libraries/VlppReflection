@@ -11,7 +11,7 @@ Licensed under https://github.com/vczh-libraries/License
 #include "GuiTypeDescriptorBuilder_Function.h"
 #include "GuiTypeDescriptorBuilder_Struct.h"
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 /***********************************************************************
 Macros

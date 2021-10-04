@@ -487,11 +487,6 @@ Helper Functions
 				return GetGlobalTypeManager()->GetTypeDescriptor(name);
 			}
 
-			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(const Value& value)
-			{
-				return value.GetTypeDescriptor();
-			}
-
 #else
 
 			vint ITypeDescriptor_GetTypeDescriptorCount()
@@ -509,18 +504,28 @@ Helper Functions
 				return nullptr;
 			}
 
+#endif
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+
+			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(const Value& value)
+			{
+				return value.GetTypeDescriptor();
+			}
+
+#else
+
 			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(const Value& value)
 			{
 				return nullptr;
 			}
-
 #endif
 
 /***********************************************************************
 LoadPredefinedTypes
 ***********************************************************************/
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 #define _ ,	
 
@@ -841,7 +846,7 @@ LoadPredefinedTypes
 
 			bool LoadPredefinedTypes()
 			{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				ITypeManager* manager = GetGlobalTypeManager();
 				if (manager)
 				{

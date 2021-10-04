@@ -110,7 +110,7 @@ Predefined Types
 Interface Implementation Proxy (Implement)
 ***********************************************************************/
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 #pragma warning(push)
 #pragma warning(disable:4250)
