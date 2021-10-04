@@ -8,6 +8,14 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include <VlppOS.h>
 
+#if (defined VCZH_DEBUG_NO_REFLECTION) && (defined VCZH_DEBUG_METAONLY_REFLECTION)
+static_assert(false, "Preprocessor VCZH_DEBUG_NO_REFLECTION and VCZH_DEBUG_METAONLY_REFLECTION could not be defined at the same time.")
+#endif
+
+#if !(defined VCZH_DEBUG_NO_REFLECTION) && !(defined VCZH_DEBUG_METAONLY_REFLECTION)
+#define VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+#endif
+
 namespace vl
 {
 	namespace reflection
@@ -119,13 +127,14 @@ Attribute
 		private:
 			volatile vint							referenceCounter;
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			size_t									objectSize;
 			description::ITypeDescriptor**			typeDescriptor;
 #endif
 			Ptr<InternalPropertyMap>				internalProperties;
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			bool									destructing;
 			DescriptableObject**					aggregationInfo;
 			vint									aggregationSize;
@@ -136,7 +145,7 @@ Attribute
 
 		protected:
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			// Returns true if this object inherits other objects by aggregation.</returns>
 			bool									IsAggregated();
 
@@ -164,7 +173,7 @@ Attribute
 			/// <summary>A function that must be called in destructors of all classes inheriting from [T:vl.reflection.AggregatableDescription`1].</summary>
 			void									FinalizeAggregation();
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			template<typename T>
 			void SafeAggregationCast(T*& result)
 			{
@@ -190,7 +199,7 @@ Attribute
 			DescriptableObject();
 			virtual ~DescriptableObject();
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			/// <summary>
 			/// <p>Get the type descriptor that describe the real type of this object.</p>
 			/// </summary>
@@ -222,7 +231,7 @@ Attribute
 			/// <param name="forceDisposing">Set to true to force disposing this object. If the reference counter is not 0 if you force disposing it, it will raise a [T:vl.reflection.description.ValueNotDisposableException].</param>
 			bool									Dispose(bool forceDisposing);
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			/// <summary>
 			/// <p>Get the aggregation root object, which is the object that inherits this object by aggregation.</p>
 			/// </summary>
@@ -252,7 +261,7 @@ Attribute
 			template<typename T>
 			T* SafeAggregationCast()
 			{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				T* result = nullptr;
 				SafeGetAggregationRoot()->SafeAggregationCast<T>(result);
 				return result;
@@ -620,13 +629,13 @@ Attribute
 		class Description : public virtual DescriptableObject
 		{
 		protected:
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			static description::ITypeDescriptor*		associatedTypeDescriptor;
 #endif
 		public:
 			Description()
 			{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 				if(objectSize<sizeof(T))
 				{
@@ -639,7 +648,7 @@ Attribute
 #endif
 			}
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			static description::ITypeDescriptor* GetAssociatedTypeDescriptor()
 			{
 				return associatedTypeDescriptor;
@@ -661,7 +670,7 @@ Attribute
 		{
 		};
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 		template<typename T>
 		description::ITypeDescriptor* Description<T>::associatedTypeDescriptor=0;
 #endif
@@ -684,7 +693,7 @@ ReferenceCounterOperator
 		static __forceinline volatile vint* CreateCounter(T* reference)
 		{
 			reflection::DescriptableObject* obj=reference;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			if (obj->IsAggregated())
 			{
 				if (auto root = obj->GetAggregationRoot())
@@ -758,7 +767,7 @@ Value
 				DescriptableObject*				rawPtr;
 				Ptr<DescriptableObject>			sharedPtr;
 				Ptr<IBoxedValue>				boxedValue;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				ITypeDescriptor*				typeDescriptor;
 #endif
 
@@ -794,7 +803,7 @@ Value
 				/// <summary>Test if this value isnull.</summary>
 				/// <returns>Returns true if this value is null.</returns>
 				bool							IsNull()const;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				/// <summary>Get the real type of the stored object.</summary>
 				/// <returns>The real type. Returns null if the value is null.</returns>
 				/// <remarks>
@@ -820,7 +829,7 @@ Value
 				/// <param name="type">The type of the boxed value.</param>
 				static Value					From(Ptr<IBoxedValue> value, ITypeDescriptor* type);
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				static IMethodInfo*				SelectMethod(IMethodGroupInfo* methodGroup, collections::Array<Value>& arguments);
 
 				/// <summary>Call the default constructor of the specified type to create a value.</summary>
@@ -2333,7 +2342,7 @@ Exceptions
 				}
 			};
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 			class TypeNotExistsException : public TypeDescriptorException
 			{

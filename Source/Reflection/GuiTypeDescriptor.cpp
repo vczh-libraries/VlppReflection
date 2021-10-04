@@ -16,7 +16,7 @@ namespace vl
 DescriptableObject
 ***********************************************************************/
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 		bool DescriptableObject::IsAggregated()
 		{
@@ -99,7 +99,7 @@ DescriptableObject
 
 		void DescriptableObject::FinalizeAggregation()
 		{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			if (IsAggregated())
 			{
 				if (auto root = GetAggregationRoot())
@@ -126,7 +126,7 @@ DescriptableObject
 		DescriptableObject::DescriptableObject()
 			:referenceCounter(0)
 			, sharedPtrDestructorProc(0)
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			, objectSize(0)
 			, typeDescriptor(0)
 			, destructing(false)
@@ -145,7 +145,7 @@ DescriptableObject
 #endif
 		DescriptableObject::~DescriptableObject()
 		{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			destructing = true;
 			if (IsAggregated())
 			{
@@ -180,7 +180,7 @@ DescriptableObject
 #pragma GCC diagnostic pop
 #endif
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 		description::ITypeDescriptor* DescriptableObject::GetTypeDescriptor()
 		{
@@ -237,7 +237,7 @@ DescriptableObject
 
 		bool DescriptableObject::Dispose(bool forceDisposing)
 		{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			if (IsAggregated())
 			{
 				if (auto root = GetAggregationRoot())
@@ -263,7 +263,7 @@ DescriptableObject
 			}
 		}
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 		DescriptableObject* DescriptableObject::SafeGetAggregationRoot()
 		{
@@ -288,11 +288,11 @@ description::Value
 			Value::Value(DescriptableObject* value)
 				:valueType(value ? RawPtr :Null)
 				,rawPtr(nullptr)
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				,typeDescriptor(0)
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+				,typeDescriptor(nullptr)
 #endif
 			{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				if (value)
 				{
 					rawPtr = value->SafeGetAggregationRoot();
@@ -305,11 +305,11 @@ description::Value
 			Value::Value(Ptr<DescriptableObject> value)
 				:valueType(value ? SharedPtr : Null)
 				,rawPtr(nullptr)
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				,typeDescriptor(0)
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+				,typeDescriptor(nullptr)
 #endif
 			{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				if (value)
 				{
 					rawPtr = value->SafeGetAggregationRoot();
@@ -325,7 +325,7 @@ description::Value
 				:valueType(value ? BoxedValue : Null)
 				, rawPtr(nullptr)
 				, boxedValue(value)
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				, typeDescriptor(associatedTypeDescriptor)
 #endif
 			{
@@ -361,7 +361,7 @@ description::Value
 						return 1;
 					case Value::BoxedValue:
 						{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 							auto aSt = a.GetTypeDescriptor()->GetSerializableType();
 							auto bSt = b.GetTypeDescriptor()->GetSerializableType();
 							if (aSt)
@@ -468,8 +468,8 @@ description::Value
 			Value::Value()
 				:valueType(Null)
 				,rawPtr(0)
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				,typeDescriptor(0)
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+				,typeDescriptor(nullptr)
 #endif
 			{
 			}
@@ -479,7 +479,7 @@ description::Value
 				,rawPtr(value.rawPtr)
 				,sharedPtr(value.sharedPtr)
 				,boxedValue(value.boxedValue ? value.boxedValue->Copy() : nullptr)
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				,typeDescriptor(value.typeDescriptor)
 #endif
 			{
@@ -491,7 +491,7 @@ description::Value
 				rawPtr = value.rawPtr;
 				sharedPtr = value.sharedPtr;
 				boxedValue = value.boxedValue ? value.boxedValue->Copy() : nullptr;
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				typeDescriptor = value.typeDescriptor;
 #endif
 				return *this;
@@ -522,7 +522,7 @@ description::Value
 				return valueType == Null;
 			}
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 			ITypeDescriptor* Value::GetTypeDescriptor()const
 			{
@@ -624,7 +624,7 @@ description::Value
 				return Value(value, type);
 			}
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 			IMethodInfo* Value::SelectMethod(IMethodGroupInfo* methodGroup, collections::Array<Value>& arguments)
 			{
@@ -800,13 +800,13 @@ description::TypeManager
 			protected:
 				Dictionary<WString, Ptr<ITypeDescriptor>>		typeDescriptors;
 				List<Ptr<ITypeLoader>>							typeLoaders;
-				ITypeDescriptor*								rootType;
+				ITypeDescriptor* rootType;
 				bool											loaded;
 
 			public:
 				TypeManager()
 					:rootType(0)
-					,loaded(false)
+					, loaded(false)
 				{
 				}
 
@@ -827,19 +827,19 @@ description::TypeManager
 
 				ITypeDescriptor* GetTypeDescriptor(const WString& name)override
 				{
-					vint index=typeDescriptors.Keys().IndexOf(name);
-					return index==-1?0:typeDescriptors.Values().Get(index).Obj();
+					vint index = typeDescriptors.Keys().IndexOf(name);
+					return index == -1 ? 0 : typeDescriptors.Values().Get(index).Obj();
 				}
 
 				bool SetTypeDescriptor(const WString& name, Ptr<ITypeDescriptor> typeDescriptor)override
 				{
-					if(typeDescriptor && name!=typeDescriptor->GetTypeName())
+					if (typeDescriptor && name != typeDescriptor->GetTypeName())
 					{
 						return false;
 					}
-					if(!typeDescriptors.Keys().Contains(name))
+					if (!typeDescriptors.Keys().Contains(name))
 					{
-						if(typeDescriptor)
+						if (typeDescriptor)
 						{
 							typeDescriptors.Add(name, typeDescriptor);
 							return true;
@@ -847,7 +847,7 @@ description::TypeManager
 					}
 					else
 					{
-						if(!typeDescriptor)
+						if (!typeDescriptor)
 						{
 							typeDescriptors.Remove(name);
 							return true;
@@ -858,11 +858,11 @@ description::TypeManager
 
 				bool AddTypeLoader(Ptr<ITypeLoader> typeLoader)override
 				{
-					vint index=typeLoaders.IndexOf(typeLoader.Obj());
-					if(index==-1)
+					vint index = typeLoaders.IndexOf(typeLoader.Obj());
+					if (index == -1)
 					{
 						typeLoaders.Add(typeLoader);
-						if(loaded)
+						if (loaded)
 						{
 							typeLoader->Load(this);
 						}
@@ -876,10 +876,10 @@ description::TypeManager
 
 				bool RemoveTypeLoader(Ptr<ITypeLoader> typeLoader)override
 				{
-					vint index=typeLoaders.IndexOf(typeLoader.Obj());
-					if(index!=-1)
+					vint index = typeLoaders.IndexOf(typeLoader.Obj());
+					if (index != -1)
 					{
-						if(loaded)
+						if (loaded)
 						{
 							typeLoader->Unload(this);
 						}
@@ -894,10 +894,10 @@ description::TypeManager
 
 				bool Load()override
 				{
-					if(!loaded)
+					if (!loaded)
 					{
-						loaded=true;
-						for(vint i=0;i<typeLoaders.Count();i++)
+						loaded = true;
+						for (vint i = 0; i < typeLoaders.Count(); i++)
 						{
 							typeLoaders[i]->Load(this);
 						}
@@ -911,11 +911,11 @@ description::TypeManager
 
 				bool Unload()override
 				{
-					if(loaded)
+					if (loaded)
 					{
-						loaded=false;
-						rootType=0;
-						for(vint i=0;i<typeLoaders.Count();i++)
+						loaded = false;
+						rootType = 0;
+						for (vint i = 0; i < typeLoaders.Count(); i++)
 						{
 							typeLoaders[i]->Unload(this);
 						}
@@ -944,7 +944,7 @@ description::TypeManager
 				{
 					if (!rootType)
 					{
-						rootType=description::GetTypeDescriptor<Value>();
+						rootType = description::GetTypeDescriptor<Value>();
 					}
 					return rootType;
 				}
