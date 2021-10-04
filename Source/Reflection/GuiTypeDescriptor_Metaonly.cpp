@@ -233,6 +233,41 @@ Serialization
 				SERIALIZE(methodGroups)
 				SERIALIZE(constructorGroup)
 			END_SERIALIZATION
+
+			BEGIN_SERIALIZATION(reflection::description::ParameterInfoMetadata)
+				SERIALIZE(name)
+				SERIALIZE(type)
+			END_SERIALIZATION
+
+			BEGIN_SERIALIZATION(reflection::description::MethodInfoMetadata)
+				SERIALIZE(invokeTemplate)
+				SERIALIZE(closureTemplate)
+				SERIALIZE(name)
+				SERIALIZE(ownerProperty)
+				SERIALIZE(returnType)
+				SERIALIZE(parameters)
+				SERIALIZE(isStatic)
+			END_SERIALIZATION
+
+			BEGIN_SERIALIZATION(reflection::description::PropertyInfoMetadata)
+				SERIALIZE(referenceTemplate)
+				SERIALIZE(name)
+				SERIALIZE(readable)
+				SERIALIZE(writable)
+				SERIALIZE(returnType)
+				SERIALIZE(getter)
+				SERIALIZE(setter)
+				SERIALIZE(valueChangedEvent)
+			END_SERIALIZATION
+
+			BEGIN_SERIALIZATION(reflection::description::EventInfoMetadata)
+				SERIALIZE(attachTemplate)
+				SERIALIZE(detachTemplate)
+				SERIALIZE(invokeTemplate)
+				SERIALIZE(name)
+				SERIALIZE(handlerType)
+				SERIALIZE(observingProperties)
+			END_SERIALIZATION
 		}
 	}
 
@@ -446,14 +481,20 @@ GenerateMetaonlyTypes
 
 			void GenerateMetaonlyMethodInfo(Writer& writer, IMethodInfo* td)
 			{
+				MethodInfoMetadata metadata;
+				writer << metadata;
 			}
 
 			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* td)
 			{
+				PropertyInfoMetadata metadata;
+				writer << metadata;
 			}
 
 			void GenerateMetaonlyEventInfo(Writer& writer, IEventInfo* td)
 			{
+				EventInfoMetadata metadata;
+				writer << metadata;
 			}
 
 			void GenerateMetaonlyTypes(stream::IStream& outputStream)
