@@ -248,12 +248,96 @@ ITypeDescriptor
 GenerateMetaonlyTypes
 ***********************************************************************/
 
+			void GenerateMetaonlyTypeDescriptor(Writer& writer, ITypeDescriptor* td)
+			{
+				TypeDescriptorMetadata metadata;
+				if (auto cpp = td->GetCpp())
+				{
+					metadata.fullName = cpp->GetFullName();
+				}
+				metadata.typeName = td->GetTypeName();
+				metadata.flags = td->GetTypeDescriptorFlags();
+				metadata.isAggregatable = td->IsAggregatable();
+				metadata.isValueType = td->GetValueType();
+				metadata.isSerializable = td->GetSerializableType();
+				if (auto enumType = td->GetEnumType())
+				{
+					metadata.isEnumType = true;
+					metadata.isFlagEnum = enumType->IsFlagEnum();
+					for (vint i = 0; i < enumType->GetItemCount(); i++)
+					{
+						metadata.enumItems.Add(enumType->GetItemName(i));
+					}
+				}
+				else
+				{
+					metadata.isEnumType = false;
+					metadata.isFlagEnum = false;
+				}
+
+				for (vint i = 0; i < td->GetBaseTypeDescriptorCount(); i++)
+				{
+					metadata.baseTypeDescriptors.Add(writer.context->tdIndex[td->GetBaseTypeDescriptor(i)]);
+				}
+
+				for (vint i = 0; i < td->GetPropertyCount(); i++)
+				{
+					metadata.properties.Add(writer.context->piIndex[td->GetProperty(i)]);
+				}
+
+				for (vint i = 0; i < td->GetEventCount(); i++)
+				{
+					metadata.events.Add(writer.context->eiIndex[td->GetEvent(i)]);
+				}
+
+				for (vint i = 0; i < td->GetMethodGroupCount(); i++)
+				{
+					auto mg = td->GetMethodGroup(i);
+					IdRange ir;
+					ir.start = metadata.methods.Count();
+					for (vint j = 0; j > mg->GetMethodCount(); j++)
+					{
+						metadata.methods.Add(writer.context->miIndex[mg->GetMethod(j)]);
+					}
+					ir.count = metadata.methods.Count() - ir.start;
+					metadata.methodGroups.Add(ir);
+				}
+
+				if (auto cg = td->GetConstructorGroup())
+				{
+					metadata.constructorGroup.start = metadata.methods.Count();
+					for (vint j = 0; j > cg->GetMethodCount(); j++)
+					{
+						metadata.methods.Add(writer.context->miIndex[cg->GetMethod(j)]);
+					}
+					metadata.constructorGroup.count = metadata.methods.Count() - metadata.constructorGroup.start;
+				}
+
+				writer << metadata;
+			}
+
+			void GenerateMetaonlyMethodInfo(Writer& writer, IMethodInfo* td)
+			{
+			}
+
+			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* td)
+			{
+			}
+
+			void GenerateMetaonlyEventInfo(Writer& writer, IEventInfo* td)
+			{
+			}
+
 			void GenerateMetaonlyTypes(stream::IStream& outputStream)
 			{
 				Writer writer(outputStream);
 				writer.context = MakePtr<MetaonlyWriterContext>();
 
 				Dictionary<WString, ITypeDescriptor*> tds;
+				List<IMethodInfo*> mis;
+				List<IPropertyInfo*> pis;
+				List<IEventInfo*> eis;
+
 				{
 					auto tm = GetGlobalTypeManager();
 					vint count = tm->GetTypeDescriptorCount();
@@ -278,7 +362,9 @@ GenerateMetaonlyTypes
 							vint miCount = mg->GetMethodCount();
 							for (vint k = 0; k < miCount; k++)
 							{
-								writer.context->miIndex.Add(mg->GetMethod(k), writer.context->miIndex.Count());
+								auto mi = mg->GetMethod(k);
+								writer.context->miIndex.Add(mi, mis.Count());
+								mis.Add(mi);
 							}
 						}
 
@@ -287,20 +373,26 @@ GenerateMetaonlyTypes
 							vint miCount = cg->GetMethodCount();
 							for (vint k = 0; k < miCount; k++)
 							{
-								writer.context->miIndex.Add(cg->GetMethod(k), writer.context->miIndex.Count());
+								auto mi = cg->GetMethod(k);
+								writer.context->miIndex.Add(mi, mis.Count());
+								mis.Add(mi);
 							}
 						}
 
 						vint piCount = td->GetPropertyCount();
 						for (vint j = 0; j < piCount; j++)
 						{
-							writer.context->piIndex.Add(td->GetProperty(j), writer.context->piIndex.Count());
+							auto pi = td->GetProperty(j);
+							writer.context->piIndex.Add(pi, pis.Count());
+							pis.Add(pi);
 						}
 
 						vint eiCount = td->GetEventCount();
 						for (vint j = 0; j < eiCount; j++)
 						{
-							writer.context->eiIndex.Add(td->GetEvent(j), writer.context->eiIndex.Count());
+							auto ei = td->GetEvent(j);
+							writer.context->eiIndex.Add(ei, eis.Count());
+							eis.Add(ei);
 						}
 					}
 				}
@@ -311,6 +403,30 @@ GenerateMetaonlyTypes
 					{
 						auto name = tds.Keys()[i];
 						writer << name;
+					}
+				}
+				{
+					vint tdCount = tds.Count();
+					vint miCount = mis.Count();
+					vint piCount = pis.Count();
+					vint eiCount = eis.Count();
+					writer << tdCount << miCount << piCount << eiCount;
+
+					for (vint i = 0; i < tdCount; i++)
+					{
+						GenerateMetaonlyTypeDescriptor(writer, tds.Values()[i]);
+					}
+					for (vint i = 0; i < miCount; i++)
+					{
+						GenerateMetaonlyMethodInfo(writer, mis[i]);
+					}
+					for (vint i = 0; i < piCount; i++)
+					{
+						GenerateMetaonlyPropertyInfo(writer, pis[i]);
+					}
+					for (vint i = 0; i < eiCount; i++)
+					{
+						GenerateMetaonlyEventInfo(writer, eis[i]);
 					}
 				}
 			}
