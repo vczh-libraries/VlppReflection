@@ -205,14 +205,6 @@ GenericTypeInfo
 				WString result = elementType->GetTypeFriendlyName() + L"<";
 				FOREACH_INDEXER(Ptr<ITypeInfo>, type, i, genericArguments)
 				{
-					WString result = elementType->GetTypeFriendlyName() + L"<";
-					FOREACH_INDEXER(Ptr<ITypeInfo>, type, i, genericArguments)
-					{
-						if (i>0) result += L", ";
-						result += type->GetTypeFriendlyName();
-					}
-					result += L">";
-					return result;
 					if (i>0) result += L", ";
 					result += type->GetTypeFriendlyName();
 				}

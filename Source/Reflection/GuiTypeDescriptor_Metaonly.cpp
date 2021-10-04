@@ -5,6 +5,8 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "GuiTypeDescriptorReflection.h"
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 namespace vl
 {
 	namespace reflection
@@ -12,6 +14,22 @@ namespace vl
 		namespace description
 		{
 			using namespace collections;
+
+			struct MetaonlyWriterContext
+			{
+				Dictionary<ITypeDescriptor*, vint>		tdIndex;
+				Dictionary<IMethodInfo*, vint>			miIndex;
+				Dictionary<IPropertyInfo*, vint>		piIndex;
+				Dictionary<IEventInfo*, vint>			eiIndex;
+			};
+
+			struct MetaonlyReaderContext
+			{
+				List<ITypeDescriptor*>					tds;
+				List<IMethodInfo*>						mis;
+				List<IPropertyInfo*>					pis;
+				List<IEventInfo*>						eis;
+			};
 
 			struct IdRange
 			{
@@ -37,6 +55,87 @@ namespace vl
 				List<IdRange>				methodGroups;
 				IdRange						constructorGroup;
 			};
+
+			class MetaonlyTypeInfo : public Object, public ITypeInfo
+			{
+				friend struct stream::internal::Serialization<MetaonlyTypeInfo>;
+			protected:
+				MetaonlyReaderContext*			context = nullptr;
+				Decorator						decorator = TypeDescriptor;
+				TypeInfoHint					hint = TypeInfoHint::Normal;
+				Ptr<MetaonlyTypeInfo>			elementType = nullptr;
+				vint							typeDecriptor = -1;
+				List<Ptr<MetaonlyTypeInfo>>		genericArguments;
+
+			public:
+				MetaonlyTypeInfo() = default;
+
+				MetaonlyTypeInfo(MetaonlyWriterContext& _context, ITypeInfo* typeInfo)
+				{
+				}
+
+				void SetContext(MetaonlyReaderContext* _context)
+				{
+					context = _context;
+					if (elementType)
+					{
+						elementType->SetContext(_context);
+					}
+					for (vint i = 0; i < genericArguments.Count(); i++)
+					{
+						genericArguments[i]->SetContext(_context);
+					}
+				}
+
+				Decorator GetDecorator() override
+				{
+					return decorator;
+				}
+
+				TypeInfoHint GetHint() override
+				{
+					return hint;
+				}
+
+				ITypeInfo* GetElementType() override
+				{
+					return elementType.Obj();
+				}
+
+				ITypeDescriptor* GetTypeDescriptor() override
+				{
+					return context->tds[typeDecriptor];
+				}
+
+				vint GetGenericArgumentCount() override
+				{
+					return genericArguments.Count();
+				}
+
+				ITypeInfo* GetGenericArgument(vint index) override
+				{
+					return genericArguments[index].Obj();
+				}
+
+				WString GetTypeFriendlyName() override
+				{
+					switch (decorator)
+					{
+					case RawPtr: return elementType->GetTypeFriendlyName() + L"*";
+					case SharedPtr: return elementType->GetTypeFriendlyName() + L"^";
+					case Nullable: return elementType->GetTypeFriendlyName() + L"?";
+					case TypeDescriptor: return GetTypeDescriptor()->GetTypeName();
+					}
+					WString result = elementType->GetTypeFriendlyName() + L"<";
+					FOREACH_INDEXER(Ptr<MetaonlyTypeInfo>, type, i, genericArguments)
+					{
+						if (i > 0) result += L", ";
+						result += type->GetTypeFriendlyName();
+					}
+					result += L">";
+					return result;
+				}
+			};
 		}
 	}
 
@@ -51,6 +150,14 @@ namespace vl
 			BEGIN_SERIALIZATION(reflection::description::IdRange)
 				SERIALIZE(start)
 				SERIALIZE(count)
+			END_SERIALIZATION
+
+			BEGIN_SERIALIZATION(reflection::description::MetaonlyTypeInfo)
+				SERIALIZE(decorator)
+				SERIALIZE(hint)
+				SERIALIZE(elementType)
+				SERIALIZE(typeDecriptor)
+				SERIALIZE(genericArguments)
 			END_SERIALIZATION
 
 			BEGIN_SERIALIZATION(reflection::description::TypeDescriptorMetadata)
@@ -78,38 +185,8 @@ namespace vl
 		namespace description
 		{
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
-
-			struct MetaonlyWriterContext
-			{
-				Dictionary<ITypeDescriptor*, vint>		tdIndex;
-				Dictionary<IMethodInfo*, vint>			miIndex;
-				Dictionary<IPropertyInfo*, vint>		piIndex;
-				Dictionary<IEventInfo*, vint>			eiIndex;
-			};
-
-			struct MetaonlyReaderContext
-			{
-
-			};
-
 			using Reader = stream::internal::Reader<Ptr<MetaonlyReaderContext>>;
 			using Writer = stream::internal::Writer<Ptr<MetaonlyWriterContext>>;
-
-/***********************************************************************
-ITypeInfo
-***********************************************************************/
-
-			class MetaonlyTypeInfo : public Object, public ITypeInfo
-			{
-			protected:
-				Decorator						decorator = TypeDescriptor;
-				TypeInfoHint					hint = TypeInfoHint::Normal;
-				ITypeInfo*						elementType = nullptr;
-				ITypeDescriptor*				typeDecriptor=nullptr;
-				List<Ptr<MetaonlyTypeInfo>>		genericArguments;
-				WString							typeFriendlyName;
-			};
 
 /***********************************************************************
 ITypeDescriptor
@@ -439,8 +516,8 @@ LoadMetaonlyTypes
 			{
 				Reader reader(inputStream);
 			}
-
-#endif
 		}
 	}
 }
+
+#endif
