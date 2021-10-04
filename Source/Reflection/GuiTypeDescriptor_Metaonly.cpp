@@ -491,21 +491,33 @@ GenerateMetaonlyTypes
 				writer << metadata;
 			}
 
-			void GenerateMetaonlyMethodInfo(Writer& writer, IMethodInfo* td)
+			void GenerateMetaonlyMethodInfo(Writer& writer, IMethodInfo* mi)
 			{
 				MethodInfoMetadata metadata;
 				writer << metadata;
 			}
 
-			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* td)
+			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* pi)
 			{
 				PropertyInfoMetadata metadata;
 				writer << metadata;
 			}
 
-			void GenerateMetaonlyEventInfo(Writer& writer, IEventInfo* td)
+			void GenerateMetaonlyEventInfo(Writer& writer, IEventInfo* ei)
 			{
 				EventInfoMetadata metadata;
+				if (auto cpp = ei->GetCpp())
+				{
+					metadata.attachTemplate = cpp->GetAttachTemplate();
+					metadata.detachTemplate = cpp->GetDetachTemplate();
+					metadata.invokeTemplate = cpp->GetInvokeTemplate();
+				}
+				metadata.name = ei->GetName();
+				metadata.handlerType = new MetaonlyTypeInfo(*writer.context.Obj(), ei->GetHandlerType());
+				for (vint i = 0; i < ei->GetObservingPropertyCount(); i++)
+				{
+					metadata.observingProperties.Add(writer.context->piIndex[ei->GetObservingProperty(i)]);
+				}
 				writer << metadata;
 			}
 
