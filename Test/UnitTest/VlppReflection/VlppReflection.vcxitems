@@ -21,6 +21,7 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor_Metaonly.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor.h" />
