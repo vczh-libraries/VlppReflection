@@ -65,6 +65,10 @@ TypeInfo
 				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
 			}
 
+#endif
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+
 /***********************************************************************
 SerializableTypeDescriptor
 ***********************************************************************/
@@ -836,7 +840,7 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 				ParameterAccessor<T, TypeInfoRetriver<T>::TypeFlag>::UnboxParameter(value, result, typeDescriptor, valueName);
 			}
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 /***********************************************************************
 Value_xs
