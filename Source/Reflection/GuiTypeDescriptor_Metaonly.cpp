@@ -133,6 +133,15 @@ MetaonlyTypeInfo
 				}
 			};
 
+			ITypeInfo* EnsureSetContext(ITypeInfo* info, MetaonlyReaderContext* context)
+			{
+				if (auto minfo = dynamic_cast<MetaonlyTypeInfo*>(info))
+				{
+					minfo->SetContext(context);
+				}
+				return info;
+			}
+
 /***********************************************************************
 Metadata
 ***********************************************************************/
@@ -331,7 +340,7 @@ IMethodInfo
 
 				ITypeInfo* GetType() override
 				{
-					return metadata->type.Obj();
+					return EnsureSetContext(metadata->type.Obj(), context);
 				}
 
 				IMethodInfo* GetOwnerMethod() override
@@ -417,7 +426,7 @@ IMethodInfo
 
 				ITypeInfo* GetReturn() override
 				{
-					return metadata->returnType.Obj();
+					return EnsureSetContext(metadata->returnType.Obj(), context);
 				}
 
 				bool IsStatic() override
@@ -545,7 +554,7 @@ IPropertyInfo
 
 				ITypeInfo* GetReturn() override
 				{
-					return metadata->returnType.Obj();
+					return EnsureSetContext(metadata->returnType.Obj(), context);
 				}
 
 				IMethodInfo* GetGetter() override
@@ -633,7 +642,7 @@ IEventInfo
 
 				ITypeInfo* GetHandlerType() override
 				{
-					return metadata->handlerType.Obj();
+					return EnsureSetContext(metadata->handlerType.Obj(), context);
 				}
 
 				vint GetObservingPropertyCount() override
