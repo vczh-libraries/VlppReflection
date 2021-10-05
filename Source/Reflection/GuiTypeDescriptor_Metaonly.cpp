@@ -359,6 +359,8 @@ IMethodInfo
 					}
 				}
 
+				// ICpp
+
 				const WString& GetInvokeTemplate() override
 				{
 					return metadata->invokeTemplate;
@@ -369,6 +371,8 @@ IMethodInfo
 					return metadata->closureTemplate;
 				}
 
+				// IMemberInfo
+
 				ITypeDescriptor* GetOwnerTypeDescriptor() override
 				{
 					return context->tds[metadata->ownerTypeDescriptor].Obj();
@@ -378,6 +382,8 @@ IMethodInfo
 				{
 					return metadata->name;
 				}
+
+				// IMethodInfo
 
 				ICpp* GetCpp() override
 				{
@@ -448,6 +454,8 @@ IMethodInfo
 				{
 				}
 
+				// IMemberInfo
+
 				ITypeDescriptor* GetOwnerTypeDescriptor() override
 				{
 					return GetMethod(0)->GetOwnerTypeDescriptor();
@@ -457,6 +465,8 @@ IMethodInfo
 				{
 					return GetMethod(0)->GetName();
 				}
+
+				// IMethodGroupInfo
 
 				vint GetMethodCount() override
 				{
@@ -492,10 +502,14 @@ IPropertyInfo
 				{
 				}
 
+				// ICpp
+
 				const WString& GetReferenceTemplate() override
 				{
 					return metadata->referenceTemplate;
 				}
+
+				// IMemberInfo
 
 				ITypeDescriptor* GetOwnerTypeDescriptor() override
 				{
@@ -506,6 +520,8 @@ IPropertyInfo
 				{
 					return metadata->name;
 				}
+
+				// IPropertyInfo
 
 				ICpp* GetCpp() override
 				{
@@ -574,6 +590,8 @@ IEventInfo
 				{
 				}
 
+				// ICpp
+
 				const WString& GetAttachTemplate() override
 				{
 					return metadata->attachTemplate;
@@ -589,6 +607,8 @@ IEventInfo
 					return metadata->invokeTemplate;
 				}
 
+				// IMemberInfo
+
 				ITypeDescriptor* GetOwnerTypeDescriptor() override
 				{
 					return context->tds[metadata->ownerTypeDescriptor].Obj();
@@ -598,6 +618,8 @@ IEventInfo
 				{
 					return metadata->name;
 				}
+
+				// IEventInfo
 
 				ICpp* GetCpp() override
 				{
@@ -643,7 +665,13 @@ IEventInfo
 ITypeDescriptor
 ***********************************************************************/
 
-			class MetaonlyTypeDescriptor : public Object, public ITypeDescriptor, protected ITypeDescriptor::ICpp
+			class MetaonlyTypeDescriptor
+				: public Object
+				, public ITypeDescriptor
+				, protected ITypeDescriptor::ICpp
+				, protected IValueType
+				, protected IEnumType
+				, protected ISerializableType
 			{
 			protected:
 				MetaonlyReaderContext*			context = nullptr;
@@ -666,10 +694,75 @@ ITypeDescriptor
 					}
 				}
 
+				// ICpp
+
 				const WString& GetFullName() override
 				{
 					return metadata->fullName;
 				}
+
+				// IValueType
+
+				Value CreateDefault() override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				IBoxedValue::CompareResult Compare(const Value& a, const Value& b) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				// IEnumType
+
+				bool IsFlagEnum() override
+				{
+					return metadata->isFlagEnum;
+				}
+
+				vint GetItemCount() override
+				{
+					return metadata->enumItems.Count();
+				}
+
+				WString GetItemName(vint index) override
+				{
+					return metadata->enumItems[index];
+				}
+
+				vuint64_t GetItemValue(vint index) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				vint IndexOfItem(WString name) override
+				{
+					return metadata->enumItems.IndexOf(name);
+				}
+
+				Value ToEnum(vuint64_t value) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				vuint64_t FromEnum(const Value& value) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				// ISerializableType
+
+				bool Serialize(const Value& input, WString& output) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				bool Deserialize(const WString& input, Value& output) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				// ITypeDescriptor
 
 				ICpp* GetCpp() override
 				{
@@ -697,20 +790,17 @@ ITypeDescriptor
 
 				IValueType* GetValueType() override
 				{
-					if (!metadata->isValueType) return nullptr;
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->isValueType ? this : nullptr;
 				}
 
 				IEnumType* GetEnumType() override
 				{
-					if (!metadata->isEnumType) return nullptr;
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->isEnumType ? this : nullptr;
 				}
 
 				ISerializableType* GetSerializableType() override
 				{
-					if (!metadata->isSerializable) return nullptr;
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->isSerializable ? this : nullptr;
 				}
 
 				vint GetBaseTypeDescriptorCount() override
