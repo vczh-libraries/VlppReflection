@@ -1090,13 +1090,12 @@ LoadMetaonlyTypes
 			{
 			public:
 				Ptr<MetaonlyReaderContext>				context;
-				List<Ptr<MetaonlyTypeDescriptor>>		typeDescriptors;
 
 				void Load(ITypeManager* manager) override
 				{
-					for (vint i = 0; i < typeDescriptors.Count(); i++)
+					for (vint i = 0; i < context->tds.Count(); i++)
 					{
-						auto td = typeDescriptors[i];
+						auto td = context->tds[i];
 						manager->SetTypeDescriptor(td->GetTypeName(), td);
 					}
 				}
