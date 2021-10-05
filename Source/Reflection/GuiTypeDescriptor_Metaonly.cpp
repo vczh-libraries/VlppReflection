@@ -29,6 +29,7 @@ Context
 
 			struct MetaonlyReaderContext
 			{
+				Dictionary<WString, Ptr<ISerializableType>>		serializableTypes;
 				List<Ptr<ITypeDescriptor>>				tds;
 				List<Ptr<IMethodInfo>>					mis;
 				List<Ptr<IPropertyInfo>>				pis;
@@ -671,11 +672,11 @@ ITypeDescriptor
 				, protected ITypeDescriptor::ICpp
 				, protected IValueType
 				, protected IEnumType
-				, protected ISerializableType
 			{
 			protected:
 				MetaonlyReaderContext*			context = nullptr;
 				Ptr<TypeDescriptorMetadata>		metadata;
+				ISerializableType*				serializableType = nullptr;
 				List<Ptr<IMethodGroupInfo>>		methodGroups;
 				Ptr<IMethodGroupInfo>			constructorGroup;
 
@@ -684,6 +685,11 @@ ITypeDescriptor
 					: context(_context)
 					, metadata(_metadata)
 				{
+					if (metadata->isSerializable)
+					{
+						serializableType = context->serializableTypes[metadata->typeName].Obj();
+					}
+
 					for (vint i = 0; i < metadata->methodGroups.Count(); i++)
 					{
 						methodGroups.Add(new MetaonlyMethodGroupInfo(context, metadata, metadata->methodGroups[i]));
@@ -750,18 +756,6 @@ ITypeDescriptor
 					CHECK_FAIL(L"Not Supported!");
 				}
 
-				// ISerializableType
-
-				bool Serialize(const Value& input, WString& output) override
-				{
-					CHECK_FAIL(L"Not Supported!");
-				}
-
-				bool Deserialize(const WString& input, Value& output) override
-				{
-					CHECK_FAIL(L"Not Supported!");
-				}
-
 				// ITypeDescriptor
 
 				ICpp* GetCpp() override
@@ -800,7 +794,7 @@ ITypeDescriptor
 
 				ISerializableType* GetSerializableType() override
 				{
-					return metadata->isSerializable ? this : nullptr;
+					return serializableType;
 				}
 
 				vint GetBaseTypeDescriptorCount() override
@@ -1195,9 +1189,10 @@ LoadMetaonlyTypes
 				}
 			};
 
-			Ptr<ITypeLoader> LoadMetaonlyTypes(stream::IStream& inputStream)
+			Ptr<ITypeLoader> LoadMetaonlyTypes(stream::IStream& inputStream, const collections::Dictionary<WString, Ptr<ISerializableType>>& serializableTypes)
 			{
 				auto context = MakePtr<MetaonlyReaderContext>();
+				CopyFrom(context->serializableTypes, serializableTypes);
 				auto loader = MakePtr<MetaonlyTypeLoader>();
 				loader->context = context;
 				Reader reader(inputStream);

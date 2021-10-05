@@ -12,8 +12,9 @@ BEGIN_GLOBAL_STORAGE_CLASS(MetaonlyTypeDescriptors)
 	Ptr<ITypeLoader>		typeLoader;
 
 INITIALIZE_GLOBAL_STORAGE_CLASS
+collections::Dictionary<WString, Ptr<ISerializableType>> serializableTypes;
 	FileStream fileStream(GetTestOutputPath() + L"Reflection.bin", FileStream::ReadOnly);
-	typeLoader = LoadMetaonlyTypes(fileStream);
+	typeLoader = LoadMetaonlyTypes(fileStream, serializableTypes);
 
 FINALIZE_GLOBAL_STORAGE_CLASS
 
