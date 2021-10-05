@@ -205,6 +205,7 @@ Metadata
 				bool								isEnumType = false;
 				bool								isFlagEnum = false;
 				List<WString>						enumItems;
+				List<vuint64_t>						enumValues;
 				List<vint>							baseTypeDescriptors;
 				List<vint>							properties;
 				List<vint>							events;
@@ -239,24 +240,6 @@ Serialization
 				SERIALIZE(elementType)
 				SERIALIZE(typeDecriptor)
 				SERIALIZE(genericArguments)
-			END_SERIALIZATION
-
-			BEGIN_SERIALIZATION(reflection::description::TypeDescriptorMetadata)
-				SERIALIZE(fullName)
-				SERIALIZE(typeName)
-				SERIALIZE(flags)
-				SERIALIZE(isAggregatable)
-				SERIALIZE(isValueType)
-				SERIALIZE(isSerializable)
-				SERIALIZE(isEnumType)
-				SERIALIZE(isFlagEnum)
-				SERIALIZE(enumItems)
-				SERIALIZE(baseTypeDescriptors)
-				SERIALIZE(properties)
-				SERIALIZE(events)
-				SERIALIZE(methods)
-				SERIALIZE(methodGroups)
-				SERIALIZE(constructorGroup)
 			END_SERIALIZATION
 
 			BEGIN_SERIALIZATION(reflection::description::ParameterInfoMetadata)
@@ -295,6 +278,25 @@ Serialization
 				SERIALIZE(ownerTypeDescriptor)
 				SERIALIZE(handlerType)
 				SERIALIZE(observingProperties)
+			END_SERIALIZATION
+
+			BEGIN_SERIALIZATION(reflection::description::TypeDescriptorMetadata)
+				SERIALIZE(fullName)
+				SERIALIZE(typeName)
+				SERIALIZE(flags)
+				SERIALIZE(isAggregatable)
+				SERIALIZE(isValueType)
+				SERIALIZE(isSerializable)
+				SERIALIZE(isEnumType)
+				SERIALIZE(isFlagEnum)
+				SERIALIZE(enumItems)
+				SERIALIZE(enumValues)
+				SERIALIZE(baseTypeDescriptors)
+				SERIALIZE(properties)
+				SERIALIZE(events)
+				SERIALIZE(methods)
+				SERIALIZE(methodGroups)
+				SERIALIZE(constructorGroup)
 			END_SERIALIZATION
 		}
 	}
@@ -747,7 +749,7 @@ ITypeDescriptor
 
 				vuint64_t GetItemValue(vint index) override
 				{
-					CHECK_FAIL(L"Not Supported!");
+					return metadata->enumValues[index];
 				}
 
 				vint IndexOfItem(WString name) override
@@ -964,6 +966,7 @@ GenerateMetaonlyTypes
 					for (vint i = 0; i < enumType->GetItemCount(); i++)
 					{
 						metadata->enumItems.Add(enumType->GetItemName(i));
+						metadata->enumValues.Add(enumType->GetItemValue(i));
 					}
 				}
 
