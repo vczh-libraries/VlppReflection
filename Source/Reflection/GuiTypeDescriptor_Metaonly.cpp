@@ -304,10 +304,10 @@ IMethodInfo
 			class MetaonlyParameterInfo : public Object, public IParameterInfo
 			{
 			protected:
-				MetaonlyReaderContext*			context;
+				MetaonlyReaderContext*			context = nullptr;
 				Ptr<ParameterInfoMetadata>		metadata;
-				vint							ownerTypeDescriptor;
-				IMethodInfo*					ownerMethod;
+				vint							ownerTypeDescriptor = -1;
+				IMethodInfo*					ownerMethod = nullptr;
 
 			public:
 				MetaonlyParameterInfo(MetaonlyReaderContext* _context, Ptr<ParameterInfoMetadata> _metadata, vint _ownerTypeDescriptor, IMethodInfo* _ownerMethod)
@@ -341,17 +341,17 @@ IMethodInfo
 
 			class MetaonlyMethodInfo : public Object, public IMethodInfo, protected IMethodInfo::ICpp
 			{
+				friend class MetaonlyMethodGroupInfo;
 			protected:
-				MetaonlyReaderContext*			context;
+				MetaonlyReaderContext*			context = nullptr;
 				Ptr<MethodInfoMetadata>			metadata;
-				IMethodGroupInfo*				methodGroup;
+				IMethodGroupInfo*				methodGroup = nullptr;
 				List<Ptr<IParameterInfo>>		parameters;
 
 			public:
-				MetaonlyMethodInfo(MetaonlyReaderContext* _context, Ptr<MethodInfoMetadata> _metadata, IMethodGroupInfo* _methodGroup)
+				MetaonlyMethodInfo(MetaonlyReaderContext* _context, Ptr<MethodInfoMetadata> _metadata)
 					: context(_context)
 					, metadata(_metadata)
-					, methodGroup(_methodGroup)
 				{
 					for (vint i = 0; i < metadata->parameters.Count(); i++)
 					{
@@ -367,6 +367,16 @@ IMethodInfo
 				const WString& GetClosureTemplate() override
 				{
 					return metadata->closureTemplate;
+				}
+
+				ITypeDescriptor* GetOwnerTypeDescriptor() override
+				{
+					return context->tds[metadata->ownerTypeDescriptor].Obj();
+				}
+
+				const WString& GetName() override
+				{
+					return metadata->name;
 				}
 
 				ICpp* GetCpp() override
@@ -427,7 +437,7 @@ IMethodInfo
 			class MetaonlyMethodGroupInfo : public Object, public IMethodGroupInfo
 			{
 			protected:
-				MetaonlyReaderContext*			context;
+				MetaonlyReaderContext*			context = nullptr;
 				Ptr<TypeDescriptorMetadata>		metadata;
 				IdRange							idRange;
 			public:
@@ -450,13 +460,18 @@ IMethodInfo
 
 				vint GetMethodCount() override
 				{
-					idRange.count;
+					return idRange.count;
 				}
 
 				IMethodInfo* GetMethod(vint index) override
 				{
 					CHECK_ERROR(0 <= index && index < idRange.count, L"IMethodGroupInfo::GetMethod(vint)#Index out of range.");
-					return context->mis[metadata->methods[idRange.start + index]].Obj();
+					auto info = dynamic_cast<MetaonlyMethodInfo*>(context->mis[metadata->methods[idRange.start + index]].Obj());
+					if (info->methodGroup == nullptr)
+					{
+						info->methodGroup = this;
+					}
+					return info;
 				}
 			};
 
@@ -467,7 +482,7 @@ IPropertyInfo
 			class MetaonlyPropertyInfo : public Object, public IPropertyInfo, protected IPropertyInfo::ICpp
 			{
 			protected:
-				MetaonlyReaderContext*			context;
+				MetaonlyReaderContext*			context = nullptr;
 				Ptr<PropertyInfoMetadata>		metadata;
 
 			public:
@@ -549,7 +564,7 @@ IEventInfo
 			class MetaonlyEventInfo : public Object, public IEventInfo, protected IEventInfo::ICpp
 			{
 			protected:
-				MetaonlyReaderContext*			context;
+				MetaonlyReaderContext*			context = nullptr;
 				Ptr<EventInfoMetadata>			metadata;
 
 			public:
@@ -631,7 +646,7 @@ ITypeDescriptor
 			class MetaonlyTypeDescriptor : public Object, public ITypeDescriptor, protected ITypeDescriptor::ICpp
 			{
 			protected:
-				MetaonlyReaderContext*			context;
+				MetaonlyReaderContext*			context = nullptr;
 				Ptr<TypeDescriptorMetadata>		metadata;
 				List<Ptr<IMethodGroupInfo>>		methodGroups;
 				Ptr<IMethodGroupInfo>			constructorGroup;
@@ -839,62 +854,62 @@ GenerateMetaonlyTypes
 
 			void GenerateMetaonlyTypeDescriptor(Writer& writer, ITypeDescriptor* td)
 			{
-				TypeDescriptorMetadata metadata;
+				auto metadata = MakePtr<TypeDescriptorMetadata>();
 				if (auto cpp = td->GetCpp())
 				{
-					metadata.fullName = cpp->GetFullName();
+					metadata->fullName = cpp->GetFullName();
 				}
-				metadata.typeName = td->GetTypeName();
-				metadata.flags = td->GetTypeDescriptorFlags();
-				metadata.isAggregatable = td->IsAggregatable();
-				metadata.isValueType = td->GetValueType();
-				metadata.isSerializable = td->GetSerializableType();
+				metadata->typeName = td->GetTypeName();
+				metadata->flags = td->GetTypeDescriptorFlags();
+				metadata->isAggregatable = td->IsAggregatable();
+				metadata->isValueType = td->GetValueType();
+				metadata->isSerializable = td->GetSerializableType();
 				if (auto enumType = td->GetEnumType())
 				{
-					metadata.isEnumType = true;
-					metadata.isFlagEnum = enumType->IsFlagEnum();
+					metadata->isEnumType = true;
+					metadata->isFlagEnum = enumType->IsFlagEnum();
 					for (vint i = 0; i < enumType->GetItemCount(); i++)
 					{
-						metadata.enumItems.Add(enumType->GetItemName(i));
+						metadata->enumItems.Add(enumType->GetItemName(i));
 					}
 				}
 
 				for (vint i = 0; i < td->GetBaseTypeDescriptorCount(); i++)
 				{
-					metadata.baseTypeDescriptors.Add(writer.context->tdIndex[td->GetBaseTypeDescriptor(i)]);
+					metadata->baseTypeDescriptors.Add(writer.context->tdIndex[td->GetBaseTypeDescriptor(i)]);
 				}
 
 				for (vint i = 0; i < td->GetPropertyCount(); i++)
 				{
-					metadata.properties.Add(writer.context->piIndex[td->GetProperty(i)]);
+					metadata->properties.Add(writer.context->piIndex[td->GetProperty(i)]);
 				}
 
 				for (vint i = 0; i < td->GetEventCount(); i++)
 				{
-					metadata.events.Add(writer.context->eiIndex[td->GetEvent(i)]);
+					metadata->events.Add(writer.context->eiIndex[td->GetEvent(i)]);
 				}
 
 				for (vint i = 0; i < td->GetMethodGroupCount(); i++)
 				{
 					auto mg = td->GetMethodGroup(i);
 					IdRange ir;
-					ir.start = metadata.methods.Count();
+					ir.start = metadata->methods.Count();
 					for (vint j = 0; j > mg->GetMethodCount(); j++)
 					{
-						metadata.methods.Add(writer.context->miIndex[mg->GetMethod(j)]);
+						metadata->methods.Add(writer.context->miIndex[mg->GetMethod(j)]);
 					}
-					ir.count = metadata.methods.Count() - ir.start;
-					metadata.methodGroups.Add(ir);
+					ir.count = metadata->methods.Count() - ir.start;
+					metadata->methodGroups.Add(ir);
 				}
 
 				if (auto cg = td->GetConstructorGroup())
 				{
-					metadata.constructorGroup.start = metadata.methods.Count();
+					metadata->constructorGroup.start = metadata->methods.Count();
 					for (vint j = 0; j > cg->GetMethodCount(); j++)
 					{
-						metadata.methods.Add(writer.context->miIndex[cg->GetMethod(j)]);
+						metadata->methods.Add(writer.context->miIndex[cg->GetMethod(j)]);
 					}
-					metadata.constructorGroup.count = metadata.methods.Count() - metadata.constructorGroup.start;
+					metadata->constructorGroup.count = metadata->methods.Count() - metadata->constructorGroup.start;
 				}
 
 				writer << metadata;
@@ -902,17 +917,17 @@ GenerateMetaonlyTypes
 
 			void GenerateMetaonlyMethodInfo(Writer& writer, IMethodInfo* mi)
 			{
-				MethodInfoMetadata metadata;
+				auto metadata = MakePtr<MethodInfoMetadata>();
 				if (auto cpp = mi->GetCpp())
 				{
-					metadata.invokeTemplate = cpp->GetInvokeTemplate();
-					metadata.closureTemplate = cpp->GetClosureTemplate();
+					metadata->invokeTemplate = cpp->GetInvokeTemplate();
+					metadata->closureTemplate = cpp->GetClosureTemplate();
 				}
-				metadata.name = mi->GetName();
-				metadata.ownerTypeDescriptor = writer.context->tdIndex[mi->GetOwnerTypeDescriptor()];
+				metadata->name = mi->GetName();
+				metadata->ownerTypeDescriptor = writer.context->tdIndex[mi->GetOwnerTypeDescriptor()];
 				if (auto pi = mi->GetOwnerProperty())
 				{
-					metadata.ownerProperty = writer.context->piIndex[pi];
+					metadata->ownerProperty = writer.context->piIndex[pi];
 				}
 				for (vint i = 0; i < mi->GetParameterCount(); i++)
 				{
@@ -920,55 +935,55 @@ GenerateMetaonlyTypes
 					auto piMetadata = MakePtr<ParameterInfoMetadata>();
 					piMetadata->name = pi->GetName();
 					piMetadata->type = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetType());
-					metadata.parameters.Add(piMetadata);
+					metadata->parameters.Add(piMetadata);
 				}
-				metadata.returnType = new MetaonlyTypeInfo(*writer.context.Obj(), mi->GetReturn());
-				metadata.isStatic = mi->IsStatic();
+				metadata->returnType = new MetaonlyTypeInfo(*writer.context.Obj(), mi->GetReturn());
+				metadata->isStatic = mi->IsStatic();
 				writer << metadata;
 			}
 
 			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* pi)
 			{
-				PropertyInfoMetadata metadata;
+				auto metadata = MakePtr<PropertyInfoMetadata>();;
 				if (auto cpp = pi->GetCpp())
 				{
-					metadata.referenceTemplate = cpp->GetReferenceTemplate();
+					metadata->referenceTemplate = cpp->GetReferenceTemplate();
 				}
-				metadata.name = pi->GetName();
-				metadata.ownerTypeDescriptor = writer.context->tdIndex[pi->GetOwnerTypeDescriptor()];
-				metadata.isReadable = pi->IsReadable();
-				metadata.isWritable = pi->IsWritable();
-				metadata.returnType = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetReturn());
+				metadata->name = pi->GetName();
+				metadata->ownerTypeDescriptor = writer.context->tdIndex[pi->GetOwnerTypeDescriptor()];
+				metadata->isReadable = pi->IsReadable();
+				metadata->isWritable = pi->IsWritable();
+				metadata->returnType = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetReturn());
 				if (auto mi = pi->GetGetter())
 				{
-					metadata.getter = writer.context->miIndex[mi];
+					metadata->getter = writer.context->miIndex[mi];
 				}
 				if (auto mi = pi->GetSetter())
 				{
-					metadata.setter = writer.context->miIndex[mi];
+					metadata->setter = writer.context->miIndex[mi];
 				}
 				if (auto ei = pi->GetValueChangedEvent())
 				{
-					metadata.valueChangedEvent = writer.context->eiIndex[ei];
+					metadata->valueChangedEvent = writer.context->eiIndex[ei];
 				}
 				writer << metadata;
 			}
 
 			void GenerateMetaonlyEventInfo(Writer& writer, IEventInfo* ei)
 			{
-				EventInfoMetadata metadata;
+				auto metadata = MakePtr<EventInfoMetadata>();;
 				if (auto cpp = ei->GetCpp())
 				{
-					metadata.attachTemplate = cpp->GetAttachTemplate();
-					metadata.detachTemplate = cpp->GetDetachTemplate();
-					metadata.invokeTemplate = cpp->GetInvokeTemplate();
+					metadata->attachTemplate = cpp->GetAttachTemplate();
+					metadata->detachTemplate = cpp->GetDetachTemplate();
+					metadata->invokeTemplate = cpp->GetInvokeTemplate();
 				}
-				metadata.name = ei->GetName();
-				metadata.ownerTypeDescriptor = writer.context->tdIndex[ei->GetOwnerTypeDescriptor()];
-				metadata.handlerType = new MetaonlyTypeInfo(*writer.context.Obj(), ei->GetHandlerType());
+				metadata->name = ei->GetName();
+				metadata->ownerTypeDescriptor = writer.context->tdIndex[ei->GetOwnerTypeDescriptor()];
+				metadata->handlerType = new MetaonlyTypeInfo(*writer.context.Obj(), ei->GetHandlerType());
 				for (vint i = 0; i < ei->GetObservingPropertyCount(); i++)
 				{
-					metadata.observingProperties.Add(writer.context->piIndex[ei->GetObservingProperty(i)]);
+					metadata->observingProperties.Add(writer.context->piIndex[ei->GetObservingProperty(i)]);
 				}
 				writer << metadata;
 			}
@@ -1042,15 +1057,6 @@ GenerateMetaonlyTypes
 					}
 				}
 				{
-					vint count = tds.Count();
-					writer << count;
-					for (vint i = 0; i < count; i++)
-					{
-						auto name = tds.Keys()[i];
-						writer << name;
-					}
-				}
-				{
 					vint tdCount = tds.Count();
 					vint miCount = mis.Count();
 					vint piCount = pis.Count();
@@ -1107,6 +1113,39 @@ LoadMetaonlyTypes
 				loader->context = context;
 				Reader reader(inputStream);
 				reader.context = context;
+
+				{
+					vint tdCount = 0;
+					vint miCount = 0;
+					vint piCount = 0;
+					vint eiCount = 0;
+					reader << tdCount << miCount << piCount << eiCount;
+
+					for (vint i = 0; i < tdCount; i++)
+					{
+						Ptr<TypeDescriptorMetadata> metadata;
+						reader << metadata;
+						context->tds.Add(new MetaonlyTypeDescriptor(context.Obj(), metadata));
+					}
+					for (vint i = 0; i < miCount; i++)
+					{
+						Ptr<MethodInfoMetadata> metadata;
+						reader << metadata;
+						context->mis.Add(new MetaonlyMethodInfo(context.Obj(), metadata));
+					}
+					for (vint i = 0; i < piCount; i++)
+					{
+						Ptr<PropertyInfoMetadata> metadata;
+						reader << metadata;
+						context->pis.Add(new MetaonlyPropertyInfo(context.Obj(), metadata));
+					}
+					for (vint i = 0; i < eiCount; i++)
+					{
+						Ptr<EventInfoMetadata> metadata;
+						reader << metadata;
+						context->eis.Add(new MetaonlyEventInfo(context.Obj(), metadata));
+					}
+				}
 
 				return loader;
 			}
