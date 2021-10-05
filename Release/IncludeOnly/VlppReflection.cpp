@@ -9,3 +9,4 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Reflection\GuiTypeDescriptorPredefined.cpp"
 #include "..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp"
 #include "..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp"
+#include "..\..\Source\Reflection\GuiTypeDescriptor_Metaonly.cpp"
