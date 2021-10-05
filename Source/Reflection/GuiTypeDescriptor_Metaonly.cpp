@@ -142,25 +142,6 @@ Metadata
 				vint								count = 0;
 			};
 
-			struct TypeDescriptorMetadata
-			{
-				WString								fullName;
-				WString								typeName;
-				TypeDescriptorFlags					flags = TypeDescriptorFlags::Undefined;
-				bool								isAggregatable = false;
-				bool								isValueType = false;
-				bool								isSerializable = false;
-				bool								isEnumType = false;
-				bool								isFlagEnum = false;
-				List<WString>						enumItems;
-				List<vint>							baseTypeDescriptors;
-				List<vint>							properties;
-				List<vint>							events;
-				List<vint>							methods;
-				List<IdRange>						methodGroups;
-				IdRange								constructorGroup;
-			};
-
 			struct ParameterInfoMetadata
 			{
 				WString								name;
@@ -201,6 +182,25 @@ Metadata
 				vint								ownerTypeDescriptor = -1;
 				Ptr<MetaonlyTypeInfo>				handlerType;
 				List<vint>							observingProperties;
+			};
+
+			struct TypeDescriptorMetadata
+			{
+				WString								fullName;
+				WString								typeName;
+				TypeDescriptorFlags					flags = TypeDescriptorFlags::Undefined;
+				bool								isAggregatable = false;
+				bool								isValueType = false;
+				bool								isSerializable = false;
+				bool								isEnumType = false;
+				bool								isFlagEnum = false;
+				List<WString>						enumItems;
+				List<vint>							baseTypeDescriptors;
+				List<vint>							properties;
+				List<vint>							events;
+				List<vint>							methods;
+				List<IdRange>						methodGroups;
+				IdRange								constructorGroup;
 			};
 		}
 	}
@@ -426,17 +426,27 @@ IMethodInfo
 
 			class MetaonlyMethodGroupInfo : public Object, public IMethodGroupInfo
 			{
+			protected:
+				MetaonlyReaderContext*			context;
+				Ptr<TypeDescriptorMetadata>		metadata;
+				IdRange							idRange;
 			public:
-				List<Ptr<IMethodInfo>>			methodInfos;
+				MetaonlyMethodGroupInfo(MetaonlyReaderContext* _context, Ptr<TypeDescriptorMetadata> _metadata, IdRange _idRange)
+					: context(_context)
+					, metadata(_metadata)
+					, idRange(_idRange)
+				{
+				}
 
 				vint GetMethodCount() override
 				{
-					return methodInfos.Count();
+					idRange.count;
 				}
 
 				IMethodInfo* GetMethod(vint index) override
 				{
-					return methodInfos[index].Obj();
+					CHECK_ERROR(0 <= index && index < idRange.count, L"IMethodGroupInfo::GetMethod(vint)#Index out of range.");
+					return context->mis[metadata->methods[idRange.start + index]].Obj();
 				}
 			};
 
@@ -613,57 +623,79 @@ ITypeDescriptor
 			protected:
 				MetaonlyReaderContext*			context;
 				Ptr<TypeDescriptorMetadata>		metadata;
+				List<Ptr<IMethodGroupInfo>>		methodGroups;
+				Ptr<IMethodGroupInfo>			constructorGroup;
 
 			public:
 				MetaonlyTypeDescriptor(MetaonlyReaderContext* _context, Ptr<TypeDescriptorMetadata> _metadata)
 					: context(_context)
 					, metadata(_metadata)
 				{
+					for (vint i = 0; i < metadata->methodGroups.Count(); i++)
+					{
+						methodGroups.Add(new MetaonlyMethodGroupInfo(context, metadata, metadata->methodGroups[i]));
+					}
+					if (metadata->constructorGroup.start != -1)
+					{
+						constructorGroup = new MetaonlyMethodGroupInfo(context, metadata, metadata->constructorGroup);
+					}
+				}
+
+				const WString& GetFullName() override
+				{
+					return metadata->fullName;
 				}
 
 				ICpp* GetCpp() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					if (metadata->fullName.Length() > 0)
+					{
+						return this;
+					}
+					return nullptr;
 				}
 
 				TypeDescriptorFlags GetTypeDescriptorFlags() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->flags;
 				}
 
 				bool IsAggregatable() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->isAggregatable;
 				}
 
 				const WString& GetTypeName() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->typeName;
 				}
 
 				IValueType* GetValueType() override
 				{
+					if (!metadata->isValueType) return nullptr;
 					CHECK_FAIL(L"Not Implemented!");
 				}
 
 				IEnumType* GetEnumType() override
 				{
+					if (!metadata->isEnumType) return nullptr;
 					CHECK_FAIL(L"Not Implemented!");
 				}
 
 				ISerializableType* GetSerializableType() override
 				{
+					if (!metadata->isSerializable) return nullptr;
 					CHECK_FAIL(L"Not Implemented!");
 				}
 
 				vint GetBaseTypeDescriptorCount() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->baseTypeDescriptors.Count();
 				}
 
 				ITypeDescriptor* GetBaseTypeDescriptor(vint index) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return context->tds[metadata->baseTypeDescriptors[index]].Obj();
 				}
 
 				bool CanConvertTo(ITypeDescriptor* targetType) override
@@ -673,12 +705,12 @@ ITypeDescriptor
 
 				vint GetPropertyCount() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->properties.Count();
 				}
 
 				IPropertyInfo* GetProperty(vint index) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return context->pis[metadata->properties[index]].Obj();
 				}
 
 				bool IsPropertyExists(const WString& name, bool inheritable) override
@@ -693,12 +725,12 @@ ITypeDescriptor
 
 				vint GetEventCount() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return metadata->events.Count();
 				}
 
 				IEventInfo* GetEvent(vint index) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return context->eis[metadata->events[index]].Obj();
 				}
 
 				bool IsEventExists(const WString& name, bool inheritable) override
@@ -713,12 +745,12 @@ ITypeDescriptor
 
 				vint GetMethodGroupCount() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return methodGroups.Count();
 				}
 
 				IMethodGroupInfo* GetMethodGroup(vint index) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return methodGroups[index].Obj();
 				}
 
 				bool IsMethodGroupExists(const WString& name, bool inheritable) override
@@ -733,7 +765,7 @@ ITypeDescriptor
 
 				IMethodGroupInfo* GetConstructorGroup() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return constructorGroup.Obj();
 				}
 			};
 
