@@ -439,12 +439,36 @@ IMethodInfo
 			protected:
 				MetaonlyReaderContext*			context;
 				Ptr<ParameterInfoMetadata>		metadata;
+				vint							ownerTypeDescriptor;
+				IMethodInfo*					ownerMethod;
 
 			public:
-				MetaonlyParameterInfo(MetaonlyReaderContext* _context, Ptr<ParameterInfoMetadata> _metadata)
+				MetaonlyParameterInfo(MetaonlyReaderContext* _context, Ptr<ParameterInfoMetadata> _metadata, vint _ownerTypeDescriptor, IMethodInfo* _ownerMethod)
 					: context(_context)
 					, metadata(_metadata)
+					, ownerTypeDescriptor(_ownerTypeDescriptor)
+					, ownerMethod(_ownerMethod)
 				{
+				}
+
+				ITypeDescriptor* GetOwnerTypeDescriptor() override
+				{
+					return context->tds[ownerTypeDescriptor].Obj();
+				}
+
+				const WString& GetName() override
+				{
+					return metadata->name;
+				}
+
+				ITypeInfo* GetType() override
+				{
+					return metadata->type.Obj();
+				}
+
+				IMethodInfo* GetOwnerMethod() override
+				{
+					return ownerMethod;
 				}
 			};
 
@@ -453,12 +477,99 @@ IMethodInfo
 			protected:
 				MetaonlyReaderContext*			context;
 				Ptr<MethodInfoMetadata>			metadata;
+				IMethodGroupInfo*				methodGroup;
+				List<Ptr<IParameterInfo>>		parameters;
 
 			public:
-				MetaonlyMethodInfo(MetaonlyReaderContext* _context, Ptr<MethodInfoMetadata> _metadata)
+				MetaonlyMethodInfo(MetaonlyReaderContext* _context, Ptr<MethodInfoMetadata> _metadata, IMethodGroupInfo* _methodGroup)
 					: context(_context)
 					, metadata(_metadata)
+					, methodGroup(_methodGroup)
 				{
+					for (vint i = 0; i < metadata->parameters.Count(); i++)
+					{
+						parameters.Add(new MetaonlyParameterInfo(context, metadata->parameters[i], metadata->ownerTypeDescriptor, this));
+					}
+				}
+
+				const WString& GetInvokeTemplate() override
+				{
+					return metadata->invokeTemplate;
+				}
+
+				const WString& GetClosureTemplate() override
+				{
+					return metadata->closureTemplate;
+				}
+
+				ICpp* GetCpp() override
+				{
+					if (metadata->invokeTemplate.Length() + metadata->closureTemplate.Length() > 0)
+					{
+						return this;
+					}
+					return nullptr;
+				}
+
+				IMethodGroupInfo* GetOwnerMethodGroup() override
+				{
+					return methodGroup;
+				}
+
+				IPropertyInfo* GetOwnerProperty() override
+				{
+					return metadata->ownerProperty == -1 ? nullptr : context->pis[metadata->ownerProperty].Obj();
+				}
+
+				vint GetParameterCount() override
+				{
+					return parameters.Count();
+				}
+
+				IParameterInfo* GetParameter(vint index) override
+				{
+					return parameters[index].Obj();
+				}
+
+				ITypeInfo* GetReturn() override
+				{
+					return metadata->returnType.Obj();
+				}
+
+				bool IsStatic() override
+				{
+					return metadata->isStatic;
+				}
+
+				void CheckArguments(collections::Array<Value>& arguments) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				Value Invoke(const Value& thisObject, collections::Array<Value>& arguments) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				Value CreateFunctionProxy(const Value& thisObject) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+			};
+
+			class MetaonlyMethodGroupInfo : public Object, public IMethodGroupInfo
+			{
+			public:
+				List<Ptr<IMethodInfo>>			methodInfos;
+
+				vint GetMethodCount() override
+				{
+					return methodInfos.Count();
+				}
+
+				IMethodInfo* GetMethod(vint index) override
+				{
+					return methodInfos[index].Obj();
 				}
 			};
 
