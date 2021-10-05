@@ -172,8 +172,9 @@ Metadata
 				WString								invokeTemplate;
 				WString								closureTemplate;
 				WString								name;
+				vint								ownerTypeDescriptor = -1;
 				vint								ownerProperty = -1;
-				List<ParameterInfoMetadata>			parameters;
+				List<Ptr<ParameterInfoMetadata>>	parameters;
 				Ptr<MetaonlyTypeInfo>				returnType;
 				bool								isStatic = false;
 			};
@@ -182,6 +183,7 @@ Metadata
 			{
 				WString								referenceTemplate;
 				WString								name;
+				vint								ownerTypeDescriptor = -1;
 				bool								isReadable = false;
 				bool								isWritable = false;
 				Ptr<MetaonlyTypeInfo>				returnType;
@@ -196,6 +198,7 @@ Metadata
 				WString								detachTemplate;
 				WString								invokeTemplate;
 				WString								name;
+				vint								ownerTypeDescriptor = -1;
 				Ptr<MetaonlyTypeInfo>				handlerType;
 				List<vint>							observingProperties;
 			};
@@ -255,6 +258,7 @@ Serialization
 				SERIALIZE(invokeTemplate)
 				SERIALIZE(closureTemplate)
 				SERIALIZE(name)
+				SERIALIZE(ownerTypeDescriptor)
 				SERIALIZE(ownerProperty)
 				SERIALIZE(parameters)
 				SERIALIZE(returnType)
@@ -264,6 +268,7 @@ Serialization
 			BEGIN_SERIALIZATION(reflection::description::PropertyInfoMetadata)
 				SERIALIZE(referenceTemplate)
 				SERIALIZE(name)
+				SERIALIZE(ownerTypeDescriptor)
 				SERIALIZE(isReadable)
 				SERIALIZE(isWritable)
 				SERIALIZE(returnType)
@@ -277,6 +282,7 @@ Serialization
 				SERIALIZE(detachTemplate)
 				SERIALIZE(invokeTemplate)
 				SERIALIZE(name)
+				SERIALIZE(ownerTypeDescriptor)
 				SERIALIZE(handlerType)
 				SERIALIZE(observingProperties)
 			END_SERIALIZATION
@@ -424,6 +430,62 @@ ITypeDescriptor
 				}
 			};
 
+			class MetaonlyParameterInfo : public Object, public IParameterInfo
+			{
+			protected:
+				MetaonlyReaderContext*			context;
+				Ptr<ParameterInfoMetadata>		metadata;
+
+			public:
+				MetaonlyParameterInfo(MetaonlyReaderContext* _context, Ptr<ParameterInfoMetadata> _metadata)
+					: context(_context)
+					, metadata(_metadata)
+				{
+				}
+			};
+
+			class MetaonlyMethodInfo : public Object, public IMethodInfo
+			{
+			protected:
+				MetaonlyReaderContext*			context;
+				Ptr<MethodInfoMetadata>			metadata;
+
+			public:
+				MetaonlyMethodInfo(MetaonlyReaderContext* _context, Ptr<MethodInfoMetadata> _metadata)
+					: context(_context)
+					, metadata(_metadata)
+				{
+				}
+			};
+
+			class MetaonlyPropertyInfo : public Object, public IPropertyInfo
+			{
+			protected:
+				MetaonlyReaderContext*			context;
+				Ptr<PropertyInfoMetadata>		metadata;
+
+			public:
+				MetaonlyPropertyInfo(MetaonlyReaderContext* _context, Ptr<PropertyInfoMetadata> _metadata)
+					: context(_context)
+					, metadata(_metadata)
+				{
+				}
+			};
+
+			class MetaonlyEventInfo : public Object, public IEventInfo
+			{
+			protected:
+				MetaonlyReaderContext*			context;
+				Ptr<EventInfoMetadata>			metadata;
+
+			public:
+				MetaonlyEventInfo(MetaonlyReaderContext* _context, Ptr<EventInfoMetadata> _metadata)
+					: context(_context)
+					, metadata(_metadata)
+				{
+				}
+			};
+
 /***********************************************************************
 GenerateMetaonlyTypes
 ***********************************************************************/
@@ -500,6 +562,7 @@ GenerateMetaonlyTypes
 					metadata.closureTemplate = cpp->GetClosureTemplate();
 				}
 				metadata.name = mi->GetName();
+				metadata.ownerTypeDescriptor = writer.context->tdIndex[mi->GetOwnerTypeDescriptor()];
 				if (auto pi = mi->GetOwnerProperty())
 				{
 					metadata.ownerProperty = writer.context->piIndex[pi];
@@ -507,9 +570,9 @@ GenerateMetaonlyTypes
 				for (vint i = 0; i < mi->GetParameterCount(); i++)
 				{
 					auto pi = mi->GetParameter(i);
-					ParameterInfoMetadata piMetadata;
-					piMetadata.name = pi->GetName();
-					piMetadata.type = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetType());
+					auto piMetadata = MakePtr<ParameterInfoMetadata>();
+					piMetadata->name = pi->GetName();
+					piMetadata->type = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetType());
 					metadata.parameters.Add(piMetadata);
 				}
 				metadata.returnType = new MetaonlyTypeInfo(*writer.context.Obj(), mi->GetReturn());
@@ -525,6 +588,7 @@ GenerateMetaonlyTypes
 					metadata.referenceTemplate = cpp->GetReferenceTemplate();
 				}
 				metadata.name = pi->GetName();
+				metadata.ownerTypeDescriptor = writer.context->tdIndex[pi->GetOwnerTypeDescriptor()];
 				metadata.isReadable = pi->IsReadable();
 				metadata.isWritable = pi->IsWritable();
 				metadata.returnType = new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetReturn());
@@ -553,6 +617,7 @@ GenerateMetaonlyTypes
 					metadata.invokeTemplate = cpp->GetInvokeTemplate();
 				}
 				metadata.name = ei->GetName();
+				metadata.ownerTypeDescriptor = writer.context->tdIndex[ei->GetOwnerTypeDescriptor()];
 				metadata.handlerType = new MetaonlyTypeInfo(*writer.context.Obj(), ei->GetHandlerType());
 				for (vint i = 0; i < ei->GetObservingPropertyCount(); i++)
 				{
