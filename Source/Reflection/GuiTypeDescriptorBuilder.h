@@ -929,9 +929,13 @@ CustomFieldInfoImpl
 				}
 			};
 
+#endif
+
 /***********************************************************************
 PrimitiveTypeDescriptor
 ***********************************************************************/
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
 
 			template<typename T>
 			class SerializableValueType : public Object, public virtual IValueType
@@ -970,6 +974,10 @@ PrimitiveTypeDescriptor
 					return true;
 				}
 			};
+
+#endif
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
 			template<typename T>
 			class PrimitiveTypeDescriptor : public TypedValueTypeDescriptorBase<T, TypeDescriptorFlags::Primitive>

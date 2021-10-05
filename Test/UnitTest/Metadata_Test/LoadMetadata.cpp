@@ -8,11 +8,15 @@ using namespace vl::reflection::description;
 
 extern WString GetTestOutputPath();
 
+#define INSTALL_SERIALIZABLE_TYPE(TYPE)\
+	serializableTypes.Add(TypeInfo<TYPE>::content.typeName, MakePtr<SerializableType<TYPE>>());
+
 BEGIN_GLOBAL_STORAGE_CLASS(MetaonlyTypeDescriptors)
 	Ptr<ITypeLoader>		typeLoader;
 
 INITIALIZE_GLOBAL_STORAGE_CLASS
-collections::Dictionary<WString, Ptr<ISerializableType>> serializableTypes;
+	collections::Dictionary<WString, Ptr<ISerializableType>> serializableTypes;
+	REFLECTION_PREDEFINED_SERIALIZABLE_TYPES(INSTALL_SERIALIZABLE_TYPE)
 	FileStream fileStream(GetTestOutputPath() + L"Reflection.bin", FileStream::ReadOnly);
 	typeLoader = LoadMetaonlyTypes(fileStream, serializableTypes);
 
