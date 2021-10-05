@@ -430,6 +430,10 @@ ITypeDescriptor
 				}
 			};
 
+/***********************************************************************
+IMethodInfo
+***********************************************************************/
+
 			class MetaonlyParameterInfo : public Object, public IParameterInfo
 			{
 			protected:
@@ -458,6 +462,10 @@ ITypeDescriptor
 				}
 			};
 
+/***********************************************************************
+IPropertyInfo
+***********************************************************************/
+
 			class MetaonlyPropertyInfo : public Object, public IPropertyInfo, protected IPropertyInfo::ICpp
 			{
 			protected:
@@ -470,7 +478,75 @@ ITypeDescriptor
 					, metadata(_metadata)
 				{
 				}
+
+				const WString& GetReferenceTemplate() override
+				{
+					return metadata->referenceTemplate;
+				}
+
+				ITypeDescriptor* GetOwnerTypeDescriptor() override
+				{
+					return context->tds[metadata->ownerTypeDescriptor].Obj();
+				}
+
+				const WString& GetName() override
+				{
+					return metadata->name;
+				}
+
+				ICpp* GetCpp() override
+				{
+					if (metadata->referenceTemplate.Length() > 0)
+					{
+						return this;
+					}
+					return nullptr;
+				}
+
+				bool IsReadable() override
+				{
+					return metadata->isReadable;
+				}
+
+				bool IsWritable() override
+				{
+					return metadata->isWritable;
+				}
+
+				ITypeInfo* GetReturn() override
+				{
+					return metadata->returnType.Obj();
+				}
+
+				IMethodInfo* GetGetter() override
+				{
+					return metadata->getter == -1 ? nullptr : context->mis[metadata->getter].Obj();
+				}
+
+				IMethodInfo* GetSetter() override
+				{
+					return metadata->setter == -1 ? nullptr : context->mis[metadata->setter].Obj();
+				}
+
+				IEventInfo* GetValueChangedEvent() override
+				{
+					return metadata->valueChangedEvent == -1 ? nullptr : context->eis[metadata->valueChangedEvent].Obj();
+				}
+
+				Value GetValue(const Value& thisObject) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				void SetValue(Value& thisObject, const Value& newValue) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
 			};
+
+/***********************************************************************
+IEventInfo
+***********************************************************************/
 
 			class MetaonlyEventInfo : public Object, public IEventInfo, protected IEventInfo::ICpp
 			{
