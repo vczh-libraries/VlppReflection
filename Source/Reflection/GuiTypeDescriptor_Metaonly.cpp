@@ -438,6 +438,16 @@ IMethodInfo
 				{
 				}
 
+				ITypeDescriptor* GetOwnerTypeDescriptor() override
+				{
+					return GetMethod(0)->GetOwnerTypeDescriptor();
+				}
+
+				const WString& GetName() override
+				{
+					return GetMethod(0)->GetName();
+				}
+
 				vint GetMethodCount() override
 				{
 					idRange.count;
@@ -715,12 +725,30 @@ ITypeDescriptor
 
 				bool IsPropertyExists(const WString& name, bool inheritable) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return GetPropertyByName(name, inheritable);
 				}
 
 				IPropertyInfo* GetPropertyByName(const WString& name, bool inheritable) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					for (vint i = 0; i < metadata->properties.Count(); i++)
+					{
+						auto info = GetProperty(i);
+						if (info->GetName() == name)
+						{
+							return info;
+						}
+					}
+					if (inheritable)
+					{
+						for (vint i = 0; i < metadata->baseTypeDescriptors.Count(); i++)
+						{
+							if (auto info = GetBaseTypeDescriptor(i)->GetPropertyByName(name, true))
+							{
+								return info;
+							}
+						}
+					}
+					return nullptr;
 				}
 
 				vint GetEventCount() override
@@ -735,12 +763,30 @@ ITypeDescriptor
 
 				bool IsEventExists(const WString& name, bool inheritable) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return GetEventByName(name, inheritable);
 				}
 
 				IEventInfo* GetEventByName(const WString& name, bool inheritable) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					for (vint i = 0; i < metadata->events.Count(); i++)
+					{
+						auto info = GetEvent(i);
+						if (info->GetName() == name)
+						{
+							return info;
+						}
+					}
+					if (inheritable)
+					{
+						for (vint i = 0; i < metadata->baseTypeDescriptors.Count(); i++)
+						{
+							if (auto info = GetBaseTypeDescriptor(i)->GetEventByName(name, true))
+							{
+								return info;
+							}
+						}
+					}
+					return nullptr;
 				}
 
 				vint GetMethodGroupCount() override
@@ -755,12 +801,30 @@ ITypeDescriptor
 
 				bool IsMethodGroupExists(const WString& name, bool inheritable) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return GetMethodGroupByName(name, inheritable);
 				}
 
 				IMethodGroupInfo* GetMethodGroupByName(const WString& name, bool inheritable) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					for (vint i = 0; i < methodGroups.Count(); i++)
+					{
+						auto info = methodGroups[i].Obj();
+						if (info->GetName() == name)
+						{
+							return info;
+						}
+					}
+					if (inheritable)
+					{
+						for (vint i = 0; i < metadata->baseTypeDescriptors.Count(); i++)
+						{
+							if (auto info = GetBaseTypeDescriptor(i)->GetMethodGroupByName(name, true))
+							{
+								return info;
+							}
+						}
+					}
+					return nullptr;
 				}
 
 				IMethodGroupInfo* GetConstructorGroup() override
