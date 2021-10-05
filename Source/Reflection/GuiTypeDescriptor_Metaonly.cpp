@@ -990,7 +990,7 @@ GenerateMetaonlyTypes
 					auto mg = td->GetMethodGroup(i);
 					IdRange ir;
 					ir.start = metadata->methods.Count();
-					for (vint j = 0; j > mg->GetMethodCount(); j++)
+					for (vint j = 0; j < mg->GetMethodCount(); j++)
 					{
 						metadata->methods.Add(writer.context->miIndex[mg->GetMethod(j)]);
 					}
@@ -1001,7 +1001,7 @@ GenerateMetaonlyTypes
 				if (auto cg = td->GetConstructorGroup())
 				{
 					metadata->constructorGroup.start = metadata->methods.Count();
-					for (vint j = 0; j > cg->GetMethodCount(); j++)
+					for (vint j = 0; j < cg->GetMethodCount(); j++)
 					{
 						metadata->methods.Add(writer.context->miIndex[cg->GetMethod(j)]);
 					}
