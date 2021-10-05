@@ -29,10 +29,10 @@ Context
 
 			struct MetaonlyReaderContext
 			{
-				List<ITypeDescriptor*>					tds;
-				List<IMethodInfo*>						mis;
-				List<IPropertyInfo*>					pis;
-				List<IEventInfo*>						eis;
+				List<Ptr<ITypeDescriptor>>				tds;
+				List<Ptr<IMethodInfo>>					mis;
+				List<Ptr<IPropertyInfo>>				pis;
+				List<Ptr<IEventInfo>>					eis;
 			};
 
 /***********************************************************************
@@ -99,7 +99,7 @@ MetaonlyTypeInfo
 
 				ITypeDescriptor* GetTypeDescriptor() override
 				{
-					return context->tds[typeDecriptor];
+					return context->tds[typeDecriptor].Obj();
 				}
 
 				vint GetGenericArgumentCount() override
@@ -301,7 +301,7 @@ Serialization
 ITypeDescriptor
 ***********************************************************************/
 
-			class MetaonlyTypeDescriptor : public Object, public ITypeDescriptor
+			class MetaonlyTypeDescriptor : public Object, public ITypeDescriptor, protected ITypeDescriptor::ICpp
 			{
 			protected:
 				MetaonlyReaderContext*			context;
@@ -444,7 +444,7 @@ ITypeDescriptor
 				}
 			};
 
-			class MetaonlyMethodInfo : public Object, public IMethodInfo
+			class MetaonlyMethodInfo : public Object, public IMethodInfo, protected IMethodInfo::ICpp
 			{
 			protected:
 				MetaonlyReaderContext*			context;
@@ -458,7 +458,7 @@ ITypeDescriptor
 				}
 			};
 
-			class MetaonlyPropertyInfo : public Object, public IPropertyInfo
+			class MetaonlyPropertyInfo : public Object, public IPropertyInfo, protected IPropertyInfo::ICpp
 			{
 			protected:
 				MetaonlyReaderContext*			context;
@@ -472,7 +472,7 @@ ITypeDescriptor
 				}
 			};
 
-			class MetaonlyEventInfo : public Object, public IEventInfo
+			class MetaonlyEventInfo : public Object, public IEventInfo, protected IEventInfo::ICpp
 			{
 			protected:
 				MetaonlyReaderContext*			context;
@@ -483,6 +483,70 @@ ITypeDescriptor
 					: context(_context)
 					, metadata(_metadata)
 				{
+				}
+
+				const WString& GetAttachTemplate() override
+				{
+					return metadata->attachTemplate;
+				}
+
+				const WString& GetDetachTemplate() override
+				{
+					return metadata->detachTemplate;
+				}
+
+				const WString& GetInvokeTemplate() override
+				{
+					return metadata->invokeTemplate;
+				}
+
+				ITypeDescriptor* GetOwnerTypeDescriptor() override
+				{
+					return context->tds[metadata->ownerTypeDescriptor].Obj();
+				}
+
+				const WString& GetName() override
+				{
+					return metadata->name;
+				}
+
+				ICpp* GetCpp() override
+				{
+					if (metadata->attachTemplate.Length() + metadata->detachTemplate.Length() + metadata->invokeTemplate.Length() > 0)
+					{
+						return this;
+					}
+					return nullptr;
+				}
+
+				ITypeInfo* GetHandlerType() override
+				{
+					return metadata->handlerType.Obj();
+				}
+
+				vint GetObservingPropertyCount() override
+				{
+					return metadata->observingProperties.Count();
+				}
+
+				IPropertyInfo* GetObservingProperty(vint index) override
+				{
+					return context->pis[metadata->observingProperties[index]].Obj();
+				}
+
+				Ptr<IEventHandler> Attach(const Value& thisObject, Ptr<IValueFunctionProxy> handler) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				bool Detach(const Value& thisObject, Ptr<IEventHandler> handler) override
+				{
+					CHECK_FAIL(L"Not Supported!");
+				}
+
+				void Invoke(const Value& thisObject, Ptr<IValueList> arguments) override
+				{
+					CHECK_FAIL(L"Not Supported!");
 				}
 			};
 
