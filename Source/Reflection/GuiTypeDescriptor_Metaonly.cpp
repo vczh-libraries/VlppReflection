@@ -298,139 +298,6 @@ Serialization
 			using Writer = stream::internal::Writer<Ptr<MetaonlyWriterContext>>;
 
 /***********************************************************************
-ITypeDescriptor
-***********************************************************************/
-
-			class MetaonlyTypeDescriptor : public Object, public ITypeDescriptor, protected ITypeDescriptor::ICpp
-			{
-			protected:
-				MetaonlyReaderContext*			context;
-				Ptr<TypeDescriptorMetadata>		metadata;
-
-			public:
-				MetaonlyTypeDescriptor(MetaonlyReaderContext* _context, Ptr<TypeDescriptorMetadata> _metadata)
-					: context(_context)
-					, metadata(_metadata)
-				{
-				}
-
-				ICpp* GetCpp() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				TypeDescriptorFlags GetTypeDescriptorFlags() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				bool IsAggregatable() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				const WString& GetTypeName() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IValueType* GetValueType() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IEnumType* GetEnumType() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				ISerializableType* GetSerializableType() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				vint GetBaseTypeDescriptorCount() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				ITypeDescriptor* GetBaseTypeDescriptor(vint index) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				bool CanConvertTo(ITypeDescriptor* targetType) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				vint GetPropertyCount() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IPropertyInfo* GetProperty(vint index) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				bool IsPropertyExists(const WString& name, bool inheritable) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IPropertyInfo* GetPropertyByName(const WString& name, bool inheritable) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				vint GetEventCount() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IEventInfo* GetEvent(vint index) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				bool IsEventExists(const WString& name, bool inheritable) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IEventInfo* GetEventByName(const WString& name, bool inheritable) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				vint GetMethodGroupCount() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IMethodGroupInfo* GetMethodGroup(vint index) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				bool IsMethodGroupExists(const WString& name, bool inheritable) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IMethodGroupInfo* GetMethodGroupByName(const WString& name, bool inheritable) override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IMethodGroupInfo* GetConstructorGroup() override
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-			};
-
-/***********************************************************************
 IMethodInfo
 ***********************************************************************/
 
@@ -734,6 +601,139 @@ IEventInfo
 				void Invoke(const Value& thisObject, Ptr<IValueList> arguments) override
 				{
 					CHECK_FAIL(L"Not Supported!");
+				}
+			};
+
+/***********************************************************************
+ITypeDescriptor
+***********************************************************************/
+
+			class MetaonlyTypeDescriptor : public Object, public ITypeDescriptor, protected ITypeDescriptor::ICpp
+			{
+			protected:
+				MetaonlyReaderContext*			context;
+				Ptr<TypeDescriptorMetadata>		metadata;
+
+			public:
+				MetaonlyTypeDescriptor(MetaonlyReaderContext* _context, Ptr<TypeDescriptorMetadata> _metadata)
+					: context(_context)
+					, metadata(_metadata)
+				{
+				}
+
+				ICpp* GetCpp() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				TypeDescriptorFlags GetTypeDescriptorFlags() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				bool IsAggregatable() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				const WString& GetTypeName() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IValueType* GetValueType() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IEnumType* GetEnumType() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				ISerializableType* GetSerializableType() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				vint GetBaseTypeDescriptorCount() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				ITypeDescriptor* GetBaseTypeDescriptor(vint index) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				bool CanConvertTo(ITypeDescriptor* targetType) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				vint GetPropertyCount() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IPropertyInfo* GetProperty(vint index) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				bool IsPropertyExists(const WString& name, bool inheritable) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IPropertyInfo* GetPropertyByName(const WString& name, bool inheritable) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				vint GetEventCount() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IEventInfo* GetEvent(vint index) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				bool IsEventExists(const WString& name, bool inheritable) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IEventInfo* GetEventByName(const WString& name, bool inheritable) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				vint GetMethodGroupCount() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IMethodGroupInfo* GetMethodGroup(vint index) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				bool IsMethodGroupExists(const WString& name, bool inheritable) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IMethodGroupInfo* GetMethodGroupByName(const WString& name, bool inheritable) override
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IMethodGroupInfo* GetConstructorGroup() override
+				{
+					CHECK_FAIL(L"Not Implemented!");
 				}
 			};
 
