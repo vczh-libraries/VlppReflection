@@ -67,7 +67,7 @@ TypeInfo
 
 #endif
 
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+#ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
 TypeInfoImp
@@ -770,7 +770,7 @@ TypeInfoRetriver
 				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::ResultReferenceType		ResultReferenceType;
 				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::ResultNonReferenceType	ResultNonReferenceType;
 
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
 					return DetailTypeInfoRetriver<typename RemoveCVR<T>::Type, TypeFlag>::CreateTypeInfo(Hint);

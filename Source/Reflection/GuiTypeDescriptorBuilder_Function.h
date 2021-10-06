@@ -57,7 +57,7 @@ namespace vl
 DetailTypeInfoRetriver<Func<R(TArgs...)>>
 ***********************************************************************/
 
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+#ifndef VCZH_DEBUG_NO_REFLECTION
 			namespace internal_helper
 			{
 				template<typename T>
@@ -91,7 +91,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
  
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					auto functionType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor(), hint);
