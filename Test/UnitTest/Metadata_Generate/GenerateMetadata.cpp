@@ -18,12 +18,18 @@ extern WString GetTestOutputPath();
 #define REFLECTION_BASELINE L"Reflection32.txt"
 #endif
 
+bool LoadPredefinedTypesForTestCase()
+{
+	auto result = LoadPredefinedTypes();
+	GetGlobalTypeManager()->Load();
+	return result;
+}
+
 TEST_FILE
 {
 	TEST_CASE(L"Run GenerateMetaonlyTypes()")
 	{
-		TEST_ASSERT(LoadPredefinedTypes());
-		GetGlobalTypeManager()->Load();
+		TEST_ASSERT(LoadPredefinedTypesForTestCase());
 		{
 			FileStream fileStream(GetTestOutputPath() + REFLECTION_BIN, FileStream::WriteOnly);
 			GenerateMetaonlyTypes(fileStream);
@@ -42,9 +48,4 @@ TEST_FILE
 		}
 		TEST_ASSERT(ResetGlobalTypeManager());
 	});
-}
-
-bool LoadPredefinedTypesForTestCase()
-{
-	return LoadPredefinedTypes();
 }

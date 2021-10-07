@@ -62,7 +62,22 @@ TypeInfo
 			template<typename T>
 			ITypeDescriptor* GetTypeDescriptor()
 			{
-				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
+				static vint typeVersion = -1;
+				static ITypeDescriptor* cached = nullptr;
+				if (auto tm = GetGlobalTypeManager())
+				{
+					auto currentVersion = tm->GetTypeVersion();
+					if (typeVersion != currentVersion)
+					{
+						cached = GetTypeDescriptor(TypeInfo<T>::content.typeName);
+					}
+					return cached;
+				}
+				else
+				{
+					typeVersion = -1;
+					return nullptr;
+				}
 			}
 
 #endif

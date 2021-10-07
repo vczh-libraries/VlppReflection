@@ -539,11 +539,11 @@ LoadPredefinedTypes
 					CustomTypeDescriptorImpl()
 						:TypeDescriptorImpl(TypeDescriptorFlags::Class, &TypeInfo<DescriptableObject>::content)
 					{
-						Description<DescriptableObject>::SetAssociatedTypeDescroptor(this);
+						Description<DescriptableObject>::SetAssociatedTypeDescriptor(this);
 					}
 					~CustomTypeDescriptorImpl()
 					{
-						Description<DescriptableObject>::SetAssociatedTypeDescroptor(0);
+						Description<DescriptableObject>::SetAssociatedTypeDescriptor(0);
 					}
 				protected:
 					void LoadInternal()override

@@ -654,7 +654,7 @@ Attribute
 				return associatedTypeDescriptor;
 			}
 
-			static void SetAssociatedTypeDescroptor(description::ITypeDescriptor* typeDescroptor)
+			static void SetAssociatedTypeDescriptor(description::ITypeDescriptor* typeDescroptor)
 			{
 				associatedTypeDescriptor=typeDescroptor;
 			}
@@ -2256,6 +2256,7 @@ ITypeManager
 				virtual bool					Reload()=0;
 				virtual bool					IsLoaded()=0;
 				virtual ITypeDescriptor*		GetRootType()=0;
+				virtual vint					GetTypeVersion()=0;
 			};
 
 			/// <summary>Get the type manager.</summary>

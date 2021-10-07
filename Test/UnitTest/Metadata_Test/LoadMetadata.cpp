@@ -35,12 +35,38 @@ FINALIZE_GLOBAL_STORAGE_CLASS
 
 END_GLOBAL_STORAGE_CLASS(MetaonlyTypeDescriptors)
 
+bool LoadPredefinedTypesForTestCase()
+{
+	{
+		TEST_ASSERT(GetTypeDescriptor(TypeInfo<DateTime>::content.typeName) == nullptr);
+		TEST_ASSERT(GetTypeDescriptor<DateTime>() == nullptr);
+		TEST_ASSERT(GetTypeDescriptor<DateTime>() == nullptr);
+	}
+
+	auto tm = GetGlobalTypeManager();
+	auto result = tm->AddTypeLoader(GetMetaonlyTypeDescriptors().typeLoader);
+	tm->Load();
+	{
+		// Ensure that the type version is changed
+		static vint previousTypeVersion = -1;
+		TEST_ASSERT(previousTypeVersion != tm->GetTypeVersion());
+		previousTypeVersion = tm->GetTypeVersion();
+	}
+	{
+		// Ensure all ITypeDescriptor* cache is updated
+		auto td = GetTypeDescriptor(TypeInfo<DateTime>::content.typeName);
+		TEST_ASSERT(td != nullptr);
+		TEST_ASSERT(GetTypeDescriptor<DateTime>() == td);
+		TEST_ASSERT(GetTypeDescriptor<DateTime>() == td);
+	}
+	return result;
+}
+
 TEST_FILE
 {
 	TEST_CASE(L"Run LoadMetaonlyTypes()")
 	{
-		GetGlobalTypeManager()->AddTypeLoader(GetMetaonlyTypeDescriptors().typeLoader);
-		GetGlobalTypeManager()->Load();
+		TEST_ASSERT(LoadPredefinedTypesForTestCase());
 		{
 			FileStream fileStream(GetTestOutputPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
 			BomEncoder encoder(BomEncoder::Utf16);
@@ -55,9 +81,4 @@ TEST_FILE
 		}
 		TEST_ASSERT(ResetGlobalTypeManager());
 	});
-}
-
-bool LoadPredefinedTypesForTestCase()
-{
-	return GetGlobalTypeManager()->AddTypeLoader(GetMetaonlyTypeDescriptors().typeLoader);
 }

@@ -94,7 +94,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					auto functionType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor(), hint);
+					auto functionType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueFunctionProxy>(), hint);
  
 					auto genericType = MakePtr<GenericTypeInfo>(functionType);
 					genericType->AddGenericArgument(TypeInfoRetriver<R>::CreateTypeInfo());

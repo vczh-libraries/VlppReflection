@@ -297,11 +297,11 @@ Class
 					CustomTypeDescriptorImpl()\
 						:TypeDescriptorImpl(TDFlags, &TypeInfo<TYPENAME>::content)\
 					{\
-						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
+						Description<TYPENAME>::SetAssociatedTypeDescriptor(this);\
 					}\
 					~CustomTypeDescriptorImpl()\
 					{\
-						Description<TYPENAME>::SetAssociatedTypeDescroptor(0);\
+						Description<TYPENAME>::SetAssociatedTypeDescriptor(0);\
 					}\
 				protected:\
 					bool IsAggregatable()override\
@@ -338,11 +338,11 @@ Interface
 					CustomTypeDescriptorImpl()\
 						:TypeDescriptorImpl(TDFLAGS, &TypeInfo<TYPENAME>::content)\
 					{\
-						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
+						Description<TYPENAME>::SetAssociatedTypeDescriptor(this);\
 					}\
 					~CustomTypeDescriptorImpl()\
 					{\
-						Description<TYPENAME>::SetAssociatedTypeDescroptor(0);\
+						Description<TYPENAME>::SetAssociatedTypeDescriptor(0);\
 					}\
 					void IndexMethodInfo(const MethodPointerBinaryData& data, IMethodInfo* methodInfo)override\
 					{\

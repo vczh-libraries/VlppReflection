@@ -535,7 +535,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueEnumerable>::GetAssociatedTypeDescriptor(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueEnumerable>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
@@ -563,7 +563,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueReadonlyList>::GetAssociatedTypeDescriptor(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueReadonlyList>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
@@ -591,7 +591,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueList>::GetAssociatedTypeDescriptor(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueList>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
@@ -619,7 +619,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueObservableList>::GetAssociatedTypeDescriptor(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueObservableList>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
@@ -650,7 +650,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename KeyContainer::ElementType										KeyType;
 					typedef typename ValueContainer::ElementType									ValueType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueReadonlyDictionary>::GetAssociatedTypeDescriptor(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueReadonlyDictionary>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
@@ -682,7 +682,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename KeyContainer::ElementType										KeyType;
 					typedef typename ValueContainer::ElementType									ValueType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueDictionary>::GetAssociatedTypeDescriptor(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueDictionary>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
