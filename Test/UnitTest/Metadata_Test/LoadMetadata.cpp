@@ -31,6 +31,7 @@ INITIALIZE_GLOBAL_STORAGE_CLASS
 	typeLoader = LoadMetaonlyTypes(fileStream, serializableTypes);
 
 FINALIZE_GLOBAL_STORAGE_CLASS
+	typeLoader = nullptr;
 
 END_GLOBAL_STORAGE_CLASS(MetaonlyTypeDescriptors)
 
