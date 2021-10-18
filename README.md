@@ -19,3 +19,8 @@ For **VlppReflection**: click [here](http://vczh-libraries.github.io/doc/current
 - **Reflection for C++**
   - **TEST** [TestReflection.cpp](./Test/Source/TestReflection.cpp)
   - **TUTORIAL** [GuiTypeDescriptor.h](./Source/Reflection/GuiTypeDescriptor.h)
+
+- Execution Order:
+  - Metadata_Generate
+  - Metadata_Test
+  - UnitTest
