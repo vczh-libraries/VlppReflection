@@ -121,6 +121,7 @@ MetaonlyTypeInfo
 					case SharedPtr: return elementType->GetTypeFriendlyName() + L"^";
 					case Nullable: return elementType->GetTypeFriendlyName() + L"?";
 					case TypeDescriptor: return GetTypeDescriptor()->GetTypeName();
+					default:;
 					}
 					WString result = elementType->GetTypeFriendlyName() + L"<";
 					FOREACH_INDEXER(Ptr<MetaonlyTypeInfo>, type, i, genericArguments)

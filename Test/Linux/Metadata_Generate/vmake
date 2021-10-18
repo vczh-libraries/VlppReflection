@@ -1,11 +1,11 @@
 <#
 CPP_TARGET=./Bin/UnitTest
-CPP_VCXPROJ=(
+CPP_VCXPROJS=(
     "../../UnitTest/VlppImport/VlppImport.vcxitems"
     "../../UnitTest/VlppReflection/VlppReflection.vcxitems"
-    "../../UnitTest/UnitTest/UnitTest.vcxproj"
+    "../../UnitTest/Metadata_Generate/Metadata_Generate.vcxproj"
     )
-CPP_REMOVES=("../../Source/TestLocale.cpp" "../../UnitTest/UnitTest/Main.cpp")
+CPP_REMOVES=("../../UnitTest/UnitTest/Main.cpp")
 CPP_ADDS=("../Main.cpp")
 FOLDERS=("../../Output")
 TARGETS=("${CPP_TARGET}")

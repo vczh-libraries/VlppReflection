@@ -13,7 +13,7 @@ TEST_FILE
 	TEST_CASE_ASSERT(Folder(GetTestOutputPath()).Exists());
 }
 
-int main(vint argc, char* argv[])
+int main(int argc, char* argv[])
 {
 	int result = unittest::UnitTest::RunAndDisposeTests(argc, argv);
 	FinalizeGlobalStorage();
