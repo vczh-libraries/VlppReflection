@@ -329,7 +329,7 @@ TypedValueSerializerProvider
 
 			bool TypedValueSerializerProvider<wchar_t>::Serialize(const wchar_t& input, WString& output)
 			{
-				output = input ? WString(input) : L"";
+				output = input ? WString::FromChar(input) : L"";
 				return true;
 			}
 

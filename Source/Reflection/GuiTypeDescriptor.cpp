@@ -1066,11 +1066,11 @@ Cpp Helper Functions
 				}
 				else if ((prop->GetOwnerTypeDescriptor()->GetTypeDescriptorFlags() & TypeDescriptorFlags::ReferenceType) != TypeDescriptorFlags::Undefined)
 				{
-					return WString(L"$This->$Name", false);
+					return WString::Unmanaged(L"$This->$Name");
 				}
 				else
 				{
-					return WString(L"$This.$Name", false);
+					return WString::Unmanaged(L"$This.$Name");
 				}
 			}
 
@@ -1083,11 +1083,11 @@ Cpp Helper Functions
 
 				if (method->IsStatic())
 				{
-					return WString(L"::vl::Func<$Func>(&$Type::$Name)", false);
+					return WString::Unmanaged(L"::vl::Func<$Func>(&$Type::$Name)");
 				}
 				else
 				{
-					return WString(L"::vl::Func<$Func>($This, &$Type::$Name)", false);
+					return WString::Unmanaged(L"::vl::Func<$Func>($This, &$Type::$Name)");
 				}
 			}
 
@@ -1100,34 +1100,34 @@ Cpp Helper Functions
 
 				if (method->GetOwnerMethodGroup() == method->GetOwnerTypeDescriptor()->GetConstructorGroup())
 				{
-					return WString(L"new $Type($Arguments)", false);
+					return WString::Unmanaged(L"new $Type($Arguments)");
 				}
 				else if (method->IsStatic())
 				{
-					return WString(L"$Type::$Name($Arguments)", false);
+					return WString::Unmanaged(L"$Type::$Name($Arguments)");
 				}
 				else
 				{
-					return WString(L"$This->$Name($Arguments)", false);
+					return WString::Unmanaged(L"$This->$Name($Arguments)");
 				}
 			}
 
 			WString CppGetAttachTemplate(IEventInfo* ev)
 			{
 				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"::vl::__vwsn::EventAttach($This->$Name, $Handler)", false) : cpp->GetAttachTemplate();
+				return cpp == nullptr ? WString::Unmanaged(L"::vl::__vwsn::EventAttach($This->$Name, $Handler)") : cpp->GetAttachTemplate();
 			}
 
 			WString CppGetDetachTemplate(IEventInfo* ev)
 			{
 				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"::vl::__vwsn::EventDetach($This->$Name, $Handler)", false) : cpp->GetDetachTemplate();
+				return cpp == nullptr ? WString::Unmanaged(L"::vl::__vwsn::EventDetach($This->$Name, $Handler)") : cpp->GetDetachTemplate();
 			}
 
 			WString CppGetInvokeTemplate(IEventInfo* ev)
 			{
 				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"::vl::__vwsn::EventInvoke($This->$Name)($Arguments)", false) : cpp->GetInvokeTemplate();
+				return cpp == nullptr ? WString::Unmanaged(L"::vl::__vwsn::EventInvoke($This->$Name)($Arguments)") : cpp->GetInvokeTemplate();
 			}
 
 			bool CppExists(ITypeDescriptor* type)

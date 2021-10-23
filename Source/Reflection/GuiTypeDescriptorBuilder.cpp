@@ -238,17 +238,17 @@ TypeDescriptorImplBase
 			TypeDescriptorImplBase::TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
 				:typeDescriptorFlags(_typeDescriptorFlags)
 				, typeInfoContent(_typeInfoContent)
-				, typeName(_typeInfoContent->typeName, false)
+				, typeName(WString::Unmanaged(_typeInfoContent->typeName))
 			{
 				switch (typeInfoContent->cppName)
 				{
 				case TypeInfoContent::VlppType:
 					break;
 				case TypeInfoContent::CppType:
-					cppFullTypeName = WString(typeInfoContent->typeName, false);
+					cppFullTypeName = WString::Unmanaged(typeInfoContent->typeName);
 					break;
 				case TypeInfoContent::Renamed:
-					cppFullTypeName = WString(typeInfoContent->cppFullTypeName, false);
+					cppFullTypeName = WString::Unmanaged(typeInfoContent->cppFullTypeName);
 					break;
 				}
 			}
