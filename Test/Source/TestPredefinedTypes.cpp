@@ -22,13 +22,14 @@ namespace test
 
 		for (auto i : values)
 		{
-			TEST_CASE(L"Test number: " + ToString(i))
+			WString toString = ToString(i);
+			TEST_CASE(L"Test number: " + toString)
 			{
 				if (min <= i && i <= max)
 				{
 					Value value;
 					{
-						TEST_ASSERT(serializer->Deserialize(ToString(i), value));
+						TEST_ASSERT(serializer->Deserialize(toString, value));
 						TEST_ASSERT(value.GetValueType() == Value::BoxedValue);
 #ifndef VCZH_DEBUG_METAONLY_REFLECTION
 						TEST_ASSERT(value.GetTypeDescriptor() == type);
@@ -40,7 +41,7 @@ namespace test
 						TEST_ASSERT(serializer->Serialize(value, output));
 						if (testGetText)
 						{
-							TEST_ASSERT(output == ToString(i));
+							TEST_ASSERT(output == toString);
 						}
 					}
 					{
@@ -54,7 +55,7 @@ namespace test
 				{
 					Value value;
 					{
-						TEST_ASSERT(serializer->Deserialize(ToString(i), value) == false);
+						TEST_ASSERT(serializer->Deserialize(toString, value) == false);
 						TEST_ASSERT(value.GetValueType() == Value::Null);
 #ifndef VCZH_DEBUG_METAONLY_REFLECTION
 						TEST_ASSERT(value.GetTypeDescriptor() == 0);

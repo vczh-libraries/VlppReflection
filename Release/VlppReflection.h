@@ -6061,11 +6061,11 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					CHECK_ERROR((_invokeTemplate == nullptr) == (_closureTemplate == nullptr), L"MethodInfoImpl_StaticCpp::MethodInfoImpl_StaticCpp()#Templates should all be set or default at the same time.");
 					if (_invokeTemplate)
 					{
-						invokeTemplate = WString(_invokeTemplate, false);
+						invokeTemplate = WString::Unmanaged(_invokeTemplate);
 					}
 					if (_closureTemplate)
 					{
-						closureTemplate = WString(_closureTemplate, false);
+						closureTemplate = WString::Unmanaged(_closureTemplate);
 					}
 				}
 
