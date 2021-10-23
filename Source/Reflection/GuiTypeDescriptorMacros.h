@@ -545,7 +545,7 @@ Property
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #SETTER, true)->GetMethod(0)),\
 					nullptr,\
-					WString(REFERENCETEMPLATE, false)\
+					WString::Unmanaged(REFERENCETEMPLATE)\
 					)\
 				);
 
