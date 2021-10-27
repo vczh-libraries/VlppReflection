@@ -306,7 +306,7 @@ Class
 				protected:\
 					bool IsAggregatable()override\
 					{\
-						return AcceptValue<typename PointerConvertable<TYPENAME, AggregatableDescription<TYPENAME>>::YesNoType>::Result;\
+						return std::is_convertible_v<TYPENAME*, AggregatableDescription<TYPENAME>*>;\
 					}\
 					void LoadInternal()override\
 					{

@@ -135,7 +135,7 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 				template<typename R, typename ...TArgs>
 				struct BoxedFunctionInvoker
 				{
-					static Value Invoke(const Func<R(TArgs...)>& function, Ptr<IValueList> arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(const Func<R(TArgs...)>& function, Ptr<IValueList> arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(arguments, 0, args...);
 						R result = function(args...);
@@ -146,7 +146,7 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 				template<typename ...TArgs>
 				struct BoxedFunctionInvoker<void, TArgs...>
 				{
-					static Value Invoke(const Func<void(TArgs...)>& function, Ptr<IValueList> arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(const Func<void(TArgs...)>& function, Ptr<IValueList> arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(arguments, 0, args...);
 						function(args...);
@@ -183,7 +183,7 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 						CHECK_FAIL(L"Argument count mismatch.");
 #endif
 					}
-					return internal_helper::BoxedFunctionInvoker<R, TArgs...>::Invoke(function, arguments, typename RemoveCVR<TArgs>::Type()...);
+					return internal_helper::BoxedFunctionInvoker<R, TArgs...>::Invoke(function, arguments, std::remove_cvref_t<TArgs>()...);
 				}
 			};
  
@@ -234,7 +234,7 @@ ParameterAccessor<Func<R(TArgs...)>>
 							result=[functionProxy](TArgs ...args)
 							{
 								Ptr<IValueList> arguments = IValueList::Create();
-								internal_helper::AddValueToList(arguments, ForwardValue<TArgs>(args)...);
+								internal_helper::AddValueToList(arguments, std::forward<TArgs>(args)...);
 								typedef typename TypeInfoRetriver<R>::TempValueType ResultType;
 								ResultType proxyResult;
 								description::UnboxParameter<ResultType>(functionProxy->Invoke(arguments), proxyResult);
@@ -289,7 +289,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 				template<typename R, typename ...TArgs>
 				struct BoxedConstructorInvoker
 				{
-					static Value Invoke(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = new typename TypeInfoRetriver<R>::Type(args...);
@@ -322,7 +322,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 			protected:
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					return internal_helper::BoxedConstructorInvoker<R, TArgs...>::Invoke(this, arguments, typename RemoveCVR<TArgs>::Type()...);
+					return internal_helper::BoxedConstructorInvoker<R, TArgs...>::Invoke(this, arguments, std::remove_cvref_t<TArgs>()...);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -359,7 +359,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				template<typename TClass, typename R, typename ...TArgs>
 				struct BoxedMethodInvoker
 				{
-					static Value Invoke(TClass* object, R(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(TClass* object, R(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = (object->*method)(args...);
@@ -370,7 +370,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				template<typename TClass, typename ...TArgs>
 				struct BoxedMethodInvoker<TClass, void, TArgs...>
 				{
-					static Value Invoke(TClass* object, void(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(TClass* object, void(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						(object->*method)(args...);
@@ -381,7 +381,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				template<typename TClass, typename R, typename ...TArgs>
 				struct BoxedExternalMethodInvoker
 				{
-					static Value Invoke(TClass* object, R(*method)(TClass*, TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(TClass* object, R(*method)(TClass*, TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = method(object, args...);
@@ -392,7 +392,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				template<typename TClass, typename ...TArgs>
 				struct BoxedExternalMethodInvoker<TClass, void, TArgs...>
 				{
-					static Value Invoke(TClass* object, void(*method)(TClass*, TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(TClass* object, void(*method)(TClass*, TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						method(object, args...);
@@ -445,7 +445,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					return internal_helper::BoxedMethodInvoker<TClass, R, TArgs...>::Invoke(object, method, this, arguments, typename RemoveCVR<TArgs>::Type()...);
+					return internal_helper::BoxedMethodInvoker<TClass, R, TArgs...>::Invoke(object, method, this, arguments, std::remove_cvref_t<TArgs>()...);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -472,7 +472,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					return internal_helper::BoxedExternalMethodInvoker<TClass, R, TArgs...>::Invoke(object, method, this, arguments, typename RemoveCVR<TArgs>::Type()...);
+					return internal_helper::BoxedExternalMethodInvoker<TClass, R, TArgs...>::Invoke(object, method, this, arguments, std::remove_cvref_t<TArgs>()...);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -499,7 +499,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 				template<typename R, typename ...TArgs>
 				struct BoxedStaticMethodInvoker
 				{
-					static Value Invoke(R(* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(R(* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = method(args...);
@@ -510,7 +510,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 				template<typename ...TArgs>
 				struct BoxedStaticMethodInvoker<void, TArgs...>
 				{
-					static Value Invoke(void(* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static Value Invoke(void(* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						method(args...);
@@ -527,7 +527,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
  
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					return internal_helper::BoxedStaticMethodInvoker<R, TArgs...>::Invoke(method, this, arguments, typename RemoveCVR<TArgs>::Type()...);
+					return internal_helper::BoxedStaticMethodInvoker<R, TArgs...>::Invoke(method, this, arguments, std::remove_cvref_t<TArgs>()...);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -553,7 +553,7 @@ CustomEventInfoImpl<void(TArgs...)>
 				template<typename ...TArgs>
 				struct BoxedEventInvoker
 				{
-					static void Invoke(Event<void(TArgs...)>& eventObject, Ptr<IValueList> arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static void Invoke(Event<void(TArgs...)>& eventObject, Ptr<IValueList> arguments, std::remove_cvref_t<TArgs>&& ...args)
 					{
 						UnboxSpecifiedParameter(arguments, 0, args...);
 						eventObject(args...);
@@ -574,7 +574,7 @@ CustomEventInfoImpl<void(TArgs...)>
 					auto func = Func<void(TArgs...)>([=](TArgs ...args)
 						{
 							auto arguments = IValueList::Create();
-							internal_helper::AddValueToList(arguments, ForwardValue<TArgs>(args)...);
+							internal_helper::AddValueToList(arguments, std::forward<TArgs>(args)...);
 							handler->Invoke(arguments);
 						});
 					return EventHelper<TArgs...>::Attach(eventObject, func);
@@ -591,7 +591,7 @@ CustomEventInfoImpl<void(TArgs...)>
 				{
 					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
 					Event<void(TArgs...)>& eventObject = object->*eventRef;
-					internal_helper::BoxedEventInvoker<TArgs...>::Invoke(eventObject, arguments, typename RemoveCVR<TArgs>::Type()...);
+					internal_helper::BoxedEventInvoker<TArgs...>::Invoke(eventObject, arguments, typename std::remove_cvref_t<TArgs>()...);
 				}
 
 				Ptr<ITypeInfo> GetHandlerTypeInternal()override

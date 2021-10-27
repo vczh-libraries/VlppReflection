@@ -269,13 +269,13 @@ ParameterAccessor<TStruct>
 						typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
 					}
 #endif
-					using Type = typename vl::RemoveCVR<T>::Type;
+					using Type = std::remove_cvref_t<T>;
 					return Value::From(new IValueType::TypedBox<Type>(object), typeDescriptor);
 				}
 
 				static T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					using Type = typename vl::RemoveCVR<T>::Type;
+					using Type = std::remove_cvref_t<T>;
 					if (auto unboxedValue = value.GetBoxedValue().Cast<IValueType::TypedBox<Type>>())
 					{
 						return unboxedValue->value;

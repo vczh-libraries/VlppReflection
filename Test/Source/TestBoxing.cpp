@@ -49,11 +49,11 @@ TEST_FILE
 {
 	TEST_CASE(L"Test DescriptableObject: ReferenceCounterOperator")
 	{
-		TEST_ASSERT((!AcceptValue<typename PointerConvertable<vint, DescriptableObject>::YesNoType>::Result));
-		TEST_ASSERT((AcceptValue<typename PointerConvertable<DescriptableObject, DescriptableObject>::YesNoType>::Result));
-		TEST_ASSERT((AcceptValue<typename PointerConvertable<IDescriptable, DescriptableObject>::YesNoType>::Result));
-		TEST_ASSERT((AcceptValue<typename PointerConvertable<Base, DescriptableObject>::YesNoType>::Result));
-		TEST_ASSERT((AcceptValue<typename PointerConvertable<Derived, DescriptableObject>::YesNoType>::Result));
+		TEST_ASSERT((!std::is_convertible_v<vint*, DescriptableObject*>));
+		TEST_ASSERT((std::is_convertible_v<DescriptableObject*, DescriptableObject*>));
+		TEST_ASSERT((std::is_convertible_v<IDescriptable*, DescriptableObject*>));
+		TEST_ASSERT((std::is_convertible_v<Base*, DescriptableObject*>));
+		TEST_ASSERT((std::is_convertible_v<Derived*, DescriptableObject*>));
 
 		Base* raw = new Base;
 		volatile vint* counter = ReferenceCounterOperator<Base>::CreateCounter(raw);

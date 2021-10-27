@@ -788,7 +788,7 @@ TypeInfoRetriver
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					return DetailTypeInfoRetriver<typename RemoveCVR<T>::Type, TypeFlag>::CreateTypeInfo(Hint);
+					return DetailTypeInfoRetriver<std::remove_cvref_t<T>, TypeFlag>::CreateTypeInfo(Hint);
 				}
 #endif
 			};
@@ -810,7 +810,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			template<typename T>
 			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor=0)
 			{
-				using Type = typename RemoveCVR<T>::Type;
+				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::BoxValue(object, typeDescriptor);
 			}
 			
@@ -823,7 +823,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			template<typename T>
 			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
 			{
-				using Type = typename RemoveCVR<T>::Type;
+				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::UnboxValue(value, typeDescriptor, valueName);
 			}
 

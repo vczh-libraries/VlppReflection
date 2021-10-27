@@ -688,7 +688,7 @@ ReferenceCounterOperator
 	}
 
 	template<typename T>
-	struct ReferenceCounterOperator<T, typename PointerConvertable<T, reflection::DescriptableObject>::YesNoType>
+	struct ReferenceCounterOperator<T, std::enable_if_t<std::is_convertible_v<T*, reflection::DescriptableObject*>>>
 	{
 		static __forceinline volatile vint* CreateCounter(T* reference)
 		{
@@ -1823,7 +1823,7 @@ ValueType
 				{
 				private:
 					template<typename U = T>
-					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, typename AcceptAlways<vint, decltype(&TypedValueSerializerProvider<U>::Compare)>::Type)
+					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, std::enable_if_t<sizeof(decltype(&TypedValueSerializerProvider<U>::Compare)) >= 0, vint>)
 					{
 						return TypedValueSerializerProvider<U>::Compare(a, b);
 					}
