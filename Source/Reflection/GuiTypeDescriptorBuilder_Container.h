@@ -19,97 +19,13 @@ namespace vl
 DetailTypeInfoRetriver<TContainer>
 ***********************************************************************/
 
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::EnumerableType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef IValueEnumerable										Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::ElementType										ElementType;
-
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueEnumerable>(), hint);
-
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
-
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
-					return type;
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ReadonlyListType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef IValueReadonlyList										Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::ElementType										ElementType;
-
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueReadonlyList>(), hint);
-
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
-
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
-					return type;
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ListType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef IValueList												Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::ElementType										ElementType;
-
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueList>(), hint);
-
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
-
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
-					return type;
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ObservableListType>
+			template<typename T, typename TCollectionType>
+			struct DetailTypeInfoRetriver_Template1
 			{
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
 				static const ITypeInfo::Decorator								Decorator = UpLevelRetriver::Decorator;
-				typedef IValueObservableList									Type;
+				typedef TCollectionType											Type;
 				typedef typename UpLevelRetriver::TempValueType					TempValueType;
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
@@ -120,7 +36,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueObservableList>(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
@@ -131,13 +47,13 @@ DetailTypeInfoRetriver<TContainer>
 #endif
 			};
 
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ReadonlyDictionaryType>
+			template<typename T, typename TCollectionType>
+			struct DetailTypeInfoRetriver_Template2
 			{
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef IValueReadonlyList										Type;
+				static const ITypeInfo::Decorator								Decorator = UpLevelRetriver::Decorator;
+				typedef TCollectionType											Type;
 				typedef typename UpLevelRetriver::TempValueType					TempValueType;
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
@@ -151,7 +67,7 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename KeyContainer::ElementType										KeyType;
 					typedef typename ValueContainer::ElementType									ValueType;
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueReadonlyDictionary>(), hint);
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
@@ -164,35 +80,38 @@ DetailTypeInfoRetriver<TContainer>
 			};
 
 			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::DictionaryType>
+			struct DetailTypeInfoRetriver<T, TypeFlags::EnumerableType> : DetailTypeInfoRetriver_Template1<T, IValueEnumerable>
 			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+			};
 
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef IValueReadonlyList										Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::ReadonlyListType> : DetailTypeInfoRetriver_Template1<T, IValueReadonlyList>
+			{
+			};
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::KeyContainer									KeyContainer;
-					typedef typename ContainerType::ValueContainer									ValueContainer;
-					typedef typename KeyContainer::ElementType										KeyType;
-					typedef typename ValueContainer::ElementType									ValueType;
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::ArrayType> : DetailTypeInfoRetriver_Template1<T, IValueArray>
+			{
+			};
 
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueDictionary>(), hint);
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::ListType> : DetailTypeInfoRetriver_Template1<T, IValueList>
+			{
+			};
 
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
-					genericType->AddGenericArgument(TypeInfoRetriver<ValueType>::CreateTypeInfo());
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::ObservableListType> : DetailTypeInfoRetriver_Template1<T, IValueObservableList>
+			{
+			};
 
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
-					return type;
-				}
-#endif
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::ReadonlyDictionaryType> : DetailTypeInfoRetriver_Template2<T, IValueReadonlyDictionary>
+			{
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::DictionaryType> : DetailTypeInfoRetriver_Template2<T, IValueDictionary>
+			{
 			};
  
 /***********************************************************************
@@ -246,6 +165,29 @@ ParameterAccessor<TContainer>
 					typedef typename T::ElementType ElementType;
 					Ptr<IValueReadonlyList> listProxy=UnboxValue<Ptr<IValueReadonlyList>>(value, typeDescriptor, valueName);
 					collections::LazyList<ElementType> lazyList=GetLazyList<ElementType>(listProxy);
+					collections::CopyFrom(result, lazyList);
+				}
+			};
+
+			template<typename T>
+			struct ParameterAccessor<T, TypeFlags::ArrayType>
+			{
+				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
+				{
+					Ptr<IValueArray> result = new ValueArrayWrapper<T*>(&object);
+
+					ITypeDescriptor* td = nullptr;
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+					td = Description<IValueArray>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueArray>>(result, td);
+				}
+
+				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					typedef typename T::ElementType ElementType;
+					Ptr<IValueArray> arrayProxy = UnboxValue<Ptr<IValueArray>>(value, typeDescriptor, valueName);
+					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(arrayProxy);
 					collections::CopyFrom(result, lazyList);
 				}
 			};

@@ -114,6 +114,16 @@ Enumerable Wrappers
 			/// <typeparam name="T">The expected element type.</typeparam>
 			/// <param name="value">The reflectable container.</param>
 			template<typename T>
+			collections::LazyList<T> GetLazyList(Ptr<IValueArray> value)
+			{
+				return GetLazyList<T>(Ptr<IValueReadonlyList>(value));
+			}
+
+			/// <summary>Convert a reflectable container to a lazy list to the known element type.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <typeparam name="T">The expected element type.</typeparam>
+			/// <param name="value">The reflectable container.</param>
+			template<typename T>
 			collections::LazyList<T> GetLazyList(Ptr<IValueList> value)
 			{
 				return GetLazyList<T>(Ptr<IValueReadonlyList>(value));

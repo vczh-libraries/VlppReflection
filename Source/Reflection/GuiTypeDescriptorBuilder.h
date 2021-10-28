@@ -688,6 +688,7 @@ TypeFlagSelector
 					( (vint)TypeFlagTester<T, TypeFlags::FunctionType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::EnumerableType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ReadonlyListType>::Result
+					| (vint)TypeFlagTester<T, TypeFlags::ArrayType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ListType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ObservableListType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ReadonlyDictionaryType>::Result
