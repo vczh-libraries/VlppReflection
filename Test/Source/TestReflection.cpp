@@ -171,8 +171,6 @@ namespace TestReflection_TestObjects
 		}
 	};
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
-
 	class Agg : public Description<Agg>
 	{
 	public:
@@ -265,12 +263,8 @@ namespace TestReflection_TestObjects
 		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
 		vint GetInt(vint x) { return x; }
 	};
-
-#endif
 }
 using namespace TestReflection_TestObjects;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define _ ,
 
@@ -1324,5 +1318,3 @@ TEST_FILE
 	TEST_CASE_REFLECTION(TestCpp)
 	TEST_CASE_REFLECTION(TestHint)
 }
-
-#endif
