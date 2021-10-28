@@ -36,5 +36,8 @@
     <ClCompile Include="..\..\Source\TestReflection_Hint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestBoxing_Collections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

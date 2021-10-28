@@ -4,11 +4,8 @@ using namespace vl;
 using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
-using namespace vl::stream;
 
-extern WString GetTestOutputPath();
-
-namespace TestReflection_TestObjects
+namespace TestReflection_TestObjects_Hint
 {
 	class MyList : public List<int>
 	{
@@ -35,7 +32,7 @@ namespace TestReflection_TestObjects
 		vint GetInt(vint x) { return x; }
 	};
 }
-using namespace TestReflection_TestObjects;
+using namespace TestReflection_TestObjects_Hint;
 
 #define _ ,
 
@@ -79,7 +76,7 @@ END_TYPE_INFO_NAMESPACE
 
 #undef TYPE_LIST
 
-namespace reflection_test
+namespace reflection_test_hint
 {
 	template<typename TReturn, typename TArgument>
 	void TestHint(const WString& member, TypeInfoHint hint, bool testParameter = true)
@@ -113,7 +110,7 @@ namespace reflection_test
 		TestHint<vint, vint>(L"GetInt", TypeInfoHint::Normal);
 	}
 }
-using namespace reflection_test;
+using namespace reflection_test_hint;
 
 #define TEST_CASE_REFLECTION(NAME)\
 	TEST_CASE(L ## #NAME)\

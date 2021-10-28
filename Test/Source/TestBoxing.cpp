@@ -5,7 +5,7 @@ using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 
-namespace TestBoxing_TestObjects
+namespace TestBoxing_TestObjects_Boxing
 {
 	class Base : public Object, public Description<Base>
 	{
@@ -15,29 +15,20 @@ namespace TestBoxing_TestObjects
 	{
 	};
 }
-using namespace TestBoxing_TestObjects;
+using namespace TestBoxing_TestObjects_Boxing;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define _ ,
 
 #define TYPE_LIST(F)\
-	F(TestBoxing_TestObjects::Base)\
-	F(TestBoxing_TestObjects::Derived)\
+	F(Base)\
+	F(Derived)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
 	TYPE_LIST(DECL_TYPE_INFO)
 	TYPE_LIST(IMPL_CPP_TYPE_INFO)
-
-	BEGIN_CLASS_MEMBER(TestBoxing_TestObjects::Base)
-		CLASS_MEMBER_CONSTRUCTOR(Ptr<Base>(), NO_PARAMETER)
-	END_CLASS_MEMBER(TestBoxing_TestObjects::Base)
-
-	BEGIN_CLASS_MEMBER(TestBoxing_TestObjects::Derived)
-		CLASS_MEMBER_BASE(Base)
-		CLASS_MEMBER_CONSTRUCTOR(Ptr<Derived>(), NO_PARAMETER)
-	END_CLASS_MEMBER(TestBoxing_TestObjects::Derived)
 
 END_TYPE_INFO_NAMESPACE
 

@@ -1,14 +1,10 @@
 #include "../../Source/Reflection/GuiTypeDescriptorReflection.h"
 
 using namespace vl;
-using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
-using namespace vl::stream;
 
-extern WString GetTestOutputPath();
-
-namespace TestReflection_TestObjects
+namespace TestReflection_TestObjects_Event
 {
 	class EventRaiser : public Description<EventRaiser>
 	{
@@ -35,7 +31,7 @@ namespace TestReflection_TestObjects
 		}
 	};
 }
-using namespace TestReflection_TestObjects;
+using namespace TestReflection_TestObjects_Event;
 
 #define _ ,
 
@@ -71,7 +67,7 @@ END_TYPE_INFO_NAMESPACE
 
 #undef TYPE_LIST
 
-namespace reflection_test
+namespace reflection_test_event
 {
 	void TestReflectionEvent()
 	{
@@ -112,7 +108,7 @@ namespace reflection_test
 		TEST_ASSERT(eventRaiser.DetachEvent(L"ValueChanged", eventHandler) == false);
 	}
 }
-using namespace reflection_test;
+using namespace reflection_test_event;
 
 #define TEST_CASE_REFLECTION(NAME)\
 	TEST_CASE(L ## #NAME)\

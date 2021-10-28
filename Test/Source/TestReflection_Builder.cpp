@@ -1,14 +1,13 @@
 #include "../../Source/Reflection/GuiTypeDescriptorReflection.h"
 
 using namespace vl;
-using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 using namespace vl::stream;
 
 extern WString GetTestOutputPath();
 
-namespace reflection_test
+namespace reflection_test_builder
 {
 	void TestReflectionBuilder()
 	{
@@ -64,7 +63,7 @@ namespace reflection_test
 		TEST_ASSERT(GetTypeDescriptor<ITypeDescriptor>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 	}
 }
-using namespace reflection_test;
+using namespace reflection_test_builder;
 
 #define TEST_CASE_REFLECTION(NAME)\
 	TEST_CASE(L ## #NAME)\

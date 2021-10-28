@@ -166,6 +166,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\Source\TestReflection_Aggregation.cpp" />
+    <ClCompile Include="..\..\Source\TestBoxing_Collections.cpp" />
     <ClCompile Include="..\..\Source\TestReflection_Builder.cpp" />
     <ClCompile Include="..\..\Source\TestReflection_Event.cpp" />
     <ClCompile Include="..\..\Source\TestReflection_Hint.cpp" />

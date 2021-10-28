@@ -4,9 +4,6 @@ using namespace vl;
 using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
-using namespace vl::stream;
-
-extern WString GetTestOutputPath();
 
 namespace TestReflection_TestObjects
 {
