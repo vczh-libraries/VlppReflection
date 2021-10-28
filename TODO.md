@@ -3,10 +3,8 @@
 ## 2.0
 
 - Add DisposedFlag to collections and all reflectable classes and interfaces.
-- When a reflectable object is being created against a collection:
-  - Regardless of what interface type is created, a most detailed writable interface is created and stored into the collection.
-    - When seeing `IEnumerable<T>`, need to figure out the underlying type.
-  - If the pointer is not `nullptr`, use that object, throws when the object from the pointer is not detailed enough.
+- Redesign `BoxParameter` and `UnboxParameter`.
+  - `UnboxParameter` could return a reference holder, it is not necessary to create a new object if a referenced native object could be retrived from the wrapper.
 - Dump and reload type metadata with some types not included.
   - Version number in binary file.
   - List dependency type, check if all of them are available before loading this file.
