@@ -123,7 +123,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(collections::LazyList<T>& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueEnumerable> result=IValueEnumerable::Create(
+					Ptr<IValueEnumerable> result = IValueEnumerable::Create(
 						collections::From(object)
 							.Select([](const T& item)
 							{
@@ -141,8 +141,8 @@ ParameterAccessor<TContainer>
 				static void UnboxParameter(const Value& value, collections::LazyList<T>& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					typedef typename collections::LazyList<T>::ElementType ElementType;
-					Ptr<IValueEnumerable> listProxy=UnboxValue<Ptr<IValueEnumerable>>(value, typeDescriptor, valueName);
-					result=GetLazyList<T>(listProxy);
+					Ptr<IValueEnumerable> listProxy = UnboxValue<Ptr<IValueEnumerable>>(value, typeDescriptor, valueName);
+					result = GetLazyList<T>(listProxy);
 				}
 			};
 
@@ -151,7 +151,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueReadonlyList> result=new ValueReadonlyListWrapper<T*>(&object);
+					Ptr<IValueReadonlyList> result = new ValueReadonlyListWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
@@ -163,8 +163,8 @@ ParameterAccessor<TContainer>
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					typedef typename T::ElementType ElementType;
-					Ptr<IValueReadonlyList> listProxy=UnboxValue<Ptr<IValueReadonlyList>>(value, typeDescriptor, valueName);
-					collections::LazyList<ElementType> lazyList=GetLazyList<ElementType>(listProxy);
+					Ptr<IValueReadonlyList> listProxy = UnboxValue<Ptr<IValueReadonlyList>>(value, typeDescriptor, valueName);
+					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(listProxy);
 					collections::CopyFrom(result, lazyList);
 				}
 			};
@@ -197,7 +197,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueList> result=new ValueListWrapper<T*>(&object);
+					Ptr<IValueList> result = new ValueListWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
@@ -209,8 +209,8 @@ ParameterAccessor<TContainer>
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					typedef typename T::ElementType ElementType;
-					Ptr<IValueList> listProxy=UnboxValue<Ptr<IValueList>>(value, typeDescriptor, valueName);
-					collections::LazyList<ElementType> lazyList=GetLazyList<ElementType>(listProxy);
+					Ptr<IValueList> listProxy = UnboxValue<Ptr<IValueList>>(value, typeDescriptor, valueName);
+					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(listProxy);
 					collections::CopyFrom(result, lazyList);
 				}
 			};
@@ -233,7 +233,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueReadonlyDictionary> result=new ValueReadonlyDictionaryWrapper<T*>(&object);
+					Ptr<IValueReadonlyDictionary> result = new ValueReadonlyDictionaryWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
@@ -249,8 +249,8 @@ ParameterAccessor<TContainer>
 					typedef typename KeyContainer::ElementType			KeyType;
 					typedef typename ValueContainer::ElementType		ValueType;
 
-					Ptr<IValueReadonlyDictionary> dictionaryProxy=UnboxValue<Ptr<IValueReadonlyDictionary>>(value, typeDescriptor, valueName);
-					collections::LazyList<collections::Pair<KeyType, ValueType>> lazyList=GetLazyList<KeyType, ValueType>(dictionaryProxy);
+					Ptr<IValueReadonlyDictionary> dictionaryProxy = UnboxValue<Ptr<IValueReadonlyDictionary>>(value, typeDescriptor, valueName);
+					collections::LazyList<collections::Pair<KeyType, ValueType>> lazyList = GetLazyList<KeyType, ValueType>(dictionaryProxy);
 					collections::CopyFrom(result, lazyList);
 				}
 			};
@@ -260,7 +260,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueDictionary> result=new ValueDictionaryWrapper<T*>(&object);
+					Ptr<IValueDictionary> result = new ValueDictionaryWrapper<T*>(&object);
 
 					ITypeDescriptor* td = nullptr;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
@@ -276,8 +276,8 @@ ParameterAccessor<TContainer>
 					typedef typename KeyContainer::ElementType			KeyType;
 					typedef typename ValueContainer::ElementType		ValueType;
 
-					Ptr<IValueDictionary> dictionaryProxy=UnboxValue<Ptr<IValueDictionary>>(value, typeDescriptor, valueName);
-					collections::LazyList<collections::Pair<KeyType, ValueType>> lazyList=GetLazyList<KeyType, ValueType>(dictionaryProxy);
+					Ptr<IValueDictionary> dictionaryProxy = UnboxValue<Ptr<IValueDictionary>>(value, typeDescriptor, valueName);
+					collections::LazyList<collections::Pair<KeyType, ValueType>> lazyList = GetLazyList<KeyType, ValueType>(dictionaryProxy);
 					collections::CopyFrom(result, lazyList);
 				}
 			};
