@@ -463,7 +463,7 @@ Static Method
 				AddMethod(\
 					L ## #FUNCTIONNAME,\
 					new CustomStaticMethodInfoImpl<\
-						vl::function_lambda::FunctionObjectRetriveType<FUNCTIONTYPE>::FunctionType\
+						std::remove_pointer_t<FUNCTIONTYPE>\
 						>(parameterNames, (FUNCTIONTYPE)SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE)\
 					);\
 			}

@@ -100,7 +100,7 @@ namespace TestReflection_TestObjects
 		vint Sum()
 		{
 			return From(bases)
-				.Select([](const Ptr<Base>& base){return base->a;})
+				.Select([](auto&& base){return base->a;})
 				.Aggregate((vint)0, [](vint a, vint b){return a+b;});
 		}
 
@@ -119,7 +119,7 @@ namespace TestReflection_TestObjects
 		vint Sum2()
 		{
 			return From(bases3)
-				.Select([](const Ptr<Base>& base){return base->a;})
+				.Select([](auto&& base){return base->a;})
 				.Aggregate((vint)0, [](vint a, vint b){return a+b;});
 		}
 
