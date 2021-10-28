@@ -126,7 +126,7 @@ Collections
 			///                 return MakePtr<MyClass>(i);
 			///             });
 			/// 
-			///         Value boxed = BoxParameter<LazyList<Ptr<MyClass>>>(cs);
+			///         Value boxed = BoxParameter(cs);
 			///         {
 			///             auto enumerable = UnboxValue<Ptr<IValueEnumerable>>(boxed);
 			///             auto enumerator = enumerable->CreateEnumerator();
@@ -322,7 +322,7 @@ Collections
 			///             })
 			///         );
 			/// 
-			///         Value boxed = BoxParameter<List<Ptr<MyClass>>>(cs);
+			///         Value boxed = BoxParameter(cs);
 			///         {
 			///             auto list = UnboxValue<Ptr<IValueList>>(boxed);
 			///             for (vint i = 0; i < list->GetCount(); i++)
@@ -486,7 +486,7 @@ Collections
 			///             })
 			///         );
 			/// 
-			///         Value boxed = BoxValue(cs.GetWrapper());
+			///         Value boxed = BoxParameter(cs);
 			///         auto list = UnboxValue<Ptr<IValueObservableList>>(boxed);
 			///         {
 			///             for (vint i = 0; i < list->GetCount(); i++)
@@ -503,7 +503,7 @@ Collections
 			///                 Console::WriteLine(L"ItemChanged(" + itow(index) + L", " + itow(oldCount) + L", " + itow(newCount) + L");");
 			///             };
 			/// 
-			///             auto handler = boxed.AttachEvent(L"ItemChanged", BoxParameter<CallbackType>(callbackFunction));
+			///             auto handler = boxed.AttachEvent(L"ItemChanged", BoxParameter(callbackFunction));
 			///             for (vint i = 1; i <= 5; i++)
 			///             {
 			///                 cs.RemoveAt(i);
@@ -670,7 +670,7 @@ Collections
 			///             })
 			///         );
 			/// 
-			///         Value boxed = BoxParameter<Dictionary<vint, Ptr<MyClass>>>(cs);
+			///         Value boxed = BoxParameter(cs);
 			///         {
 			///             auto dictionary = UnboxValue<Ptr<IValueDictionary>>(boxed);
 			///             for (vint i = 0; i < dictionary->GetCount(); i++)

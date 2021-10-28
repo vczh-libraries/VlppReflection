@@ -1560,7 +1560,7 @@ Value
 				///         {
 				///             Console::WriteLine(L"myClass.Prop changed: " + oldProp + L" -> " + newProp);
 				///         };
-				///         auto handler = myClass.AttachEvent(L"PropChanged", BoxParameter<CallbackType>(callbackFunction));
+				///         auto handler = myClass.AttachEvent(L"PropChanged", BoxParameter(callbackFunction));
 				/// 
 				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"One"));
 				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Two"));
@@ -1679,7 +1679,7 @@ Value
 				///         {
 				///             Console::WriteLine(L"myClass.Prop changed: " + oldProp + L" -> " + newProp);
 				///         };
-				///         auto handler = myClass.AttachEvent(L"PropChanged", BoxParameter<CallbackType>(callbackFunction));
+				///         auto handler = myClass.AttachEvent(L"PropChanged", BoxParameter(callbackFunction));
 				/// 
 				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"One"));
 				///         myClass.SetProperty(L"Prop", BoxValue<WString>(L"Two"));

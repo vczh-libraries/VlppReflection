@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_OBSERVABLELIST
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_OBSERVABLELIST
  
-#include "GuiTypeDescriptorWrappers.h"
+#include <Vlpp.h>
  
 namespace vl
 {
@@ -250,42 +250,12 @@ namespace vl
 		class ObservableList : public ObservableListBase<T>
 		{
 		protected:
-			Ptr<reflection::description::IValueObservableList>		observableList;
+			void NotifyUpdateInternal(vint start, vint count, vint newCount) override;
 
-			void NotifyUpdateInternal(vint start, vint count, vint newCount)override
-			{
-				if (observableList)
-				{
-					observableList->ItemChanged(start, count, newCount);
-				}
-			}
 		public:
 			collections::CollectionEntity GetCollectionEntity() const override
 			{
 				return collections::CollectionEntity::ObservableList;
-			}
-
-			/// <summary>
-			/// Get the maintained observable list.
-			/// <see cref="reflection::description::IValueObservableList::ItemChanged"/> of the observable list
-			/// will be automatically triggered when any changing happens.
-			/// </summary>
-			/// <returns>The maintained observable list.</returns>
-			/// <remarks>
-			/// <p>
-			/// <see cref="reflection::description::BoxParameter`1"/>
-			/// cannot turn any predefined C++ object to an reflectable observable list
-			/// and keep it binding to the C++ object.
-			/// When an reflectable observable list is required, ObservableList is strongly recommended.
-			/// </p>
-			/// </remarks>
-			Ptr<reflection::description::IValueObservableList> GetWrapper()
-			{
-				if (!observableList)
-				{
-					observableList = new reflection::description::ValueObservableListWrapper<ObservableList<T>*>(this);
-				}
-				return observableList;
 			}
 		};
 

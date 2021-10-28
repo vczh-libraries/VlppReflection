@@ -7,6 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER
 
 #include "GuiTypeDescriptorObservableList.h"
+#include "GuiTypeDescriptorPredefined.h"
 
 namespace vl
 {

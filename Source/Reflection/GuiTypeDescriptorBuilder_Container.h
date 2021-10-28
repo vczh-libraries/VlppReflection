@@ -6,10 +6,26 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_CONTAINER
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_CONTAINER
  
-#include "GuiTypeDescriptorBuilder.h"
+#include "GuiTypeDescriptorWrappers.h"
  
 namespace vl
 {
+	namespace collections
+	{
+/***********************************************************************
+DetailTypeInfoRetriver<TContainer>
+***********************************************************************/
+
+		template<typename T>
+		void ObservableList<T>::NotifyUpdateInternal(vint start, vint count, vint newCount)
+		{
+			if (auto colref = this->TryGetCollectionReference<reflection::description::IValueObservableList>())
+			{
+				colref->ItemChanged(start, count, newCount);
+			}
+		}
+	}
+
 	namespace reflection
 	{
 		namespace description
@@ -143,8 +159,9 @@ ParameterAccessor<TContainer>
 			}
 
 			template<typename TValueItf, typename T>
-			Ptr<TValueItf> ChooseValueCollectionFromNonDictionaryEnumerable(collections::IEnumerable<T>* writable)
+			Ptr<TValueItf> ChooseValueCollectionFromNonDictionaryEnumerable(const collections::IEnumerable<T>* enumerable)
 			{
+				auto writable = const_cast<Object*>(enumerable->GetCollectionObject());
 				if (auto xs = dynamic_cast<collections::ObservableList<T>*>(writable))
 				{
 					return GetValueCollectionFromCollection<IValueObservableList, TValueItf, ValueObservableListWrapper>(xs);
@@ -172,29 +189,29 @@ ParameterAccessor<TContainer>
 			}
 
 			template<typename TValueItf, typename T>
-			Ptr<TValueItf> ChooseValueCollectionFromEnumerable(collections::IEnumerable<T>* writable)
+			Ptr<TValueItf> ChooseValueCollectionFromEnumerable(const collections::IEnumerable<T>* enumerable)
 			{
-				return ChooseValueCollectionFromNonDictionaryEnumerable<TValueItf>(writable);
+				return ChooseValueCollectionFromNonDictionaryEnumerable<TValueItf>(enumerable);
 			}
 
 			template<typename TValueItf, typename K, typename V>
-			Ptr<TValueItf> ChooseValueCollectionFromEnumerable(collections::IEnumerable<collections::Pair<K, V>>* writable)
+			Ptr<TValueItf> ChooseValueCollectionFromEnumerable(const collections::IEnumerable<collections::Pair<K, V>>* enumerable)
 			{
+				auto writable = const_cast<Object*>(enumerable->GetCollectionObject());
 				if (auto xs = dynamic_cast<collections::Dictionary<K, V>*>(writable))
 				{
 					return GetValueCollectionFromCollection<IValueDictionary, TValueItf, ValueDictionaryWrapper>(xs);
 				}
 				else
 				{
-					return ChooseValueCollectionFromEnumerable<TValueItf>(writable);
+					return ChooseValueCollectionFromNonDictionaryEnumerable<TValueItf>(enumerable);
 				}
 			}
 
 			template<typename TValueItf, typename T>
 			Value GetValueFromEnumerable(const collections::IEnumerable<T>& enumerable)
 			{
-				auto& writable = const_cast<collections::IEnumerable<T>&>(enumerable);
-				auto result = ChooseValueCollectionFromEnumerable<TValueItf>(&writable);
+				auto result = ChooseValueCollectionFromEnumerable<TValueItf>(&enumerable);
 				ITypeDescriptor* td = nullptr;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				td = Description<TValueItf>::GetAssociatedTypeDescriptor();
