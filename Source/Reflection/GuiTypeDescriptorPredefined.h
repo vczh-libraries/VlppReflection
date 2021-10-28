@@ -199,7 +199,7 @@ Collections
 			/// <see cref="collections::Array`2"/>
 			/// </summary>
 			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a container.</remarks>
-			class IValueArray : public virtual IValueReadonlyList, public Description<IValueList>
+			class IValueArray : public virtual IValueReadonlyList, public Description<IValueArray>
 			{
 			public:
 				/// <summary>Replace an element in the specified position.</summary>

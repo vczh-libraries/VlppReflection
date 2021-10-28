@@ -768,11 +768,12 @@ namespace reflection_test
 	void TestReflectionList()
 	{
 		{
-			Value bases=Value::Create(L"system::List");
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
-			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
+			Value bases=Value::Create(L"system::Array");
+			bases.Invoke(L"Resize", (Value_xs(), BoxValue<vint>(4)));
+			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(0), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
+			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(1), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
+			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(2), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
+			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(3), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
 			Value baseSummer=Value::Create(L"BaseSummer");
 			baseSummer.Invoke(L"SetBases", (Value_xs(), bases));
@@ -1276,9 +1277,9 @@ namespace reflection_test
 	void TestHint()
 	{
 		TestHint<IValueEnumerable, IValueEnumerable>(L"GetLazyList", TypeInfoHint::LazyList);
-		TestHint<IValueReadonlyList, IValueList>(L"GetArray", TypeInfoHint::Array);
+		TestHint<IValueReadonlyList, IValueArray>(L"GetArray", TypeInfoHint::Array);
 		TestHint<IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
-		TestHint<IValueReadonlyList, IValueList>(L"GetSortedList", TypeInfoHint::SortedList);
+		TestHint<IValueReadonlyList, IValueReadonlyList>(L"GetSortedList", TypeInfoHint::SortedList);
 		TestHint<IValueReadonlyList, void>(L"GetReadableObservableList", TypeInfoHint::ObservableList, false);
 		TestHint<IValueObservableList, void>(L"GetObservableList", TypeInfoHint::ObservableList, false);
 		TestHint<IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
