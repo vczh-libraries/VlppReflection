@@ -145,124 +145,6 @@ namespace TestReflection_TestObjects
 			CopyFrom(maps, value);
 		}
 	};
-
-	class EventRaiser : public Description<EventRaiser>
-	{
-	protected:
-		vint									value;
-	public:
-		Event<void(vint, vint)>					ValueChanged;
-
-		EventRaiser()
-			:value(0)
-		{
-		}
-
-		vint GetValue()
-		{
-			return value;
-		}
-
-		void SetValue(vint newValue)
-		{
-			vint oldValue = value;
-			value = newValue;
-			ValueChanged(oldValue, value);
-		}
-	};
-
-	class Agg : public Description<Agg>
-	{
-	public:
-		DescriptableObject* Root()
-		{
-			return GetAggregationRoot();
-		}
-	};
-
-	class AggParentShared : public Agg, public AggregatableDescription<AggParentShared>
-	{
-	public:
-		~AggParentShared()
-		{
-			FinalizeAggregation();
-		}
-	};
-
-	class AggParentRaw : public Agg, public AggregatableDescription<AggParentRaw>
-	{
-	public:
-		~AggParentRaw()
-		{
-			FinalizeAggregation();
-		}
-	};
-
-	class AggParentBase : public Agg, public AggregatableDescription<AggParentBase>
-	{
-	public:
-		AggParentBase()
-		{
-			Ptr<DescriptableObject> shared = new AggParentShared;
-			auto raw = new AggParentRaw;
-
-			InitializeAggregation(2);
-			SetAggregationParent(0, shared);
-			SetAggregationParent(1, raw);
-		}
-
-		~AggParentBase()
-		{
-			FinalizeAggregation();
-		}
-
-		AggParentShared* GetParentShared()
-		{
-			return dynamic_cast<AggParentShared*>(GetAggregationParent(0));
-		}
-
-		AggParentRaw* GetParentRaw()
-		{
-			return dynamic_cast<AggParentRaw*>(GetAggregationParent(1));
-		}
-	};
-
-	class AggParentDerived : public Agg, public Description<AggParentDerived>
-	{
-	public:
-		AggParentDerived()
-		{
-			auto base = new AggParentBase;
-
-			InitializeAggregation(1);
-			SetAggregationParent(0, base);
-		}
-
-		AggParentBase* GetParentBase()
-		{
-			return dynamic_cast<AggParentBase*>(GetAggregationParent(0));
-		}
-	};
-
-	class MyList : public List<int>
-	{
-	};
-
-	class HintTester :public Description<HintTester>
-	{
-	public:
-		LazyList<int> GetLazyList(LazyList<int> x) { return x; }
-		const Array<int>& GetArray(Array<int>& x) { return x; }
-		const List<int>& GetList(List<int>& x) { return x; }
-		const SortedList<int>& GetSortedList(SortedList<int>& x) { return x; }
-		const ObservableList<vint>& GetReadableObservableList() { throw nullptr; }
-		ObservableList<vint>& GetObservableList() { throw nullptr; }
-		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { return x; }
-		const MyList& GetMyList(MyList& x) { return x; }
-		Func<int(int)> GetFunc(Func<int(int)> x) { return x; }
-		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
-		vint GetInt(vint x) { return x; }
-	};
 }
 using namespace TestReflection_TestObjects;
 
@@ -275,17 +157,10 @@ using namespace TestReflection_TestObjects;
 	F(Derived)\
 	F(BaseSummer)\
 	F(DictionaryHolder)\
-	F(EventRaiser)\
 	F(Point)\
 	F(Size)\
 	F(Rect)\
 	F(RectPair)\
-	F(Agg)\
-	F(AggParentShared)\
-	F(AggParentRaw)\
-	F(AggParentBase)\
-	F(AggParentDerived)\
-	F(HintTester)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
@@ -384,42 +259,6 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_PROPERTY_FAST(Maps)
 	END_CLASS_MEMBER(DictionaryHolder)
 
-	BEGIN_CLASS_MEMBER(EventRaiser)
-		CLASS_MEMBER_CONSTRUCTOR(Ptr<EventRaiser>(), NO_PARAMETER)
-
-		CLASS_MEMBER_EVENT(ValueChanged)
-		CLASS_MEMBER_PROPERTY_EVENT_FAST(Value, ValueChanged)
-	END_CLASS_MEMBER(EventRaiser)
-
-	BEGIN_CLASS_MEMBER(Agg)
-	END_CLASS_MEMBER(Agg)
-
-	BEGIN_CLASS_MEMBER(AggParentShared)
-	END_CLASS_MEMBER(AggParentShared)
-
-	BEGIN_CLASS_MEMBER(AggParentRaw)
-	END_CLASS_MEMBER(AggParentRaw)
-
-	BEGIN_CLASS_MEMBER(AggParentBase)
-	END_CLASS_MEMBER(AggParentBase)
-
-	BEGIN_CLASS_MEMBER(AggParentDerived)
-	END_CLASS_MEMBER(AggParentDerived)
-
-	BEGIN_CLASS_MEMBER(HintTester)
-		CLASS_MEMBER_METHOD(GetLazyList, {L"x"})
-		CLASS_MEMBER_METHOD(GetArray, { L"x" })
-		CLASS_MEMBER_METHOD(GetList, { L"x" })
-		CLASS_MEMBER_METHOD(GetSortedList, { L"x" })
-		CLASS_MEMBER_METHOD(GetReadableObservableList, NO_PARAMETER)
-		CLASS_MEMBER_METHOD(GetObservableList, NO_PARAMETER)
-		CLASS_MEMBER_METHOD(GetDictionary, { L"x" })
-		CLASS_MEMBER_METHOD(GetMyList, { L"x" })
-		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
-		CLASS_MEMBER_METHOD(GetHintTester, { L"x" })
-		CLASS_MEMBER_METHOD(GetInt, { L"x" })
-	END_CLASS_MEMBER(HintTester)
-
 	class TestTypeLoader : public Object, public ITypeLoader
 	{
 	public:
@@ -439,60 +278,6 @@ END_TYPE_INFO_NAMESPACE
 
 namespace reflection_test
 {
-	void TestReflectionBuilder()
-	{
-		FileStream fileStream(GetTestOutputPath() + L"ReflectionWithTestTypes.txt", FileStream::WriteOnly);
-		BomEncoder encoder(BomEncoder::Utf16);
-		EncoderStream encoderStream(fileStream, encoder);
-		StreamWriter writer(encoderStream);
-		LogTypeManager(writer);
-
-		TEST_ASSERT(GetTypeDescriptor<Value>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Object);
-		TEST_ASSERT(GetTypeDescriptor<vuint8_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vuint16_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vuint32_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vuint64_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vint8_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vint16_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vint32_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<vint64_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<float>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<double>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<wchar_t>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<WString>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<Locale>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<bool>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<DateTime>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Struct);
-		TEST_ASSERT(GetTypeDescriptor<VoidValue>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
-		TEST_ASSERT(GetTypeDescriptor<IDescriptable>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::IDescriptable);
-		TEST_ASSERT(GetTypeDescriptor<DescriptableObject>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Class);
-		TEST_ASSERT(GetTypeDescriptor<IValueEnumerator>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueEnumerable>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueReadonlyList>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueList>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueObservableList>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueReadonlyDictionary>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueDictionary>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueInterfaceProxy>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueFunctionProxy>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueSubscription>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueCallStack>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueException>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueType>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IEnumType>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<ISerializableType>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<ITypeInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<ITypeInfo::Decorator>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::NormalEnum);
-		TEST_ASSERT(GetTypeDescriptor<IMemberInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IEventHandler>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IEventInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IPropertyInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IParameterInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IMethodInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IMethodGroupInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<ITypeDescriptor>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-	}
-
 	int MyFunc(int a, int b)
 	{
 		return a + b;
@@ -590,45 +375,6 @@ namespace reflection_test
 			}
 			TEST_ASSERT(UnboxValue<vint>(derived.Invoke(L"GetB", (Value_xs()))) == 3);
 		}
-	}
-
-	void TestReflectionEvent()
-	{
-		Value eventRaiser = Value::Create(L"EventRaiser");
-		vint oldValue = 0;
-		vint newValue = 0;
-		auto eventHandler = eventRaiser.AttachEvent(
-			L"ValueChanged",
-			BoxParameter<Func<void(vint, vint)>>(LAMBDA([&](vint _oldValue, vint _newValue)
-			{
-				oldValue = _oldValue;
-				newValue = _newValue;
-			})));
-		TEST_ASSERT(eventHandler->IsAttached() == true);
-
-		TEST_ASSERT(UnboxValue<vint>(eventRaiser.GetProperty(L"Value")) == 0);
-		TEST_ASSERT(oldValue == 0);
-		TEST_ASSERT(newValue == 0);
-
-		eventRaiser.SetProperty(L"Value", BoxValue<vint>(100));
-		TEST_ASSERT(UnboxValue<vint>(eventRaiser.GetProperty(L"Value")) == 100);
-		TEST_ASSERT(oldValue == 0);
-		TEST_ASSERT(newValue == 100);
-
-		eventRaiser.SetProperty(L"Value", BoxValue<vint>(200));
-		TEST_ASSERT(UnboxValue<vint>(eventRaiser.GetProperty(L"Value")) == 200);
-		TEST_ASSERT(oldValue == 100);
-		TEST_ASSERT(newValue == 200);
-
-		TEST_ASSERT(eventRaiser.DetachEvent(L"ValueChanged", eventHandler) == true);
-		TEST_ASSERT(eventHandler->IsAttached() == false);
-
-		eventRaiser.SetProperty(L"Value", BoxValue<vint>(300));
-		TEST_ASSERT(UnboxValue<vint>(eventRaiser.GetProperty(L"Value")) == 300);
-		TEST_ASSERT(oldValue == 100);
-		TEST_ASSERT(newValue == 200);
-
-		TEST_ASSERT(eventRaiser.DetachEvent(L"ValueChanged", eventHandler) == false);
 	}
 
 	void TestReflectionEnum()
@@ -920,206 +666,6 @@ namespace reflection_test
 		TEST_ASSERT(mock->lastMethodInfo == methodInfo);
 	}
 
-	void TestDescriptableObjectAggregation()
-	{
-		{
-			auto derived = new AggParentDerived;
-			auto base = derived->GetParentBase();
-			auto shared = base->GetParentShared();
-			auto raw = base->GetParentRaw();
-
-			TEST_ASSERT(derived);
-			TEST_ASSERT(base);
-			TEST_ASSERT(shared);
-			TEST_ASSERT(raw);
-
-			TEST_ASSERT(derived->Root() == nullptr);
-			TEST_ASSERT(base->Root() == derived);
-			TEST_ASSERT(shared->Root() == derived);
-			TEST_ASSERT(raw->Root() == derived);
-
-			auto derivedRC = ReferenceCounterOperator<AggParentDerived>::CreateCounter(derived);
-			auto baseRC = ReferenceCounterOperator<AggParentBase>::CreateCounter(base);
-			auto sharedRC = ReferenceCounterOperator<AggParentShared>::CreateCounter(shared);
-			auto rawRC = ReferenceCounterOperator<AggParentRaw>::CreateCounter(raw);
-
-			TEST_ASSERT(*derivedRC == 0);
-			TEST_ASSERT(derivedRC == baseRC);
-			TEST_ASSERT(derivedRC == sharedRC);
-			TEST_ASSERT(derivedRC == rawRC);
-
-			Ptr<Agg> derivedPtr = derived;
-			TEST_ASSERT(*derivedRC == 1);
-			{
-				Ptr<Agg> basePtr = base;
-				TEST_ASSERT(*derivedRC == 2);
-				Ptr<Agg> sharedPtr = shared;
-				TEST_ASSERT(*derivedRC == 3);
-				Ptr<Agg> rawPtr = raw;
-				TEST_ASSERT(*derivedRC == 4);
-			}
-			TEST_ASSERT(*derivedRC == 1);
-		}
-		{
-			auto derived = new AggParentDerived;
-			delete derived;
-		}
-		{
-			auto derived = new AggParentDerived;
-			delete derived->GetParentBase();
-		}
-		{
-			auto derived = new AggParentDerived;
-			delete derived->GetParentBase()->GetParentShared();
-		}
-		{
-			auto derived = new AggParentDerived;
-			delete derived->GetParentBase()->GetParentRaw();
-		}
-		{
-			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived;
-		}
-		{
-			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived->GetParentBase();
-		}
-		{
-			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived->GetParentBase()->GetParentShared();
-		}
-		{
-			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived->GetParentBase()->GetParentRaw();
-		}
-	}
-
-	void TestDescriptableObjectAggregationCast()
-	{
-		{
-			auto derived = new AggParentDerived;
-			auto base = derived->GetParentBase();
-			auto shared = base->GetParentShared();
-			auto raw = base->GetParentRaw();
-
-			TEST_ASSERT(derived->SafeAggregationCast<AggParentDerived>() == derived);
-			TEST_ASSERT(derived->SafeAggregationCast<AggParentBase>() == base);
-			TEST_ASSERT(derived->SafeAggregationCast<AggParentShared>() == shared);
-			TEST_ASSERT(derived->SafeAggregationCast<AggParentRaw>() == raw);
-
-			TEST_ASSERT(base->SafeAggregationCast<AggParentDerived>() == derived);
-			TEST_ASSERT(base->SafeAggregationCast<AggParentBase>() == base);
-			TEST_ASSERT(base->SafeAggregationCast<AggParentShared>() == shared);
-			TEST_ASSERT(derived->SafeAggregationCast<AggParentRaw>() == raw);
-
-			TEST_ASSERT(shared->SafeAggregationCast<AggParentDerived>() == derived);
-			TEST_ASSERT(shared->SafeAggregationCast<AggParentBase>() == base);
-			TEST_ASSERT(shared->SafeAggregationCast<AggParentShared>() == shared);
-			TEST_ASSERT(shared->SafeAggregationCast<AggParentRaw>() == raw);
-
-			TEST_ASSERT(raw->SafeAggregationCast<AggParentDerived>() == derived);
-			TEST_ASSERT(raw->SafeAggregationCast<AggParentBase>() == base);
-			TEST_ASSERT(raw->SafeAggregationCast<AggParentShared>() == shared);
-			TEST_ASSERT(raw->SafeAggregationCast<AggParentRaw>() == raw);
-
-			TEST_ERROR(derived->SafeAggregationCast<Agg>());
-			TEST_ERROR(base->SafeAggregationCast<Agg>());
-			TEST_ERROR(shared->SafeAggregationCast<Agg>());
-			TEST_ERROR(raw->SafeAggregationCast<Agg>());
-
-			delete derived;
-		}
-		{
-			auto derived = new AggParentDerived;
-			auto base = derived->GetParentBase();
-			auto shared = base->GetParentShared();
-			auto raw = base->GetParentRaw();
-
-			{
-				auto value = Value::From(derived);
-				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
-				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
-				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
-				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
-				TEST_ERROR(UnboxValue<Agg*>(value));
-			}
-			{
-				auto value = Value::From(base);
-				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
-				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
-				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
-				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
-				TEST_ERROR(UnboxValue<Agg*>(value));
-			}
-			{
-				auto value = Value::From(shared);
-				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
-				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
-				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
-				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
-				TEST_ERROR(UnboxValue<Agg*>(value));
-			}
-			{
-				auto value = Value::From(raw);
-				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
-				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
-				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
-				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
-				TEST_ERROR(UnboxValue<Agg*>(value));
-			}
-
-			delete derived;
-		}
-		{
-			auto derived = new AggParentDerived;
-			auto base = derived->GetParentBase();
-			auto shared = base->GetParentShared();
-			auto raw = base->GetParentRaw();
-
-			Ptr<Agg> ptr = derived;
-			{
-				auto value = Value::From(ptr);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
-				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
-			}
-			{
-				auto value = Value::From(ptr);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
-				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
-			}
-			{
-				auto value = Value::From(ptr);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
-				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
-			}
-			{
-				auto value = Value::From(ptr);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
-				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
-				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
-			}
-		}
-	}
-
-	void TestDescriptableObjectIsAggregation()
-	{
-		TEST_ASSERT(GetTypeDescriptor<AggParentShared>()->IsAggregatable() == true);
-		TEST_ASSERT(GetTypeDescriptor<AggParentRaw>()->IsAggregatable() == true);
-		TEST_ASSERT(GetTypeDescriptor<AggParentBase>()->IsAggregatable() == true);
-		TEST_ASSERT(GetTypeDescriptor<AggParentDerived>()->IsAggregatable() == false);
-	}
-
 	void TestTypeInfoFriendlyName()
 	{
 		{
@@ -1251,37 +797,6 @@ namespace reflection_test
 			TEST_ASSERT(CppGetInvokeTemplate(method) == L"::vl::reflection::description::ITypeDescriptor_GetTypeDescriptorCount($Arguments)");
 		}
 	}
-
-	template<typename TReturn, typename TArgument>
-	void TestHint(const WString& member, TypeInfoHint hint, bool testParameter = true)
-	{
-		auto td = GetTypeDescriptor<HintTester>();
-		auto method = td->GetMethodGroupByName(member, false)->GetMethod(0);
-		TEST_ASSERT(method->GetReturn()->GetTypeDescriptor() == GetTypeDescriptor<TReturn>());
-		TEST_ASSERT(method->GetReturn()->GetHint() == hint);
-
-		if (testParameter)
-		{
-			TEST_ASSERT(method->GetParameterCount() == 1);
-			TEST_ASSERT(method->GetParameter(0)->GetType()->GetTypeDescriptor() == GetTypeDescriptor<TArgument>());
-			TEST_ASSERT(method->GetParameter(0)->GetType()->GetHint() == hint);
-		}
-	}
-
-	void TestHint()
-	{
-		TestHint<IValueEnumerable, IValueEnumerable>(L"GetLazyList", TypeInfoHint::LazyList);
-		TestHint<IValueReadonlyList, IValueArray>(L"GetArray", TypeInfoHint::Array);
-		TestHint<IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
-		TestHint<IValueReadonlyList, IValueReadonlyList>(L"GetSortedList", TypeInfoHint::SortedList);
-		TestHint<IValueReadonlyList, void>(L"GetReadableObservableList", TypeInfoHint::ObservableList, false);
-		TestHint<IValueObservableList, void>(L"GetObservableList", TypeInfoHint::ObservableList, false);
-		TestHint<IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
-		TestHint<IValueReadonlyList, IValueList>(L"GetMyList", TypeInfoHint::NativeCollectionReference);
-		TestHint<IValueFunctionProxy, IValueFunctionProxy>(L"GetFunc", TypeInfoHint::Normal);
-		TestHint<HintTester, HintTester>(L"GetHintTester", TypeInfoHint::Normal);
-		TestHint<vint, vint>(L"GetInt", TypeInfoHint::Normal);
-	}
 }
 using namespace reflection_test;
 
@@ -1299,10 +814,8 @@ using namespace reflection_test;
 
 TEST_FILE
 {
-	TEST_CASE_REFLECTION(TestReflectionBuilder)
 	TEST_CASE_REFLECTION(TestReflectionInvoke)
 	TEST_CASE_REFLECTION(TestReflectionInvokeIndirect)
-	TEST_CASE_REFLECTION(TestReflectionEvent)
 	TEST_CASE_REFLECTION(TestReflectionEnum)
 	TEST_CASE_REFLECTION(TestReflectionNullable)
 	TEST_CASE_REFLECTION(TestReflectionStruct)
@@ -1311,10 +824,6 @@ TEST_FILE
 	TEST_CASE_REFLECTION(TestSharedRawPtrConverting)
 	TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
 	TEST_CASE_REFLECTION(TestInterfaceProxy)
-	TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
-	TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
-	TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
 	TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
 	TEST_CASE_REFLECTION(TestCpp)
-	TEST_CASE_REFLECTION(TestHint)
 }
