@@ -26,6 +26,27 @@ IValueEnumerable
 			}
 
 /***********************************************************************
+IValueArray
+***********************************************************************/
+
+			Ptr<IValueArray> IValueArray::Create()
+			{
+				return Create(LazyList<Value>());
+			}
+
+			Ptr<IValueArray> IValueArray::Create(Ptr<IValueReadonlyList> values)
+			{
+				return Create(GetLazyList<Value>(values));
+			}
+
+			Ptr<IValueArray> IValueArray::Create(collections::LazyList<Value> values)
+			{
+				Ptr<Array<Value>> list = new Array<Value>;
+				CopyFrom(*list.Obj(), values);
+				return new ValueArrayWrapper<Ptr<Array<Value>>>(list);
+			}
+
+/***********************************************************************
 IValueList
 ***********************************************************************/
 

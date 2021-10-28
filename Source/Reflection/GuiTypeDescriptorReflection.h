@@ -50,6 +50,7 @@ Predefined Types
 			F(IValueEnumerator)				\
 			F(IValueEnumerable)				\
 			F(IValueReadonlyList)			\
+			F(IValueArray)					\
 			F(IValueList)					\
 			F(IValueObservableList)			\
 			F(IValueReadonlyDictionary)		\
@@ -149,6 +150,18 @@ Interface Implementation Proxy (Implement)
 					INVOKEGET_INTERFACE_PROXY(IndexOf, value);
 				}
 			END_INTERFACE_PROXY(IValueReadonlyList)
+
+			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueArray, IValueReadonlyList)
+				void Set(vint index, const Value& value)override
+				{
+					INVOKE_INTERFACE_PROXY(Set, index, value);
+				}
+
+				void Resize(vint size)override
+				{
+					INVOKE_INTERFACE_PROXY(Resize, size);
+				}
+			END_INTERFACE_PROXY(IValueList)
 
 			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueList, IValueReadonlyList)
 				void Set(vint index, const Value& value)override

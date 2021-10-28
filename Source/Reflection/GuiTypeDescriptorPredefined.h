@@ -168,6 +168,8 @@ Collections
 			/// <see cref="collections::Array`2"/>,
 			/// <see cref="collections::List`2"/> or
 			/// <see cref="collections::SortedList`2"/>
+			/// <see cref="collections::ObservableListBase`2"/>
+			/// <see cref="collections::ObservableList`2"/>
 			/// </summary>
 			class IValueReadonlyList : public virtual IValueEnumerable, public Description<IValueReadonlyList>
 			{
@@ -193,9 +195,44 @@ Collections
 			};
 
 			/// <summary>
-			/// The reflectable version of readonly
+			/// The reflectable version of writable
+			/// <see cref="collections::Array`2"/>
+			/// </summary>
+			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a container.</remarks>
+			class IValueArray : public virtual IValueReadonlyList, public Description<IValueList>
+			{
+			public:
+				/// <summary>Replace an element in the specified position.</summary>
+				/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
+				/// <param name="index">The position of the element to replace.</param>
+				/// <param name="value">The new value to replace.</param>
+				virtual void					Set(vint index, const Value& value) = 0;
+
+				/// <summary>Append a value at the end of the list.</summary>
+				/// <returns>The index of the added item.</returns>
+				/// <param name="value">The value to add.</param>
+				virtual void					Resize(vint size) = 0;
+
+				/// <summary>Create an empty array.</summary>
+				/// <returns>The created list.</returns>
+				static Ptr<IValueArray>			Create();
+
+				/// <summary>Create an array with elements copied from another readonly list.</summary>
+				/// <returns>The created list.</returns>
+				/// <param name="values">Elements to copy.</param>
+				static Ptr<IValueArray>			Create(Ptr<IValueReadonlyList> values);
+
+				/// <summary>Create an array with elements copied from another lazy list.</summary>
+				/// <returns>The created list.</returns>
+				/// <param name="values">Elements to copy.</param>
+				static Ptr<IValueArray>			Create(collections::LazyList<Value> values);
+			};
+
+			/// <summary>
+			/// The reflectable version of writable
 			/// <see cref="collections::Array`2"/> or
-			/// <see cref="collections::List`2"/>
+			/// <see cref="collections::List`2"/> or
+			/// <see cref="collections::ObservableListBase`2"/>
 			/// </summary>
 			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a container.</remarks>
 			/// <example><![CDATA[
@@ -543,7 +580,7 @@ Collections
 			};
 
 			/// <summary>
-			/// The reflectable version of <see cref="collections::Dictionary`4"/>.
+			/// The reflectable version of writable <see cref="collections::Dictionary`4"/>.
 			/// </summary>
 			/// <remarks><see cref="BoxParameter`1"/> will create a <see cref="Value"/> storing a shared pointer to an instance of this interface from a dictionary.</remarks>
 			/// <example><![CDATA[

@@ -272,6 +272,32 @@ Collection Wrappers
 			};
 
 			template<typename T>
+			class ValueArrayWrapper : public ValueReadonlyListWrapper<T>, public virtual IValueArray
+			{
+			protected:
+				typedef typename trait_helper::RemovePtr<T>::Type		ContainerType;
+				typedef typename ContainerType::ElementType				ElementType;
+				typedef typename KeyType<ElementType>::Type				ElementKeyType;
+
+			public:
+				ValueArrayWrapper(const T& _wrapperPointer)
+					:ValueReadonlyListWrapper<T>(_wrapperPointer)
+				{
+				}
+
+				void Set(vint index, const Value& value)override
+				{
+					ElementType item=UnboxValue<ElementType>(value);
+					WRAPPER_POINTER->Set(index, item);
+				}
+
+				void Resize(vint size)override
+				{
+					return WRAPPER_POINTER->Resize(size);
+				}
+			};
+
+			template<typename T>
 			class ValueListWrapper : public ValueReadonlyListWrapper<T>, public virtual IValueList
 			{
 			protected:
