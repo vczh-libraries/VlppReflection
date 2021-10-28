@@ -74,11 +74,6 @@ namespace vl
 			}
 
 		public:
-			collections::CollectionEntity GetCollectionEntity() const override
-			{
-				return collections::CollectionEntity::ObservableListBase;
-			}
-
 			collections::IEnumerator<T>* CreateEnumerator()const
 			{
 				return items.CreateEnumerator();
@@ -253,10 +248,6 @@ namespace vl
 			void NotifyUpdateInternal(vint start, vint count, vint newCount) override;
 
 		public:
-			collections::CollectionEntity GetCollectionEntity() const override
-			{
-				return collections::CollectionEntity::ObservableList;
-			}
 		};
 
 		namespace randomaccess_internal
