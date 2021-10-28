@@ -831,7 +831,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			/// <param name="object">The object to box.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
-			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor=0)
+			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor = 0)
 			{
 				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::BoxValue(object, typeDescriptor);
@@ -844,14 +844,14 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
-			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
+			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor = 0, const WString& valueName = L"value")
 			{
 				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::UnboxValue(value, typeDescriptor, valueName);
 			}
 
 /***********************************************************************
-TypeInfoRetriver Helper Functions (UnboxParameter)
+TypeInfoRetriver Helper Functions (BoxParameter, UnboxParameter)
 ***********************************************************************/
 
 			template<typename T, TypeFlags Flag>
@@ -865,9 +865,10 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 			/// <param name="object">The object to box.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
-			Value BoxParameter(typename TypeInfoRetriver<T>::ResultReferenceType object, ITypeDescriptor* typeDescriptor=0)
+			Value BoxParameter(T&& object, ITypeDescriptor* typeDescriptor = 0)
 			{
-				return ParameterAccessor<typename TypeInfoRetriver<T>::ResultNonReferenceType, TypeInfoRetriver<T>::TypeFlag>::BoxParameter(object, typeDescriptor);
+				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
+				return ParameterAccessor<typename TIR::ResultNonReferenceType, TIR::TypeFlag>::BoxParameter(object, typeDescriptor);
 			}
 			
 			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&lt;T&gt;), etc.</summary>
@@ -877,9 +878,10 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
-			void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
+			void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor = 0, const WString& valueName = L"value")
 			{
-				ParameterAccessor<T, TypeInfoRetriver<T>::TypeFlag>::UnboxParameter(value, result, typeDescriptor, valueName);
+				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
+				ParameterAccessor<T, TIR::TypeFlag>::UnboxParameter(value, result, typeDescriptor, valueName);
 			}
 
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
@@ -901,15 +903,7 @@ Value_xs
 				Value_xs& operator,(T& value)
 				{
 					arguments.Resize(arguments.Count() + 1);
-					arguments[arguments.Count() - 1] = BoxParameter<T>(value);
-					return *this;
-				}
-
-				template<typename T>
-				Value_xs& operator,(const T& value)
-				{
-					arguments.Resize(arguments.Count() + 1);
-					arguments[arguments.Count() - 1] = BoxParameter<const T>(value);
+					arguments[arguments.Count() - 1] = BoxParameter(value);
 					return *this;
 				}
 
@@ -941,7 +935,7 @@ CustomFieldInfoImpl
 					TClass* object=UnboxValue<TClass*>(thisObject);
 					if(object)
 					{
-						return BoxParameter<TField>(object->*fieldRef, GetReturn()->GetTypeDescriptor());
+						return BoxParameter(object->*fieldRef, GetReturn()->GetTypeDescriptor());
 					}
 					return Value();
 				}
@@ -951,7 +945,7 @@ CustomFieldInfoImpl
 					TClass* object=UnboxValue<TClass*>(thisObject);
 					if(object)
 					{
-						UnboxParameter<TField>(newValue, object->*fieldRef, GetReturn()->GetTypeDescriptor(), L"newValue");
+						UnboxParameter(newValue, object->*fieldRef, GetReturn()->GetTypeDescriptor(), L"newValue");
 					}
 				}
 			public:

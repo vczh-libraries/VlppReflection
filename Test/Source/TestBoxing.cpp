@@ -105,7 +105,7 @@ TEST_FILE
 			numbers.Add(2);
 			numbers.Add(3);
 
-			auto value = BoxParameter<List<vint>>(numbers);
+			auto value = BoxParameter(numbers);
 			List<vint> numbers2;
 			UnboxParameter(value, numbers2);
 

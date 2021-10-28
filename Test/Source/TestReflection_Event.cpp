@@ -80,7 +80,7 @@ namespace reflection_test
 		vint newValue = 0;
 		auto eventHandler = eventRaiser.AttachEvent(
 			L"ValueChanged",
-			BoxParameter<Func<void(vint, vint)>>(LAMBDA([&](vint _oldValue, vint _newValue)
+			BoxParameter(LAMBDA([&](vint _oldValue, vint _newValue)
 			{
 				oldValue = _oldValue;
 				newValue = _newValue;

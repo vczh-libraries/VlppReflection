@@ -128,7 +128,7 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 				template<typename T0, typename ...TArgs>
 				void UnboxSpecifiedParameter(Ptr<IValueList> arguments, vint index, T0& p0, TArgs& ...args)
 				{
-					UnboxParameter<typename TypeInfoRetriver<T0>::TempValueType>(arguments->Get(index), p0, 0, itow(index + 1) + L"-th argument");
+					UnboxParameter(arguments->Get(index), p0, 0, itow(index + 1) + L"-th argument");
 					UnboxSpecifiedParameter(arguments, index + 1, args...);
 				}
 
@@ -139,7 +139,7 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 					{
 						UnboxSpecifiedParameter(arguments, 0, args...);
 						R result = function(args...);
-						return BoxParameter<R>(result);
+						return BoxParameter(result);
 					}
 				};
 
@@ -198,7 +198,7 @@ ParameterAccessor<Func<R(TArgs...)>>
 				template<typename T0, typename ...TArgs>
 				void AddValueToList(Ptr<IValueList> arguments, T0&& p0, TArgs&& ...args)
 				{
-					arguments->Add(description::BoxParameter<T0>(p0));
+					arguments->Add(description::BoxParameter(p0));
 					AddValueToList(arguments, args...);
 				}
 			}
@@ -237,7 +237,7 @@ ParameterAccessor<Func<R(TArgs...)>>
 								internal_helper::AddValueToList(arguments, std::forward<TArgs>(args)...);
 								typedef typename TypeInfoRetriver<R>::TempValueType ResultType;
 								ResultType proxyResult;
-								description::UnboxParameter<ResultType>(functionProxy->Invoke(arguments), proxyResult);
+								description::UnboxParameter(functionProxy->Invoke(arguments), proxyResult);
 								return proxyResult;
 							};
 						}
@@ -282,7 +282,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 				template<typename T0, typename ...TArgs>
 				void UnboxSpecifiedParameter(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, vint index, T0& p0, TArgs& ...args)
 				{
-					UnboxParameter<typename TypeInfoRetriver<T0>::TempValueType>(arguments[index], p0, methodInfo->GetParameter(index)->GetType()->GetTypeDescriptor(), itow(index) + L"-th argument");
+					UnboxParameter(arguments[index], p0, methodInfo->GetParameter(index)->GetType()->GetTypeDescriptor(), itow(index) + L"-th argument");
 					UnboxSpecifiedParameter(methodInfo, arguments, index + 1, args...);
 				}
 
@@ -293,7 +293,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = new typename TypeInfoRetriver<R>::Type(args...);
-						return BoxParameter<R>(result);
+						return BoxParameter(result);
 					}
 				};
 
@@ -334,7 +334,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 							return result;
 						})
 					);
-					return BoxParameter<Func<R(TArgs...)>>(proxy);
+					return BoxParameter(proxy);
 				}
 			public:
 				CustomConstructorInfoImpl(const wchar_t* parameterNames[])
@@ -363,7 +363,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = (object->*method)(args...);
-						return BoxParameter<R>(result, methodInfo->GetReturn()->GetTypeDescriptor());
+						return BoxParameter(result, methodInfo->GetReturn()->GetTypeDescriptor());
 					}
 				};
 
@@ -385,7 +385,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = method(object, args...);
-						return BoxParameter<R>(result, methodInfo->GetReturn()->GetTypeDescriptor());
+						return BoxParameter(result, methodInfo->GetReturn()->GetTypeDescriptor());
 					}
 				};
 				
@@ -452,7 +452,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				{
 					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
 					Func<R(TArgs...)> proxy(object, method);
-					return BoxParameter<Func<R(TArgs...)>>(proxy);
+					return BoxParameter(proxy);
 				}
 			public:
 				CustomMethodInfoImpl(const wchar_t* parameterNames[], R(__thiscall TClass::* _method)(TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
@@ -479,7 +479,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 				{
 					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
 					Func<R(TArgs...)> proxy = Curry(Func<R(TClass*, TArgs...)>(method))(object);
-					return BoxParameter<Func<R(TArgs...)>>(proxy);
+					return BoxParameter(proxy);
 				}
 			public:
 				CustomExternalMethodInfoImpl(const wchar_t* parameterNames[], R(*_method)(TClass*, TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
@@ -503,7 +503,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 					{
 						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
 						R result = method(args...);
-						return BoxParameter<R>(result, methodInfo->GetReturn()->GetTypeDescriptor());
+						return BoxParameter(result, methodInfo->GetReturn()->GetTypeDescriptor());
 					}
 				};
 
@@ -533,7 +533,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
 				{
 					Func<R(TArgs...)> proxy(method);
-					return BoxParameter<Func<R(TArgs...)>>(proxy);
+					return BoxParameter(proxy);
 				}
 			public:
 				CustomStaticMethodInfoImpl(const wchar_t* parameterNames[], R(* _method)(TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)

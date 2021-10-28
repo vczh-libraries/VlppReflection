@@ -427,7 +427,7 @@ Collection Wrappers
 					ENSURE_WRAPPER_POINTER;
 					if (!keys)
 					{
-						keys = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter<const KeyContainer>(wrapperPointer->Keys()));
+						keys = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter(wrapperPointer->Keys()));
 					}
 					return keys;
 				}
@@ -437,7 +437,7 @@ Collection Wrappers
 					ENSURE_WRAPPER_POINTER;
 					if (!values)
 					{
-						values = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter<const ValueContainer>(wrapperPointer->Values()));
+						values = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter(wrapperPointer->Values()));
 					}
 					return values;
 				}

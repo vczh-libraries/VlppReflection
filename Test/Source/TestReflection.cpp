@@ -564,11 +564,11 @@ namespace reflection_test
 		}
 		{
 			Value baseSummer=Value::Create(L"BaseSummer");
-			Value f1=BoxParameter<Func<vint(vint)>>(LAMBDA([](vint i){return i+1;}));
-			Value f2=BoxParameter<Func<vint(vint)>>(LAMBDA([](vint i){return i+2;}));
+			Value f1=BoxParameter(LAMBDA([](vint i){return i+1;}));
+			Value f2=BoxParameter(LAMBDA([](vint i){return i+2;}));
 			Value f=baseSummer.Invoke(L"Sum3", (Value_xs(), f1, f2));
 			Func<vint(vint)> fx;
-			UnboxParameter<Func<vint(vint)>>(f, fx);
+			UnboxParameter(f, fx);
 			TEST_ASSERT(fx(10)==23);
 		}
 	}
