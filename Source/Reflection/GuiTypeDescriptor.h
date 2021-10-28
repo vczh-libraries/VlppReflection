@@ -2428,6 +2428,11 @@ Exceptions
 			class ArgumentTypeMismtatchException : public TypeDescriptorException
 			{
 			public:
+				ArgumentTypeMismtatchException(const WString& name, ITypeDescriptor* expected, ITypeDescriptor* actual)
+					:TypeDescriptorException(L"Argument \"" + name + L"\" cannot convert from \"" + actual->GetTypeName() + L"\" to \"" + expected->GetTypeName() + L"\".")
+				{
+				}
+
 				ArgumentTypeMismtatchException(const WString& name, ITypeInfo* expected, const Value& actual)
 					:TypeDescriptorException(L"Argument \"" + name + L"\" cannot convert from \"" + actual.GetTypeFriendlyName() + L"\" to \"" + expected->GetTypeFriendlyName() + L"\".")
 				{

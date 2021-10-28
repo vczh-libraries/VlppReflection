@@ -118,6 +118,90 @@ DetailTypeInfoRetriver<TContainer>
 ParameterAccessor<TContainer>
 ***********************************************************************/
 
+			template<typename TValueItf, typename TExpectedItf, template<typename T> class TValueImpl, typename T>
+			auto GetValueCollectionFromCollection(T* collection) -> std::enable_if_t<std::is_convertible_v<TValueItf*, TExpectedItf*>, Ptr<TExpectedItf>>
+			{
+				auto colref = collection->TryGetCollectionReference<TValueImpl<T*>>();
+				if (colref) return colref;
+				colref = MakePtr<TValueImpl<T*>>(collection);
+				collection->SetCollectionReference(colref);
+				return colref;
+			}
+
+			template<typename TValueItf, typename TExpectedItf, template<typename T> class TValueImpl, typename T>
+			auto GetValueCollectionFromCollection(T* collection) -> std::enable_if_t<!std::is_convertible_v<TValueItf*, TExpectedItf*>, Ptr<TExpectedItf>>
+			{
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+				throw ArgumentTypeMismtatchException(
+					WString::Unmanaged(L"collection"),
+					Description<TExpectedItf>::GetAssociatedTypeDescriptor(),
+					Description<TValueItf>::GetAssociatedTypeDescriptor()
+					);
+#else
+				CHECK_FAIL(L"vl::reflection::description::GetValueCollectionFromCollection()#Argument type mismatch.");
+#endif
+			}
+
+			template<typename TValueItf, typename T>
+			Ptr<TValueItf> ChooseValueCollectionFromNonDictionaryEnumerable(collections::IEnumerable<T>* writable)
+			{
+				if (auto xs = dynamic_cast<collections::ObservableList<T>*>(writable))
+				{
+					return GetValueCollectionFromCollection<IValueObservableList, TValueItf, ValueObservableListWrapper>(xs);
+				}
+				else if (auto xs = dynamic_cast<collections::ObservableListBase<T>*>(writable))
+				{
+					return GetValueCollectionFromCollection<IValueList, TValueItf, ValueListWrapper>(xs);
+				}
+				else if (auto xs = dynamic_cast<collections::List<T>*>(writable))
+				{
+					return GetValueCollectionFromCollection<IValueList, TValueItf, ValueListWrapper>(xs);
+				}
+				else if (auto xs = dynamic_cast<collections::Array<T>*>(writable))
+				{
+					return GetValueCollectionFromCollection<IValueArray, TValueItf, ValueArrayWrapper>(xs);
+				}
+				else if (auto xs = dynamic_cast<collections::SortedList<T>*>(writable))
+				{
+					return GetValueCollectionFromCollection<IValueReadonlyList, TValueItf, ValueReadonlyListWrapper>(xs);
+				}
+				else
+				{
+					return GetValueCollectionFromCollection<IValueEnumerable, TValueItf, ValueEnumerableWrapper>(xs);
+				}
+			}
+
+			template<typename TValueItf, typename T>
+			Ptr<TValueItf> ChooseValueCollectionFromEnumerable(collections::IEnumerable<T>* writable)
+			{
+				return ChooseValueCollectionFromNonDictionaryEnumerable<TValueItf>(writable);
+			}
+
+			template<typename TValueItf, typename K, typename V>
+			Ptr<TValueItf> ChooseValueCollectionFromEnumerable(collections::IEnumerable<collections::Pair<K, V>>* writable)
+			{
+				if (auto xs = dynamic_cast<collections::Dictionary<K, V>*>(writable))
+				{
+					return GetValueCollectionFromCollection<IValueDictionary, TValueItf, ValueDictionaryWrapper>(xs);
+				}
+				else
+				{
+					return ChooseValueCollectionFromEnumerable<TValueItf>(writable);
+				}
+			}
+
+			template<typename TValueItf, typename T>
+			Value GetValueFromEnumerable(const collections::IEnumerable<T>& enumerable)
+			{
+				auto& writable = const_cast<collections::IEnumerable<T>&>(enumerable);
+				auto result = ChooseValueCollectionFromEnumerable<TValueItf>(&writable);
+				ITypeDescriptor* td = nullptr;
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+				td = Description<TValueItf>::GetAssociatedTypeDescriptor();
+#endif
+				return BoxValue(result, td);
+			}
+
 			template<typename T>
 			struct ParameterAccessor<collections::LazyList<T>, TypeFlags::EnumerableType>
 			{
@@ -135,7 +219,7 @@ ParameterAccessor<TContainer>
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					td = Description<IValueEnumerable>::GetAssociatedTypeDescriptor();
 #endif
-					return BoxValue<Ptr<IValueEnumerable>>(result, td);
+					return BoxValue(result, td);
 				}
 
 				static void UnboxParameter(const Value& value, collections::LazyList<T>& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -151,13 +235,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueReadonlyList> result = new ValueReadonlyListWrapper<T*>(&object);
-
-					ITypeDescriptor* td = nullptr;
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					td = Description<IValueReadonlyList>::GetAssociatedTypeDescriptor();
-#endif
-					return BoxValue<Ptr<IValueReadonlyList>>(result, td);
+					return GetValueFromEnumerable<IValueReadonlyList>(object);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -174,13 +252,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueArray> result = new ValueArrayWrapper<T*>(&object);
-
-					ITypeDescriptor* td = nullptr;
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					td = Description<IValueArray>::GetAssociatedTypeDescriptor();
-#endif
-					return BoxValue<Ptr<IValueArray>>(result, td);
+					return GetValueFromEnumerable<IValueArray>(object);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -197,13 +269,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueList> result = new ValueListWrapper<T*>(&object);
-
-					ITypeDescriptor* td = nullptr;
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					td = Description<IValueList>::GetAssociatedTypeDescriptor();
-#endif
-					return BoxValue<Ptr<IValueList>>(result, td);
+					return GetValueFromEnumerable<IValueList>(object);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -220,11 +286,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(collections::ObservableList<T>& object, ITypeDescriptor* typeDescriptor)
 				{
-					ITypeDescriptor* td = nullptr;
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					td = Description<IValueObservableList>::GetAssociatedTypeDescriptor();
-#endif
-					return BoxValue<Ptr<IValueObservableList>>(object.GetWrapper(), td);
+					return GetValueFromEnumerable<IValueObservableList>(object);
 				}
 			};
 
@@ -233,13 +295,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueReadonlyDictionary> result = new ValueReadonlyDictionaryWrapper<T*>(&object);
-
-					ITypeDescriptor* td = nullptr;
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					td = Description<IValueReadonlyDictionary>::GetAssociatedTypeDescriptor();
-#endif
-					return BoxValue<Ptr<IValueReadonlyDictionary>>(result, td);
+					return GetValueFromEnumerable<IValueReadonlyDictionary>(object);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -260,13 +316,7 @@ ParameterAccessor<TContainer>
 			{
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
-					Ptr<IValueDictionary> result = new ValueDictionaryWrapper<T*>(&object);
-
-					ITypeDescriptor* td = nullptr;
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					td = Description<IValueDictionary>::GetAssociatedTypeDescriptor();
-#endif
-					return BoxValue<Ptr<IValueDictionary>>(result, td);
+					return GetValueFromEnumerable<IValueDictionary>(object);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)

@@ -831,7 +831,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			/// <param name="object">The object to box.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
-			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor = 0)
+			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor = nullptr)
 			{
 				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::BoxValue(object, typeDescriptor);
@@ -844,7 +844,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
-			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor = 0, const WString& valueName = L"value")
+			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"))
 			{
 				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::UnboxValue(value, typeDescriptor, valueName);
@@ -865,7 +865,7 @@ TypeInfoRetriver Helper Functions (BoxParameter, UnboxParameter)
 			/// <param name="object">The object to box.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
-			Value BoxParameter(T&& object, ITypeDescriptor* typeDescriptor = 0)
+			Value BoxParameter(T&& object, ITypeDescriptor* typeDescriptor = nullptr)
 			{
 				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
 				return ParameterAccessor<typename TIR::ResultNonReferenceType, TIR::TypeFlag>::BoxParameter(object, typeDescriptor);
@@ -878,7 +878,7 @@ TypeInfoRetriver Helper Functions (BoxParameter, UnboxParameter)
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
-			void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor = 0, const WString& valueName = L"value")
+			void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"))
 			{
 				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
 				ParameterAccessor<T, TIR::TypeFlag>::UnboxParameter(value, result, typeDescriptor, valueName);

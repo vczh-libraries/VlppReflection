@@ -403,7 +403,7 @@ Collection Wrappers
 			};
 
 			template<typename T>
-			class ValueReadonlyDictionaryWrapper : public virtual Object, public virtual IValueReadonlyDictionary
+			class ValueReadonlyDictionaryWrapper : public virtual Object, public virtual collections::ICollectionReference, public virtual IValueReadonlyDictionary
 			{
 			protected:
 				typedef typename trait_helper::RemovePtr<T>::Type		ContainerType;
@@ -420,6 +420,13 @@ Collection Wrappers
 				ValueReadonlyDictionaryWrapper(const T& _wrapperPointer)
 					:wrapperPointer(_wrapperPointer)
 				{
+				}
+
+				void OnDisposed()override
+				{
+					wrapperPointer = nullptr;
+					keys = nullptr;
+					values = nullptr;
 				}
 
 				Ptr<IValueReadonlyList> GetKeys()override
