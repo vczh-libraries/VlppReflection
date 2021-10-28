@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER
 
-#include "GuiTypeDescriptorPredefined.h"
+#include "GuiTypeDescriptorObservableList.h"
 
 namespace vl
 {
@@ -497,10 +497,11 @@ TypeFlagTester
 				FunctionType			=1<<0,
 				EnumerableType			=1<<1,
 				ReadonlyListType		=1<<2,
-				ListType				=1<<3,
-				ObservableListType		=1<<4,
-				ReadonlyDictionaryType	=1<<5,
-				DictionaryType			=1<<6,
+				ArrayType				=1<<3,
+				ListType				=1<<4,
+				ObservableListType		=1<<5,
+				ReadonlyDictionaryType	=1<<6,
+				DictionaryType			=1<<7,
 			};
 
 			template<typename T>
@@ -537,6 +538,8 @@ TypeFlagTester
 			{
 				template<typename T>
 				static void* Inherit(const collections::LazyList<T>* source){ return {}; }
+				template<typename T>
+				static void* Inherit(const collections::IEnumerable<T>* source) { return {}; }
 				static char Inherit(void* source){ return {}; }
 				static char Inherit(const void* source){ return {}; }
 
@@ -546,8 +549,14 @@ TypeFlagTester
 			template<typename TDerived>
 			struct TypeFlagTester<TDerived, TypeFlags::ReadonlyListType>
 			{
-				template<typename T>
-				static void* Inherit(const collections::IEnumerable<T>* source){ return {}; }
+				template<typename T, typename K>
+				static void* Inherit(const collections::Array<T, K>* source){ return {}; }
+				template<typename T, typename K>
+				static void* Inherit(const collections::List<T, K>* source) { return {}; }
+				template<typename T, typename K>
+				static void* Inherit(const collections::SortedList<T, K>* source) { return {}; }
+				template<typename T, typename K>
+				static void* Inherit(const collections::ObservableListBase<T, K>* source) { return {}; }
 				static char Inherit(void* source){ return {}; }
 				static char Inherit(const void* source){ return {}; }
 
@@ -555,10 +564,23 @@ TypeFlagTester
 			};
 
 			template<typename TDerived>
+			struct TypeFlagTester<TDerived, TypeFlags::ArrayType>
+			{
+				template<typename T, typename K>
+				static void* Inherit(collections::Array<T, K>* source) { return {}; }
+				static char Inherit(void* source) { return {}; }
+				static char Inherit(const void* source) { return {}; }
+
+				static const TypeFlags									Result = sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer)) == sizeof(void*) ? TypeFlags::ArrayType : TypeFlags::NonGenericType;
+			};
+
+			template<typename TDerived>
 			struct TypeFlagTester<TDerived, TypeFlags::ListType>
 			{
-				template<typename T>
-				static void* Inherit(collections::IEnumerable<T>* source){ return {}; }
+				template<typename T, typename K>
+				static void* Inherit(collections::List<T, K>* source) { return {}; }
+				template<typename T, typename K>
+				static void* Inherit(collections::ObservableListBase<T, K>* source) { return {}; }
 				static char Inherit(void* source){ return {}; }
 				static char Inherit(const void* source){ return {}; }
 
@@ -615,45 +637,45 @@ TypeFlagSelector
 			};
 
 			template<typename T>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType)>
+			{
+				static const  TypeFlags									Result=TypeFlags::EnumerableType;
+			};
+
+			template<typename T>
 			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType|(vint)TypeFlags::ReadonlyListType)>
 			{
-				static const  TypeFlags									Result=TypeFlags::EnumerableType;
+				static const  TypeFlags									Result = TypeFlags::ReadonlyListType;
 			};
 
 			template<typename T>
-			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType|(vint)TypeFlags::ListType|(vint)TypeFlags::ReadonlyListType)>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType|(vint)TypeFlags::ReadonlyListType|(vint)TypeFlags::ArrayType)>
 			{
-				static const  TypeFlags									Result=TypeFlags::EnumerableType;
+				static const  TypeFlags									Result = TypeFlags::ArrayType;
 			};
 
 			template<typename T>
-			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ListType|(vint)TypeFlags::ReadonlyListType)>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType|(vint)TypeFlags::ReadonlyListType|(vint)TypeFlags::ListType)>
 			{
-				static const  TypeFlags									Result=TypeFlags::ListType;
+				static const  TypeFlags									Result = TypeFlags::ListType;
 			};
 
 			template<typename T>
-			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ObservableListType|(vint)TypeFlags::ListType|(vint)TypeFlags::ReadonlyListType)>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType|(vint)TypeFlags::ReadonlyListType|(vint)TypeFlags::ListType|(vint)TypeFlags::ObservableListType)>
 			{
 				static const  TypeFlags									Result = TypeFlags::ObservableListType;
 			};
 
 			template<typename T>
-			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ReadonlyListType)>
-			{
-				static const  TypeFlags									Result=TypeFlags::ReadonlyListType;
-			};
-
-			template<typename T>
-			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ListType|(vint)TypeFlags::ReadonlyListType|(vint)TypeFlags::DictionaryType|(vint)TypeFlags::ReadonlyDictionaryType)>
-			{
-				static const  TypeFlags									Result=TypeFlags::DictionaryType;
-			};
-
-			template<typename T>
-			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ReadonlyListType|(vint)TypeFlags::ReadonlyDictionaryType)>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType|(vint)TypeFlags::ReadonlyDictionaryType)>
 			{
 				static const  TypeFlags									Result=TypeFlags::ReadonlyDictionaryType;
+			};
+
+			template<typename T>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::EnumerableType |(vint)TypeFlags::ReadonlyDictionaryType |(vint)TypeFlags::DictionaryType)>
+			{
+				static const  TypeFlags									Result=TypeFlags::DictionaryType;
 			};
 
 			template<typename T>

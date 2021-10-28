@@ -30,7 +30,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Function.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Struct.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorMacros.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorObservableList.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorReflection.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorWrappers.h" />
   </ItemGroup>
 </Project>
