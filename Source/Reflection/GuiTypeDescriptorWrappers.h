@@ -192,39 +192,53 @@ Collection Wrappers
 
 #pragma warning(push)
 #pragma warning(disable:4250)
+
 			template<typename T>
+			class ValueEnumerableWrapper;
+
+			template<typename TWrapper, typename TEnumerator>
 			class ValueEnumeratorWrapper : public Object, public virtual IValueEnumerator
 			{
 			protected:
-				typedef typename trait_helper::RemovePtr<T>::Type		ContainerType;
-				typedef typename ContainerType::ElementType				ElementType;
+				typedef typename trait_helper::RemovePtr<TEnumerator>::Type		ContainerType;
+				typedef typename ContainerType::ElementType						ElementType;
 
-				T								wrapperPointer;
+				Ptr<TWrapper>					enumerableWrapper;
+				TEnumerator						wrapperPointer;
 			public:
-				ValueEnumeratorWrapper(const T& _wrapperPointer)
-					:wrapperPointer(_wrapperPointer)
+				ValueEnumeratorWrapper(const Ptr<TWrapper>& _enumerableWrapper, const TEnumerator& _wrapperPointer)
+					:enumerableWrapper(_enumerableWrapper)
+					, wrapperPointer(_wrapperPointer)
 				{
 				}
 
 				Value GetCurrent()override
 				{
+					if (!enumerableWrapper->wrapperPointer) throw ObjectDisposedException();
 					return BoxValue<ElementType>(wrapperPointer->Current());
 				}
 
 				vint GetIndex()override
 				{
+					if (!enumerableWrapper->wrapperPointer) throw ObjectDisposedException();
 					return wrapperPointer->Index();
 				}
 
 				bool Next()override
 				{
+					if (!enumerableWrapper->wrapperPointer) throw ObjectDisposedException();
 					return wrapperPointer->Next();
 				}
 			};
 
+#define WRAPPER_POINTER this->wrapperPointer
+#define ENSURE_WRAPPER_POINTER if (!WRAPPER_POINTER) throw ObjectDisposedException()
+
 			template<typename T>
-			class ValueEnumerableWrapper : public Object, public virtual IValueEnumerable
+			class ValueEnumerableWrapper : public Object, public virtual collections::ICollectionReference, public virtual IValueEnumerable
 			{
+				template<typename TWrapper, typename TEnumerator>
+				friend class ValueEnumeratorWrapper;
 			protected:
 				typedef typename trait_helper::RemovePtr<T>::Type		ContainerType;
 				typedef typename ContainerType::ElementType				ElementType;
@@ -236,13 +250,23 @@ Collection Wrappers
 				{
 				}
 
+				void OnDisposed()override
+				{
+					wrapperPointer = nullptr;
+				}
+
 				Ptr<IValueEnumerator> CreateEnumerator()override
 				{
-					return new ValueEnumeratorWrapper<Ptr<collections::IEnumerator<ElementType>>>(wrapperPointer->CreateEnumerator());
+					ENSURE_WRAPPER_POINTER;
+					return new ValueEnumeratorWrapper<
+						ValueEnumerableWrapper<T>,
+						Ptr<collections::IEnumerator<ElementType>>
+					>(
+						this,
+						wrapperPointer->CreateEnumerator()
+					);
 				}
 			};
-
-#define WRAPPER_POINTER this->wrapperPointer
 
 			template<typename T>
 			class ValueReadonlyListWrapper : public ValueEnumerableWrapper<T>, public virtual IValueReadonlyList
@@ -260,23 +284,27 @@ Collection Wrappers
 
 				vint GetCount()override
 				{
+					ENSURE_WRAPPER_POINTER;
 					return WRAPPER_POINTER->Count();
 				}
 
 				Value Get(vint index)override
 				{
+					ENSURE_WRAPPER_POINTER;
 					return BoxValue<ElementType>(WRAPPER_POINTER->Get(index));
 				}
 
 				bool Contains(const Value& value)override
 				{
-					ElementKeyType item=UnboxValue<ElementKeyType>(value);
+					ENSURE_WRAPPER_POINTER;
+					ElementKeyType item = UnboxValue<ElementKeyType>(value);
 					return WRAPPER_POINTER->Contains(item);
 				}
 
 				vint IndexOf(const Value& value)override
 				{
-					ElementKeyType item=UnboxValue<ElementKeyType>(value);
+					ENSURE_WRAPPER_POINTER;
+					ElementKeyType item = UnboxValue<ElementKeyType>(value);
 					return WRAPPER_POINTER->IndexOf(item);
 				}
 			};
@@ -297,12 +325,14 @@ Collection Wrappers
 
 				void Set(vint index, const Value& value)override
 				{
-					ElementType item=UnboxValue<ElementType>(value);
+					ENSURE_WRAPPER_POINTER;
+					ElementType item = UnboxValue<ElementType>(value);
 					WRAPPER_POINTER->Set(index, item);
 				}
 
 				void Resize(vint size)override
 				{
+					ENSURE_WRAPPER_POINTER;
 					return WRAPPER_POINTER->Resize(size);
 				}
 			};
@@ -323,128 +353,41 @@ Collection Wrappers
 
 				void Set(vint index, const Value& value)override
 				{
-					ElementType item=UnboxValue<ElementType>(value);
+					ENSURE_WRAPPER_POINTER;
+					ElementType item = UnboxValue<ElementType>(value);
 					WRAPPER_POINTER->Set(index, item);
 				}
 
 				vint Add(const Value& value)override
 				{
-					ElementType item=UnboxValue<ElementType>(value);
+					ENSURE_WRAPPER_POINTER;
+					ElementType item = UnboxValue<ElementType>(value);
 					return WRAPPER_POINTER->Add(item);
 				}
 
 				vint Insert(vint index, const Value& value)override
 				{
-					ElementType item=UnboxValue<ElementType>(value);
+					ENSURE_WRAPPER_POINTER;
+					ElementType item = UnboxValue<ElementType>(value);
 					return WRAPPER_POINTER->Insert(index, item);
 				}
 
 				bool Remove(const Value& value)override
 				{
-					ElementKeyType item=UnboxValue<ElementKeyType>(value);
-					return WRAPPER_POINTER->Remove(item);
-				}
-
-				bool RemoveAt(vint index)override
-				{
-					return WRAPPER_POINTER->RemoveAt(index);
-				}
-
-				void Clear()override
-				{
-					WRAPPER_POINTER->Clear();
-				}
-			};
-
-			template<typename T, typename K>
-			class ValueListWrapper<collections::Array<T, K>*> : public ValueReadonlyListWrapper<collections::Array<T, K>*>, public virtual IValueList
-			{
-			protected:
-				typedef collections::Array<T, K>				ContainerType;
-				typedef T										ElementType;
-				typedef K										ElementKeyType;
-
-			public:
-				ValueListWrapper(collections::Array<T, K>* _wrapperPointer)
-					:ValueReadonlyListWrapper<collections::Array<T, K>*>(_wrapperPointer)
-				{
-				}
-
-				void Set(vint index, const Value& value)override
-				{
-					ElementType item = UnboxValue<ElementType>(value);
-					WRAPPER_POINTER->Set(index, item);
-				}
-
-				vint Add(const Value& value)override
-				{
-					throw Exception(L"Array doesn't have Add method.");
-				}
-
-				vint Insert(vint index, const Value& value)override
-				{
-					throw Exception(L"Array doesn't have Insert method.");
-				}
-
-				bool Remove(const Value& value)override
-				{
-					throw Exception(L"Array doesn't have Remove method.");
-				}
-
-				bool RemoveAt(vint index)override
-				{
-					throw Exception(L"Array doesn't have RemoveAt method.");
-				}
-
-				void Clear()override
-				{
-					throw Exception(L"Array doesn't have Clear method.");
-				}
-			};
-
-			template<typename T, typename K>
-			class ValueListWrapper<collections::SortedList<T, K>*> : public ValueReadonlyListWrapper<collections::SortedList<T, K>*>, public virtual IValueList
-			{
-			protected:
-				typedef collections::SortedList<T, K>			ContainerType;
-				typedef T										ElementType;
-				typedef K										ElementKeyType;
-
-			public:
-				ValueListWrapper(collections::SortedList<T, K>* _wrapperPointer)
-					:ValueReadonlyListWrapper<collections::SortedList<T, K>*>(_wrapperPointer)
-				{
-				}
-
-				void Set(vint index, const Value& value)override
-				{
-					throw Exception(L"SortedList doesn't have Set method.");
-				}
-
-				vint Add(const Value& value)override
-				{
-					ElementType item = UnboxValue<ElementType>(value);
-					return WRAPPER_POINTER->Add(item);
-				}
-
-				vint Insert(vint index, const Value& value)override
-				{
-					throw Exception(L"SortedList doesn't have Insert method.");
-				}
-
-				bool Remove(const Value& value)override
-				{
+					ENSURE_WRAPPER_POINTER;
 					ElementKeyType item = UnboxValue<ElementKeyType>(value);
 					return WRAPPER_POINTER->Remove(item);
 				}
 
 				bool RemoveAt(vint index)override
 				{
+					ENSURE_WRAPPER_POINTER;
 					return WRAPPER_POINTER->RemoveAt(index);
 				}
 
 				void Clear()override
 				{
+					ENSURE_WRAPPER_POINTER;
 					WRAPPER_POINTER->Clear();
 				}
 			};
@@ -458,8 +401,6 @@ Collection Wrappers
 				{
 				}
 			};
-
-#undef WRAPPER_POINTER
 
 			template<typename T>
 			class ValueReadonlyDictionaryWrapper : public virtual Object, public virtual IValueReadonlyDictionary
@@ -483,36 +424,39 @@ Collection Wrappers
 
 				Ptr<IValueReadonlyList> GetKeys()override
 				{
-					if(!keys)
+					ENSURE_WRAPPER_POINTER;
+					if (!keys)
 					{
-						keys=new ValueReadonlyListWrapper<const KeyContainer*>(&wrapperPointer->Keys());
+						keys = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter<const KeyContainer>(wrapperPointer->Keys()));
 					}
 					return keys;
 				}
 
 				Ptr<IValueReadonlyList> GetValues()override
 				{
-					if(!values)
+					ENSURE_WRAPPER_POINTER;
+					if (!values)
 					{
-						values=new ValueReadonlyListWrapper<const ValueContainer*>(&wrapperPointer->Values());
+						values = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter<const ValueContainer>(wrapperPointer->Values()));
 					}
 					return values;
 				}
 
 				vint GetCount()override
 				{
+					ENSURE_WRAPPER_POINTER;
 					return wrapperPointer->Count();
 				}
 
 				Value Get(const Value& key)override
 				{
-					KeyKeyType item=UnboxValue<KeyKeyType>(key);
-					ValueType result=wrapperPointer->Get(item);
+					ENSURE_WRAPPER_POINTER;
+					KeyKeyType item = UnboxValue<KeyKeyType>(key);
+					ValueType result = wrapperPointer->Get(item);
 					return BoxValue<ValueType>(result);
 				}
 			};
 
-#define WRAPPER_POINTER ValueReadonlyDictionaryWrapper<T>::wrapperPointer
 #define KEY_VALUE_TYPE typename ValueReadonlyDictionaryWrapper<T>::KeyValueType
 #define VALUE_TYPE typename ValueReadonlyDictionaryWrapper<T>::ValueType
 #define KEY_KEY_TYPE typename ValueReadonlyDictionaryWrapper<T>::KeyKeyType
@@ -528,26 +472,31 @@ Collection Wrappers
 
 				void Set(const Value& key, const Value& value)override
 				{
-					KEY_VALUE_TYPE item=UnboxValue<KEY_VALUE_TYPE>(key);
-					VALUE_TYPE result=UnboxValue<VALUE_TYPE>(value);
+					ENSURE_WRAPPER_POINTER;
+					KEY_VALUE_TYPE item = UnboxValue<KEY_VALUE_TYPE>(key);
+					VALUE_TYPE result = UnboxValue<VALUE_TYPE>(value);
 					WRAPPER_POINTER->Set(item, result);
 				}
 
 				bool Remove(const Value& key)override
 				{
-					KEY_KEY_TYPE item=UnboxValue<KEY_KEY_TYPE>(key);
+					ENSURE_WRAPPER_POINTER;
+					KEY_KEY_TYPE item = UnboxValue<KEY_KEY_TYPE>(key);
 					return WRAPPER_POINTER->Remove(item);
 				}
 
 				void Clear()override
 				{
+					ENSURE_WRAPPER_POINTER;
 					WRAPPER_POINTER->Clear();
 				}
 			};
-#undef WRAPPER_POINTER
 #undef KEY_VALUE_TYPE
 #undef VALUE_TYPE
 #undef KEY_KEY_TYPE
+
+#undef ENSURE_WRAPPER_POINTER
+#undef WRAPPER_POINTER
 #pragma warning(pop)
 		}
 	}

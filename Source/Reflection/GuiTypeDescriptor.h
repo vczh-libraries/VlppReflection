@@ -2336,6 +2336,15 @@ Exceptions
 				}
 			};
 
+			class ObjectDisposedException : public TypeDescriptorException
+			{
+			public:
+				ObjectDisposedException()
+					:TypeDescriptorException(L"The referenced native object has been disposed.")
+				{
+				}
+			};
+
 			class ValueNotDisposableException : public TypeDescriptorException
 			{
 			public:
