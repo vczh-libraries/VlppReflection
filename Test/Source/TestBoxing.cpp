@@ -97,13 +97,12 @@ TEST_FILE
 			numbers.Add(3);
 
 			auto value = BoxParameter(numbers);
-			List<vint> numbers2;
-			UnboxParameter(value, numbers2);
+			auto numbers2 = UnboxParameter<List<vint>>(value);
 
-			TEST_ASSERT(numbers2.Count() == 3);
-			TEST_ASSERT(numbers2[0] == 1);
-			TEST_ASSERT(numbers2[1] == 2);
-			TEST_ASSERT(numbers2[2] == 3);
+			TEST_ASSERT(numbers2.Ref().Count() == 3);
+			TEST_ASSERT(numbers2.Ref()[0] == 1);
+			TEST_ASSERT(numbers2.Ref()[1] == 2);
+			TEST_ASSERT(numbers2.Ref()[2] == 3);
 		}
 	});
 

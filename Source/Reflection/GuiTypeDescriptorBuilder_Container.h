@@ -355,16 +355,9 @@ ParameterAccessor<TContainer>
 					return GetValueFromEnumerable<IValueDictionary>(object);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					typedef typename T::KeyContainer					KeyContainer;
-					typedef typename T::ValueContainer					ValueContainer;
-					typedef typename KeyContainer::ElementType			KeyType;
-					typedef typename ValueContainer::ElementType		ValueType;
-
-					Ptr<IValueDictionary> dictionaryProxy = UnboxValue<Ptr<IValueDictionary>>(value, typeDescriptor, valueName);
-					collections::LazyList<collections::Pair<KeyType, ValueType>> lazyList = GetLazyList<KeyType, ValueType>(dictionaryProxy);
-					collections::CopyFrom(result, lazyList);
+					return UnboxDictionary<T>(UnboxValue<Ptr<IValueDictionary>>(value, typeDescriptor, valueName));
 				}
 			};
 		}

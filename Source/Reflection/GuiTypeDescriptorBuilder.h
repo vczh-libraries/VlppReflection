@@ -879,14 +879,12 @@ TypeInfoRetriver Helper Functions (BoxParameter, UnboxParameter)
 			template<typename T>
 			struct Unboxed
 			{
-				template<typename T, TypeFlags Flag>
-				friend struct ParameterAccessor;
 			private:
 				T*				object;
 				bool			owned;
 
-				Unboxed(T* _object, bool _owned) : object(_object), owned(_owned) {}
 			public:
+				Unboxed(T* _object, bool _owned) : object(_object), owned(_owned) {}
 				Unboxed(Unboxed<T>&& unboxed) : object(unboxed.object), owned(unboxed.owned) { unboxed.object = nullptr; }
 				~Unboxed() { if (object && owned) { delete object; } }
 
@@ -977,7 +975,8 @@ CustomFieldInfoImpl
 					TClass* object=UnboxValue<TClass*>(thisObject);
 					if(object)
 					{
-						UnboxParameter(newValue, object->*fieldRef, GetReturn()->GetTypeDescriptor(), L"newValue");
+						auto result = UnboxParameter<TField>(newValue, GetReturn()->GetTypeDescriptor(), L"newValue");
+						object->*fieldRef = result.Ref();
 					}
 				}
 			public:

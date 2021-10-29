@@ -45,14 +45,13 @@ namespace reflection_test_boxunboxcollections
 		ll = {};
 		auto xs3 = UnboxValue<Ptr<IValueEnumerable>>(BoxParameter(ll));
 
-		LazyList<vint> l1, l2, l3;
-		UnboxParameter(BoxValue(xs1), l1);
-		UnboxParameter(BoxValue(xs2), l2);
-		UnboxParameter(BoxValue(xs3), l3);
+		auto l1 = UnboxParameter<LazyList<vint>>(BoxValue(xs1));
+		auto l2 = UnboxParameter<LazyList<vint>>(BoxValue(xs2));
+		auto l3 = UnboxParameter<LazyList<vint>>(BoxValue(xs3));
 
-		TEST_ASSERT(l1.Count() == 3);
-		TEST_ASSERT(l2.Count() == 3);
-		TEST_ASSERT(l3.Count() == 0);
+		TEST_ASSERT(l1.Ref().Count() == 3);
+		TEST_ASSERT(l2.Ref().Count() == 3);
+		TEST_ASSERT(l3.Ref().Count() == 0);
 	}
 
 	void TestArray()
@@ -65,9 +64,8 @@ namespace reflection_test_boxunboxcollections
 		TEST_ASSERT(UnboxValue<vint>(xs->Get(0)) == 100);
 
 		{
-			Array<vint> rs;
-			UnboxParameter(BoxValue(xs), rs);
-			TEST_ASSERT(rs[0] == 100);
+			auto rs = UnboxParameter<Array<vint>>(BoxValue(xs));
+			TEST_ASSERT(rs.Ref()[0] == 100);
 		}
 		cs = nullptr;
 		TEST_EXCEPTION(xs->CreateEnumerator(), ObjectDisposedException, [](auto) {});
@@ -82,9 +80,8 @@ namespace reflection_test_boxunboxcollections
 		TEST_ASSERT(UnboxValue<vint>(xs->Get(0)) == 100);
 
 		{
-			List<vint> rs;
-			UnboxParameter(BoxValue(xs), rs);
-			TEST_ASSERT(rs[0] == 100);
+			auto rs = UnboxParameter<List<vint>>(BoxValue(xs));
+			TEST_ASSERT(rs.Ref()[0] == 100);
 		}
 		cs = nullptr;
 		TEST_EXCEPTION(xs->CreateEnumerator(), ObjectDisposedException, [](auto) {});
@@ -99,9 +96,8 @@ namespace reflection_test_boxunboxcollections
 		TEST_ASSERT(UnboxValue<vint>(xs->Get(0)) == 100);
 
 		{
-			SortedList<vint> rs;
-			UnboxParameter(BoxValue(xs), rs);
-			TEST_ASSERT(rs[0] == 100);
+			auto rs = UnboxParameter<SortedList<vint>>(BoxValue(xs));
+			TEST_ASSERT(rs.Ref()[0] == 100);
 		}
 		cs = nullptr;
 		TEST_EXCEPTION(xs->CreateEnumerator(), ObjectDisposedException, [](auto) {});
@@ -116,9 +112,8 @@ namespace reflection_test_boxunboxcollections
 		TEST_ASSERT(UnboxValue<vint>(xs->Get(BoxValue<vint>(100))) == 200);
 
 		{
-			Dictionary<vint, vint> rs;
-			UnboxParameter(BoxValue(xs), rs);
-			TEST_ASSERT(rs[100] == 200);
+			auto rs = UnboxParameter<Dictionary<vint, vint>>(BoxValue(xs));
+			TEST_ASSERT(rs.Ref()[100] == 200);
 		}
 		cs = nullptr;
 		TEST_EXCEPTION(xs->Clear(), ObjectDisposedException, [](auto) {});
@@ -133,9 +128,8 @@ namespace reflection_test_boxunboxcollections
 		TEST_ASSERT(UnboxValue<vint>(xs->Get(0)) == 100);
 
 		{
-			ObservableList<vint> rs;
-			ParameterAccessor<ObservableList<vint>, TypeFlags::ObservableListType>::UnboxParameter(BoxValue(xs), rs, nullptr, L"");
-			TEST_ASSERT(rs[0] == 100);
+			auto rs = UnboxParameter<ObservableList<vint>>(BoxValue(xs), nullptr, L"");
+			TEST_ASSERT(rs.Ref()[0] == 100);
 		}
 		cs = nullptr;
 		TEST_EXCEPTION(xs->CreateEnumerator(), ObjectDisposedException, [](auto) {});

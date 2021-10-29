@@ -564,9 +564,8 @@ namespace reflection_test
 			Value f1=BoxParameter(LAMBDA([](vint i){return i+1;}));
 			Value f2=BoxParameter(LAMBDA([](vint i){return i+2;}));
 			Value f=baseSummer.Invoke(L"Sum3", (Value_xs(), f1, f2));
-			Func<vint(vint)> fx;
-			UnboxParameter(f, fx);
-			TEST_ASSERT(fx(10)==23);
+			auto fx = UnboxParameter<Func<vint(vint)>>(f);
+			TEST_ASSERT(fx.Ref()(10)==23);
 		}
 	}
 

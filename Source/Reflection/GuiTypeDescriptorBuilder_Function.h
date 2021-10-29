@@ -146,9 +146,10 @@ UnboxAndCall
 					throw 0;
 				}
 
-				template<typename TClass, typename ...TArgs>
-				TClass* UnboxAndNew(IMethodInfo* methodInfo, const Ptr<IValueList>& arguments)
+				template<typename TClass, typename R, typename ...TArgs>
+				R UnboxAndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 				{
+					// new TClass(arguments)
 					throw 0;
 				}
 
@@ -218,7 +219,7 @@ AddValueToList
 			}
  
 /***********************************************************************
-Argument Adders
+ConstructorArgumentAdder
 ***********************************************************************/
 			
 			namespace internal_helper
@@ -279,7 +280,15 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 						CHECK_FAIL(L"Argument count mismatch.");
 #endif
 					}
-					return BoxParameter(internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments));
+					if constexpr (std::is_same_v<R, void>)
+					{
+						internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments);
+						return {};
+					}
+					else
+					{
+						return BoxParameter(internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments));
+					}
 				}
 			};
  
@@ -367,7 +376,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					using TClass = typename TypeInfoRetriver<R>::Type;
-					return BoxParameter(internal_helper::UnboxAndNew<TClass, TArgs...>(this, arguments));
+					return BoxParameter(internal_helper::UnboxAndNew<TClass, R, TArgs...>(this, arguments));
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
