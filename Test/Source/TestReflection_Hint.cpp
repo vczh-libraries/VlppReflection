@@ -15,21 +15,38 @@ namespace TestReflection_TestObjects_Hint
 	{
 	};
 
-	class HintTester :public Description<HintTester>
+	class HintTester1 :public Description<HintTester1>
 	{
 	public:
-		LazyList<int> GetLazyList(const LazyList<int>& x) { return x; }
-		const Array<int>& GetArray(Array<int>& x) { return x; }
-		const List<int>& GetList(List<int>& x) { return x; }
-		const SortedList<int>& GetSortedList(SortedList<int>& x) { return x; }
-		const ObservableList<vint>& GetReadableObservableList() { throw nullptr; }
+		Func<int(int)> GetFunc(Func<int(int)> x) { throw 0; }
+		Ptr<HintTester1> GetHintTester(Ptr<HintTester1> x) { throw 0; }
+		vint GetInt(vint x) { throw 0; }
+	};
+
+	class HintTester2 :public Description<HintTester2>
+	{
+	public:
+		const LazyList<int>& GetLazyList(LazyList<int>& x) { throw 0; }
+		const Array<int>& GetArray(Array<int>& x) { throw 0; }
+		const List<int>& GetList(List<int>& x) { throw 0; }
+		const SortedList<int>& GetSortedList(SortedList<int>& x) { throw 0; }
+		const ObservableList<vint>& GetObservableList() { throw nullptr; }
+		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { throw 0; }
+		const MyList& GetMyList(MyList& x) { throw 0; }
+		const MyObservableList& GetMyObservableList(MyObservableList& x) { throw 0; }
+	};
+
+	class HintTester3 :public Description<HintTester3>
+	{
+	public:
+		LazyList<int>& GetLazyList(const LazyList<int>& x) { throw 0; }
+		Array<int>& GetArray(const Array<int>& x) { throw 0; }
+		List<int>& GetList(const List<int>& x) { throw 0; }
+		SortedList<int>& GetSortedList(const SortedList<int>& x) { throw 0; }
 		ObservableList<vint>& GetObservableList() { throw nullptr; }
-		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { return x; }
-		const MyList& GetMyList(MyList& x) { return x; }
-		const MyObservableList& GetMyObservableList(MyObservableList& x) { return x; }
-		Func<int(int)> GetFunc(Func<int(int)> x) { return x; }
-		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
-		vint GetInt(vint x) { return x; }
+		Dictionary<int, int>& GetDictionary(const Dictionary<int, int>& x) { throw 0; }
+		MyList& GetMyList(const MyList& x) { throw 0; }
+		MyObservableList& GetMyObservableList(const MyObservableList& x) { throw 0; }
 	};
 }
 using namespace TestReflection_TestObjects_Hint;
@@ -37,27 +54,42 @@ using namespace TestReflection_TestObjects_Hint;
 #define _ ,
 
 #define TYPE_LIST(F)\
-	F(HintTester)\
+	F(HintTester1)\
+	F(HintTester2)\
+	F(HintTester3)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
 	TYPE_LIST(DECL_TYPE_INFO)
 	TYPE_LIST(IMPL_CPP_TYPE_INFO)
 
-	BEGIN_CLASS_MEMBER(HintTester)
+	BEGIN_CLASS_MEMBER(HintTester1)
+		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
+		CLASS_MEMBER_METHOD(GetHintTester, { L"x" })
+		CLASS_MEMBER_METHOD(GetInt, { L"x" })
+	END_CLASS_MEMBER(HintTester1)
+
+	BEGIN_CLASS_MEMBER(HintTester2)
 		CLASS_MEMBER_METHOD(GetLazyList, {L"x"})
 		CLASS_MEMBER_METHOD(GetArray, { L"x" })
 		CLASS_MEMBER_METHOD(GetList, { L"x" })
 		CLASS_MEMBER_METHOD(GetSortedList, { L"x" })
-		CLASS_MEMBER_METHOD(GetReadableObservableList, NO_PARAMETER)
 		CLASS_MEMBER_METHOD(GetObservableList, NO_PARAMETER)
 		CLASS_MEMBER_METHOD(GetDictionary, { L"x" })
 		CLASS_MEMBER_METHOD(GetMyList, { L"x" })
 		CLASS_MEMBER_METHOD(GetMyObservableList, { L"x" })
-		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
-		CLASS_MEMBER_METHOD(GetHintTester, { L"x" })
-		CLASS_MEMBER_METHOD(GetInt, { L"x" })
-	END_CLASS_MEMBER(HintTester)
+	END_CLASS_MEMBER(HintTester2)
+
+	BEGIN_CLASS_MEMBER(HintTester3)
+		CLASS_MEMBER_METHOD(GetLazyList, {L"x"})
+		CLASS_MEMBER_METHOD(GetArray, { L"x" })
+		CLASS_MEMBER_METHOD(GetList, { L"x" })
+		CLASS_MEMBER_METHOD(GetSortedList, { L"x" })
+		CLASS_MEMBER_METHOD(GetObservableList, NO_PARAMETER)
+		CLASS_MEMBER_METHOD(GetDictionary, { L"x" })
+		CLASS_MEMBER_METHOD(GetMyList, { L"x" })
+		CLASS_MEMBER_METHOD(GetMyObservableList, { L"x" })
+	END_CLASS_MEMBER(HintTester3)
 
 	class TestTypeLoader_Hint : public Object, public ITypeLoader
 	{
@@ -78,10 +110,10 @@ END_TYPE_INFO_NAMESPACE
 
 namespace reflection_test_hint
 {
-	template<typename TReturn, typename TArgument>
+	template<typename THintTester, typename TReturn, typename TArgument>
 	void TestHint(const WString& member, TypeInfoHint hint, bool testParameter = true)
 	{
-		auto td = GetTypeDescriptor<HintTester>();
+		auto td = GetTypeDescriptor<THintTester>();
 		auto method = td->GetMethodGroupByName(member, false)->GetMethod(0);
 		TEST_ASSERT(method->GetReturn()->GetTypeDescriptor() == GetTypeDescriptor<TReturn>());
 		TEST_ASSERT(method->GetReturn()->GetHint() == hint);
@@ -94,20 +126,35 @@ namespace reflection_test_hint
 		}
 	}
 
-	void TestHint()
+	void TestHint1()
 	{
-		TestHint<IValueEnumerable, IValueEnumerable>(L"GetLazyList", TypeInfoHint::LazyList);
-		TestHint<IValueReadonlyList, IValueArray>(L"GetArray", TypeInfoHint::Array);
-		TestHint<IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
-		TestHint<IValueReadonlyList, IValueReadonlyList>(L"GetSortedList", TypeInfoHint::SortedList);
-		TestHint<IValueReadonlyList, void>(L"GetReadableObservableList", TypeInfoHint::ObservableList, false);
-		TestHint<IValueObservableList, void>(L"GetObservableList", TypeInfoHint::ObservableList, false);
-		TestHint<IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
-		TestHint<IValueReadonlyList, IValueList>(L"GetMyList", TypeInfoHint::NativeCollectionReference);
-		TestHint<IValueReadonlyList, IValueList>(L"GetMyObservableList", TypeInfoHint::NativeCollectionReference);
-		TestHint<IValueFunctionProxy, IValueFunctionProxy>(L"GetFunc", TypeInfoHint::Normal);
-		TestHint<HintTester, HintTester>(L"GetHintTester", TypeInfoHint::Normal);
-		TestHint<vint, vint>(L"GetInt", TypeInfoHint::Normal);
+		TestHint<HintTester1, IValueFunctionProxy, IValueFunctionProxy>(L"GetFunc", TypeInfoHint::Normal);
+		TestHint<HintTester1, HintTester1, HintTester1>(L"GetHintTester", TypeInfoHint::Normal);
+		TestHint<HintTester1, vint, vint>(L"GetInt", TypeInfoHint::Normal);
+	}
+
+	void TestHint2()
+	{
+		TestHint<HintTester2, IValueEnumerable, IValueEnumerable>(L"GetLazyList", TypeInfoHint::LazyList);
+		TestHint<HintTester2, IValueReadonlyList, IValueArray>(L"GetArray", TypeInfoHint::Array);
+		TestHint<HintTester2, IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
+		TestHint<HintTester2, IValueReadonlyList, IValueReadonlyList>(L"GetSortedList", TypeInfoHint::SortedList);
+		TestHint<HintTester2, IValueReadonlyList, void>(L"GetObservableList", TypeInfoHint::ObservableList, false);
+		TestHint<HintTester2, IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
+		TestHint<HintTester2, IValueReadonlyList, IValueList>(L"GetMyList", TypeInfoHint::NativeCollectionReference);
+		TestHint<HintTester2, IValueReadonlyList, IValueList>(L"GetMyObservableList", TypeInfoHint::NativeCollectionReference);
+	}
+
+	void TestHint3()
+	{
+		TestHint<HintTester3, IValueEnumerable, IValueEnumerable>(L"GetLazyList", TypeInfoHint::LazyList);
+		TestHint<HintTester3, IValueArray, IValueReadonlyList>(L"GetArray", TypeInfoHint::Array);
+		TestHint<HintTester3, IValueList, IValueReadonlyList>(L"GetList", TypeInfoHint::List);
+		TestHint<HintTester3, IValueReadonlyList, IValueReadonlyList>(L"GetSortedList", TypeInfoHint::SortedList);
+		TestHint<HintTester3, IValueObservableList, void>(L"GetObservableList", TypeInfoHint::ObservableList, false);
+		TestHint<HintTester3, IValueDictionary, IValueReadonlyDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
+		TestHint<HintTester3, IValueList, IValueReadonlyList>(L"GetMyList", TypeInfoHint::NativeCollectionReference);
+		TestHint<HintTester3, IValueList, IValueReadonlyList>(L"GetMyObservableList", TypeInfoHint::NativeCollectionReference);
 	}
 }
 using namespace reflection_test_hint;
@@ -126,5 +173,7 @@ using namespace reflection_test_hint;
 
 TEST_FILE
 {
-	TEST_CASE_REFLECTION(TestHint)
+	TEST_CASE_REFLECTION(TestHint1)
+	TEST_CASE_REFLECTION(TestHint2)
+	TEST_CASE_REFLECTION(TestHint3)
 }
