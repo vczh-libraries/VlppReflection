@@ -167,9 +167,9 @@ ParameterAccessor<TStruct>
 					return BoxValue<T>(object, typeDescriptor);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					result=UnboxValue<T>(value, typeDescriptor, valueName);
+					return { new T(std::move(UnboxValue<T>(value, typeDescriptor, valueName))), true };
 				}
 			};
 

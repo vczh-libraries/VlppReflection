@@ -219,6 +219,27 @@ ParameterAccessor<TContainer>
 				return BoxValue(result, td);
 			}
 
+			template<typename TCollection, typename TValueItf>
+			Unboxed<TCollection> UnboxCollection(const Ptr<TValueItf>& colref)
+			{
+				auto collection = new TCollection();
+				auto lazyList = GetLazyList<typename TCollection::ElementType>(colref);
+				collections::CopyFrom(*collection, lazyList);
+				return { collection, true };
+			}
+
+			template<typename TCollection, typename TValueItf>
+			Unboxed<TCollection> UnboxDictionary(const Ptr<TValueItf>& colref)
+			{
+				auto collection = new TCollection();
+				auto lazyList = GetLazyList<
+					typename TCollection::KeyContainer::ElementType,
+					typename TCollection::ValueContainer::ElementType
+					>(colref);
+				collections::CopyFrom(*collection, lazyList);
+				return { collection, true };
+			}
+
 			template<typename T>
 			struct ParameterAccessor<const collections::LazyList<T>, TypeFlags::EnumerableType>
 			{
@@ -248,11 +269,11 @@ ParameterAccessor<TContainer>
 					return ParameterAccessor<const collections::LazyList<T>, TypeFlags::EnumerableType>::BoxParameter(object, typeDescriptor);
 				}
 
-				static void UnboxParameter(const Value& value, collections::LazyList<T>& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<collections::LazyList<T>> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					typedef typename collections::LazyList<T>::ElementType ElementType;
 					Ptr<IValueEnumerable> listProxy = UnboxValue<Ptr<IValueEnumerable>>(value, typeDescriptor, valueName);
-					result = GetLazyList<T>(listProxy);
+					return { new collections::LazyList<T>(std::move(GetLazyList<T>(listProxy))), true };
 				}
 			};
 
@@ -264,12 +285,9 @@ ParameterAccessor<TContainer>
 					return GetValueFromEnumerable<IValueReadonlyList>(object);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					typedef typename T::ElementType ElementType;
-					Ptr<IValueReadonlyList> listProxy = UnboxValue<Ptr<IValueReadonlyList>>(value, typeDescriptor, valueName);
-					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(listProxy);
-					collections::CopyFrom(result, lazyList);
+					return UnboxCollection<T>(UnboxValue<Ptr<IValueReadonlyList>>(value, typeDescriptor, valueName));
 				}
 			};
 
@@ -281,12 +299,9 @@ ParameterAccessor<TContainer>
 					return GetValueFromEnumerable<IValueArray>(object);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					typedef typename T::ElementType ElementType;
-					Ptr<IValueArray> arrayProxy = UnboxValue<Ptr<IValueArray>>(value, typeDescriptor, valueName);
-					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(arrayProxy);
-					collections::CopyFrom(result, lazyList);
+					return UnboxCollection<T>(UnboxValue<Ptr<IValueArray>>(value, typeDescriptor, valueName));
 				}
 			};
 
@@ -298,12 +313,9 @@ ParameterAccessor<TContainer>
 					return GetValueFromEnumerable<IValueList>(object);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					typedef typename T::ElementType ElementType;
-					Ptr<IValueList> listProxy = UnboxValue<Ptr<IValueList>>(value, typeDescriptor, valueName);
-					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(listProxy);
-					collections::CopyFrom(result, lazyList);
+					return UnboxCollection<T>(UnboxValue<Ptr<IValueList>>(value, typeDescriptor, valueName));
 				}
 			};
 
@@ -315,12 +327,9 @@ ParameterAccessor<TContainer>
 					return GetValueFromEnumerable<IValueObservableList>(object);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					typedef typename T::ElementType ElementType;
-					Ptr<IValueObservableList> listProxy = UnboxValue<Ptr<IValueObservableList>>(value, typeDescriptor, valueName);
-					collections::LazyList<ElementType> lazyList = GetLazyList<ElementType>(listProxy);
-					collections::CopyFrom(result, lazyList);
+					return UnboxCollection<T>(UnboxValue<Ptr<IValueObservableList>>(value, typeDescriptor, valueName));
 				}
 			};
 
@@ -332,16 +341,9 @@ ParameterAccessor<TContainer>
 					return GetValueFromEnumerable<IValueReadonlyDictionary>(object);
 				}
 
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					typedef typename T::KeyContainer					KeyContainer;
-					typedef typename T::ValueContainer					ValueContainer;
-					typedef typename KeyContainer::ElementType			KeyType;
-					typedef typename ValueContainer::ElementType		ValueType;
-
-					Ptr<IValueReadonlyDictionary> dictionaryProxy = UnboxValue<Ptr<IValueReadonlyDictionary>>(value, typeDescriptor, valueName);
-					collections::LazyList<collections::Pair<KeyType, ValueType>> lazyList = GetLazyList<KeyType, ValueType>(dictionaryProxy);
-					collections::CopyFrom(result, lazyList);
+					return UnboxDictionary<T>(UnboxValue<Ptr<IValueReadonlyDictionary>>(value, typeDescriptor, valueName));
 				}
 			};
 

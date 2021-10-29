@@ -871,18 +871,49 @@ TypeInfoRetriver Helper Functions (BoxParameter, UnboxParameter)
 				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
 				return ParameterAccessor<typename TIR::ResultNonReferenceType, TIR::TypeFlag>::BoxParameter(object, typeDescriptor);
 			}
+
+			/// <summary>
+			/// A reference holder to an unboxed object.
+			/// </summary>
+			/// <typeparam name="T">The type of the unboxed object.</typeparam>
+			template<typename T>
+			struct Unboxed
+			{
+				template<typename T, TypeFlags Flag>
+				friend struct ParameterAccessor;
+			private:
+				T*				object;
+				bool			owned;
+
+				Unboxed(T* _object, bool _owned) : object(_object), owned(_owned) {}
+			public:
+				Unboxed(Unboxed<T>&& unboxed) : object(unboxed.object), owned(unboxed.owned) { unboxed.object = nullptr; }
+				~Unboxed() { if (object && owned) { delete object; } }
+
+				Unboxed() = delete;
+				Unboxed(const Unboxed<T>&&) = delete;
+				Unboxed<T>& operator=(const Unboxed<T>&) = delete;
+				Unboxed<T>& operator=(Unboxed<T>&&) = delete;
+
+				/// <summary>
+				/// Get the reference of the unboxed object.
+				/// It is recommended only to use this reference when the <see cref="Unboxe`1"/> is still alive.
+				/// </summary>
+				/// <returns>The unboxed object.</returns>
+				T& Ref() const { CHECK_ERROR(object, L"vl::reflection::description::Unboxed<T>::Ref()#The object has been moved away.");  return *object; }
+			};
 			
 			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&lt;T&gt;), etc.</summary>
 			/// <typeparam name="T">Type of the object.</typeparam>
+			/// <returns>The unboxed object. It could be the same object that is boxed, or it could be a new object.</returns>
 			/// <param name="value">The value to unbox.</param>
-			/// <param name="result">The unboxed object.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
-			void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"))
+			Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"))
 			{
 				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
-				ParameterAccessor<T, TIR::TypeFlag>::UnboxParameter(value, result, typeDescriptor, valueName);
+				return ParameterAccessor<T, TIR::TypeFlag>::UnboxParameter(value, typeDescriptor, valueName);
 			}
 
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA

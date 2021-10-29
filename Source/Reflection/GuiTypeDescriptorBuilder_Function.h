@@ -218,20 +218,21 @@ ParameterAccessor<Func<R(TArgs...)>>
 					return BoxValue<Ptr<IValueFunctionProxy>>(result, td);
 				}
  
-				static void UnboxParameter(const Value& value, Func<R(TArgs...)>& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				static Unboxed<Func<R(TArgs...)>> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					typedef R(RawFunctionType)(TArgs...);
+					typedef Func<R(TArgs...)> FunctionType;
 					typedef ValueFunctionProxyWrapper<RawFunctionType> ProxyType;
-					Ptr<IValueFunctionProxy> functionProxy=UnboxValue<Ptr<IValueFunctionProxy>>(value, typeDescriptor, valueName);
-					if(functionProxy)
+					Ptr<IValueFunctionProxy> functionProxy = UnboxValue<Ptr<IValueFunctionProxy>>(value, typeDescriptor, valueName);
+					if (functionProxy)
 					{
-						if(Ptr<ProxyType> proxy=functionProxy.Cast<ProxyType>())
+						if (auto proxy = functionProxy.Cast<ProxyType>())
 						{
-							result=proxy->GetFunction();
+							return { new FunctionType(std::move(proxy->GetFunction())), true };
 						}
 						else
 						{
-							result=[functionProxy](TArgs ...args)
+							return { new FunctionType([functionProxy](TArgs ...args)
 							{
 								Ptr<IValueList> arguments = IValueList::Create();
 								internal_helper::AddValueToList(arguments, std::forward<TArgs>(args)...);
@@ -239,7 +240,7 @@ ParameterAccessor<Func<R(TArgs...)>>
 								ResultType proxyResult;
 								description::UnboxParameter(functionProxy->Invoke(arguments), proxyResult);
 								return proxyResult;
-							};
+							}), true };
 						}
 					}
 				}
