@@ -122,35 +122,35 @@ UnboxAndCall
 				auto UnboxAndCallObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueList>& arguments) -> decltype(function(std::declval<TArgs>()...))
 				{
 					// function(arguments)
-					throw 0;
+					CHECK_FAIL(L"UnboxAndCallobject not implemented.");
 				}
 
 				template<typename TFunction, typename ...TArgs>
 				auto UnboxAndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<TArgs>()...))
 				{
 					// function(arguments)
-					throw 0;
+					CHECK_FAIL(L"UnboxAndCallFunction not implemented.");
 				}
 
 				template<typename TClass, typename TFunction, typename ...TArgs>
 				auto UnboxAndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<TArgs>()...))
 				{
 					// (object->*function)(arguments)
-					throw 0;
+					CHECK_FAIL(L"UnboxAndCallMethod not implemented.");
 				}
 
 				template<typename TClass, typename TFunction, typename ...TArgs>
 				auto UnboxAndCallExternal(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype(function(object, std::declval<TArgs>()...))
 				{
 					// function(object, arguments)
-					throw 0;
+					CHECK_FAIL(L"UnboxAndCallExternal not implemented.");
 				}
 
 				template<typename TClass, typename R, typename ...TArgs>
 				R UnboxAndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 				{
 					// new TClass(arguments)
-					throw 0;
+					CHECK_FAIL(L"UnboxAndNew not implemented.");
 				}
 
 				template<typename TClass, typename R, typename ...TArgs>
