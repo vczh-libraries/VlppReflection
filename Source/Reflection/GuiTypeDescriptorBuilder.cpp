@@ -1304,16 +1304,6 @@ Function Related
 
 			namespace internal_helper
 			{
-				void UnboxSpecifiedParameter(Ptr<IValueList> arguments, vint index)
-				{
-				}
-
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-				void UnboxSpecifiedParameter(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, vint index)
-				{
-				}
-#endif
-
 				void AddValueToList(Ptr<IValueList> arguments)
 				{
 				}

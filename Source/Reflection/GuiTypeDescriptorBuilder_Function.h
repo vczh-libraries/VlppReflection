@@ -113,6 +113,114 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 			};
  
 /***********************************************************************
+UnboxAndCall
+***********************************************************************/
+			
+			namespace internal_helper
+			{
+				template<typename ...TArgs, typename TFunction>
+				auto UnboxAndCall(TFunction&& function, IMethodInfo* methodInfo, const Ptr<IValueList>& arguments) -> decltype(function(std::declval<TArgs>()...))
+				{
+					throw 0;
+				}
+
+				template<typename TClass, typename ...TArgs, typename TFunction>
+				auto UnboxAndCallExternal(TFunction&& function, IMethodInfo* methodInfo, const Ptr<IValueList>& arguments, TClass* object) -> decltype(function(object, std::declval<TArgs>()...))
+				{
+					throw 0;
+				}
+
+				template<typename TClass, typename ...TArgs>
+				TClass* UnboxAndNew(IMethodInfo* methodInfo, const Ptr<IValueList>& arguments)
+				{
+					throw 0;
+				}
+
+				template<typename TClass, typename R, typename ...TArgs>
+				Value InvokeMethod(TClass* object, R(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments)
+				{
+					if constexpr (std::is_same_v<R, void>)
+					{
+						UnboxAndCall<TArgs...>(object->*method, methodInfo, arguments);
+						return {};
+					}
+					else
+					{
+						return BoxParameter(UnboxAndCall<TArgs...>(object->*method, methodInfo, arguments), methodInfo->GetReturn()->GetTypeDescriptor());
+					}
+				}
+
+				template<typename TClass, typename R, typename ...TArgs>
+				Value InvokeExternal(TClass* object, R(method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments)
+				{
+					if constexpr (std::is_same_v<R, void>)
+					{
+						UnboxAndCallExternal<TClass, TArgs...>(method, methodInfo, arguments, object);
+						return {};
+					}
+					else
+					{
+						return BoxParameter(UnboxAndCallExternal<TClass, TArgs...>(method, methodInfo, arguments, object), methodInfo->GetReturn()->GetTypeDescriptor());
+					}
+				}
+
+				template<typename R, typename ...TArgs>
+				Value InvokeFunction(R(*method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments)
+				{
+					if constexpr (std::is_same_v<R, void>)
+					{
+						UnboxAndCall<TArgs...>(method, methodInfo, arguments);
+						return {};
+					}
+					else
+					{
+						return BoxParameter(UnboxAndCall<TArgs...>(method, methodInfo, arguments), methodInfo->GetReturn()->GetTypeDescriptor());
+					}
+				}
+			}
+ 
+/***********************************************************************
+AddValueToList
+***********************************************************************/
+			
+			namespace internal_helper
+			{
+				extern void AddValueToList(Ptr<IValueList> arguments);
+
+				template<typename T0, typename ...TArgs>
+				void AddValueToList(Ptr<IValueList> arguments, T0&& p0, TArgs&& ...args)
+				{
+					arguments->Add(description::BoxParameter(p0));
+					AddValueToList(arguments, args...);
+				}
+			}
+ 
+/***********************************************************************
+Argument Adders
+***********************************************************************/
+			
+			namespace internal_helper
+			{
+				template<typename T>
+				struct ConstructorArgumentAdder
+				{
+					static void Add(MethodInfoImpl* methodInfo, const wchar_t* parameterNames[], vint index)
+					{
+					}
+				};
+
+				template<typename T0, typename ...TNextArgs>
+				struct ConstructorArgumentAdder<TypeTuple<T0, TNextArgs...>>
+				{
+					static void Add(MethodInfoImpl* methodInfo, const wchar_t* parameterNames[], vint index)
+					{
+						methodInfo->AddParameter(new ParameterInfoImpl(methodInfo, parameterNames[index], TypeInfoRetriver<T0>::CreateTypeInfo()));
+						ConstructorArgumentAdder<TypeTuple<TNextArgs...>>::Add(methodInfo, parameterNames, index + 1);
+					}
+				};
+			}
+ 
+/***********************************************************************
 ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 ***********************************************************************/
 
@@ -120,40 +228,6 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 			class ValueFunctionProxyWrapper
 			{
 			};
-
-			namespace internal_helper
-			{
-				extern void UnboxSpecifiedParameter(Ptr<IValueList> arguments, vint index);
-
-				template<typename T0, typename ...TArgs>
-				void UnboxSpecifiedParameter(Ptr<IValueList> arguments, vint index, T0& p0, TArgs& ...args)
-				{
-					UnboxParameter(arguments->Get(index), p0, 0, itow(index + 1) + L"-th argument");
-					UnboxSpecifiedParameter(arguments, index + 1, args...);
-				}
-
-				template<typename R, typename ...TArgs>
-				struct BoxedFunctionInvoker
-				{
-					static Value Invoke(const Func<R(TArgs...)>& function, Ptr<IValueList> arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(arguments, 0, args...);
-						R result = function(args...);
-						return BoxParameter(result);
-					}
-				};
-
-				template<typename ...TArgs>
-				struct BoxedFunctionInvoker<void, TArgs...>
-				{
-					static Value Invoke(const Func<void(TArgs...)>& function, Ptr<IValueList> arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(arguments, 0, args...);
-						function(args...);
-						return Value();
-					}
-				};
-			}
 
 			template<typename R, typename ...TArgs>
 			class ValueFunctionProxyWrapper<R(TArgs...)> : public Object, public virtual IValueFunctionProxy
@@ -183,25 +257,13 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
 						CHECK_FAIL(L"Argument count mismatch.");
 #endif
 					}
-					return internal_helper::BoxedFunctionInvoker<R, TArgs...>::Invoke(function, arguments, std::remove_cvref_t<TArgs>()...);
+					return BoxParameter(internal_helper::UnboxAndCall<TArgs...>(function, nullptr, arguments));
 				}
 			};
  
 /***********************************************************************
 ParameterAccessor<Func<R(TArgs...)>>
 ***********************************************************************/
-
-			namespace internal_helper
-			{
-				extern void AddValueToList(Ptr<IValueList> arguments);
-
-				template<typename T0, typename ...TArgs>
-				void AddValueToList(Ptr<IValueList> arguments, T0&& p0, TArgs&& ...args)
-				{
-					arguments->Add(description::BoxParameter(p0));
-					AddValueToList(arguments, args...);
-				}
-			}
  
 			template<typename R, typename ...TArgs>
 			struct ParameterAccessor<Func<R(TArgs...)>, TypeFlags::FunctionType>
@@ -276,54 +338,14 @@ MethodInfoImpl
 CustomConstructorInfoImpl<R(TArgs...)>
 ***********************************************************************/
 
-			namespace internal_helper
-			{
-				extern void UnboxSpecifiedParameter(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, vint index);
-
-				template<typename T0, typename ...TArgs>
-				void UnboxSpecifiedParameter(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, vint index, T0& p0, TArgs& ...args)
-				{
-					UnboxParameter(arguments[index], p0, methodInfo->GetParameter(index)->GetType()->GetTypeDescriptor(), itow(index) + L"-th argument");
-					UnboxSpecifiedParameter(methodInfo, arguments, index + 1, args...);
-				}
-
-				template<typename R, typename ...TArgs>
-				struct BoxedConstructorInvoker
-				{
-					static Value Invoke(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						R result = new typename TypeInfoRetriver<R>::Type(args...);
-						return BoxParameter(result);
-					}
-				};
-
-				template<typename T>
-				struct ConstructorArgumentAdder
-				{
-					static void Add(MethodInfoImpl* methodInfo, const wchar_t* parameterNames[], vint index)
-					{
-					}
-				};
-
-				template<typename T0, typename ...TNextArgs>
-				struct ConstructorArgumentAdder<TypeTuple<T0, TNextArgs...>>
-				{
-					static void Add(MethodInfoImpl* methodInfo, const wchar_t* parameterNames[], vint index)
-					{
-						methodInfo->AddParameter(new ParameterInfoImpl(methodInfo, parameterNames[index], TypeInfoRetriver<T0>::CreateTypeInfo()));
-						ConstructorArgumentAdder<TypeTuple<TNextArgs...>>::Add(methodInfo, parameterNames, index + 1);
-					}
-				};
-			}
-
 			template<typename R, typename ...TArgs>
 			class CustomConstructorInfoImpl<R(TArgs...)> : public MethodInfoImpl
 			{
 			protected:
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					return internal_helper::BoxedConstructorInvoker<R, TArgs...>::Invoke(this, arguments, std::remove_cvref_t<TArgs>()...);
+					using TClass = typename TypeInfoRetriver<R>::Type;
+					return BoxParameter(internal_helper::UnboxAndNew<TClass, TArgs...>(this, arguments));
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -355,52 +377,6 @@ CustomMethodInfoImpl<TClass, R(TArgs...)>
 CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 ***********************************************************************/
 
-			namespace internal_helper
-			{
-				template<typename TClass, typename R, typename ...TArgs>
-				struct BoxedMethodInvoker
-				{
-					static Value Invoke(TClass* object, R(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						R result = (object->*method)(args...);
-						return BoxParameter(result, methodInfo->GetReturn()->GetTypeDescriptor());
-					}
-				};
-
-				template<typename TClass, typename ...TArgs>
-				struct BoxedMethodInvoker<TClass, void, TArgs...>
-				{
-					static Value Invoke(TClass* object, void(__thiscall TClass::* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						(object->*method)(args...);
-						return Value();
-					}
-				};
-				
-				template<typename TClass, typename R, typename ...TArgs>
-				struct BoxedExternalMethodInvoker
-				{
-					static Value Invoke(TClass* object, R(*method)(TClass*, TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						R result = method(object, args...);
-						return BoxParameter(result, methodInfo->GetReturn()->GetTypeDescriptor());
-					}
-				};
-				
-				template<typename TClass, typename ...TArgs>
-				struct BoxedExternalMethodInvoker<TClass, void, TArgs...>
-				{
-					static Value Invoke(TClass* object, void(*method)(TClass*, TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						method(object, args...);
-						return Value();
-					}
-				};
-			}
 			class MethodInfoImpl_StaticCpp : public MethodInfoImpl, private IMethodInfo::ICpp
 			{
 			private:
@@ -445,20 +421,20 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
  
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					return internal_helper::BoxedMethodInvoker<TClass, R, TArgs...>::Invoke(object, method, this, arguments, std::remove_cvref_t<TArgs>()...);
+					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
+					return internal_helper::InvokeMethod<TClass, R, TArgs...>(object, method, this, arguments);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
 				{
-					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
+					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
 					Func<R(TArgs...)> proxy(object, method);
 					return BoxParameter(proxy);
 				}
 			public:
 				CustomMethodInfoImpl(const wchar_t* parameterNames[], R(__thiscall TClass::* _method)(TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
 					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate, _closureTemplate)
-					,method(_method)
+					, method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
 				}
@@ -472,20 +448,20 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
  
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					return internal_helper::BoxedExternalMethodInvoker<TClass, R, TArgs...>::Invoke(object, method, this, arguments, std::remove_cvref_t<TArgs>()...);
+					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
+					return internal_helper::InvokeExternal<TClass, R, TArgs...>(object, method, this, arguments);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
 				{
-					TClass* object=UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
+					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
 					Func<R(TArgs...)> proxy = Curry(Func<R(TClass*, TArgs...)>(method))(object);
 					return BoxParameter(proxy);
 				}
 			public:
 				CustomExternalMethodInfoImpl(const wchar_t* parameterNames[], R(*_method)(TClass*, TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
 					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate, _closureTemplate)
-					,method(_method)
+					, method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
 				}
@@ -495,31 +471,6 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 CustomStaticMethodInfoImpl<R(TArgs...)>
 ***********************************************************************/
 
-			namespace internal_helper
-			{
-				template<typename R, typename ...TArgs>
-				struct BoxedStaticMethodInvoker
-				{
-					static Value Invoke(R(* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						R result = method(args...);
-						return BoxParameter(result, methodInfo->GetReturn()->GetTypeDescriptor());
-					}
-				};
-
-				template<typename ...TArgs>
-				struct BoxedStaticMethodInvoker<void, TArgs...>
-				{
-					static Value Invoke(void(* method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(methodInfo, arguments, 0, args...);
-						method(args...);
-						return Value();
-					}
-				};
-			}
-
 			template<typename R, typename ...TArgs>
 			class CustomStaticMethodInfoImpl<R(TArgs...)> : public MethodInfoImpl_StaticCpp
 			{
@@ -528,7 +479,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
  
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					return internal_helper::BoxedStaticMethodInvoker<R, TArgs...>::Invoke(method, this, arguments, std::remove_cvref_t<TArgs>()...);
+					return interhal_helper::InvokeFunction<R, TArgs...>(method, this, arguments);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -548,19 +499,6 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 /***********************************************************************
 CustomEventInfoImpl<void(TArgs...)>
 ***********************************************************************/
-
-			namespace internal_helper
-			{
-				template<typename ...TArgs>
-				struct BoxedEventInvoker
-				{
-					static void Invoke(Event<void(TArgs...)>& eventObject, Ptr<IValueList> arguments, std::remove_cvref_t<TArgs>&& ...args)
-					{
-						UnboxSpecifiedParameter(arguments, 0, args...);
-						eventObject(args...);
-					}
-				};
-			}
 
 			template<typename TClass, typename ...TArgs>
 			class CustomEventInfoImpl<TClass, void(TArgs...)> : public EventInfoImpl
@@ -592,7 +530,7 @@ CustomEventInfoImpl<void(TArgs...)>
 				{
 					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
 					Event<void(TArgs...)>& eventObject = object->*eventRef;
-					internal_helper::BoxedEventInvoker<TArgs...>::Invoke(eventObject, arguments, typename std::remove_cvref_t<TArgs>()...);
+					internal_helper::UnboxAndCall<TArgs...>(eventObject, nullptr, arguments);
 				}
 
 				Ptr<ITypeInfo> GetHandlerTypeInternal()override
