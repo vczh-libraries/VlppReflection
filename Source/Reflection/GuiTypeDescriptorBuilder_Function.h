@@ -329,10 +329,16 @@ ParameterAccessor<Func<R(TArgs...)>>
 							{
 								Ptr<IValueList> arguments = IValueList::Create();
 								internal_helper::AddValueToList(arguments, std::forward<TArgs>(args)...);
-								typedef typename TypeInfoRetriver<R>::TempValueType ResultType;
-								ResultType proxyResult;
-								description::UnboxParameter(functionProxy->Invoke(arguments), proxyResult);
-								return proxyResult;
+								auto result = functionProxy->Invoke(arguments);
+								if constexpr (!std::is_same_v<R, void>)
+								{
+									auto unboxed = description::UnboxParameter<std::remove_cvref_t<R>>(result);
+									if (std::is_reference_v<R>)
+									{
+										CHECK_ERROR(!unboxed.IsOwned(), L"It is impossible to return a reference from a unboxed value, when the unboxing has to call new T(...).");
+									}
+									return unboxed.Ref();
+								}
 							}), true };
 						}
 					}

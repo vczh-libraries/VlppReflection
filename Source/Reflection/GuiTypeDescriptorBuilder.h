@@ -899,6 +899,15 @@ TypeInfoRetriver Helper Functions (BoxParameter, UnboxParameter)
 				/// </summary>
 				/// <returns>The unboxed object.</returns>
 				T& Ref() const { CHECK_ERROR(object, L"vl::reflection::description::Unboxed<T>::Ref()#The object has been moved away.");  return *object; }
+
+				/// <summary>
+				/// Test if the unboxed object is owned.
+				/// </summary>
+				/// <returns></returns>
+				bool IsOwned() const
+				{
+					return owned;
+				}
 			};
 			
 			/// <summary>Box an reflectable object. It supports generic types such as containers, functions (should be Func&lt;T&gt;), etc.</summary>
@@ -962,8 +971,8 @@ CustomFieldInfoImpl
 
 				Value GetValueInternal(const Value& thisObject)override
 				{
-					TClass* object=UnboxValue<TClass*>(thisObject);
-					if(object)
+					TClass* object = UnboxValue<TClass*>(thisObject);
+					if (object)
 					{
 						return BoxParameter(object->*fieldRef, GetReturn()->GetTypeDescriptor());
 					}
@@ -972,11 +981,18 @@ CustomFieldInfoImpl
 
 				void SetValueInternal(Value& thisObject, const Value& newValue)override
 				{
-					TClass* object=UnboxValue<TClass*>(thisObject);
-					if(object)
+					if constexpr (std::is_copy_assignable_v<TField>)
 					{
-						auto result = UnboxParameter<TField>(newValue, GetReturn()->GetTypeDescriptor(), L"newValue");
-						object->*fieldRef = result.Ref();
+						TClass* object = UnboxValue<TClass*>(thisObject);
+						if (object)
+						{
+							auto result = UnboxParameter<TField>(newValue, GetReturn()->GetTypeDescriptor(), L"newValue");
+							object->*fieldRef = result.Ref();
+						}
+					}
+					else
+					{
+						throw PropertyIsNotWritableException(this);
 					}
 				}
 			public:
@@ -989,6 +1005,11 @@ CustomFieldInfoImpl
 				IPropertyInfo::ICpp* GetCpp()override
 				{
 					return nullptr;
+				}
+
+				bool IsWritable()override
+				{
+					return std::is_copy_assignable_v<TField>;
 				}
 			};
 
