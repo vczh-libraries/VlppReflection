@@ -51,15 +51,7 @@ Function Wrappers
 						CHECK_FAIL(L"Argument count mismatch.");
 #endif
 					}
-					if constexpr (std::is_same_v<R, void>)
-					{
-						internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments);
-						return {};
-					}
-					else
-					{
-						return BoxParameter(internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments));
-					}
+					return internal_helper::InvokeObject<FunctionType, TArgs...>(function, nullptr, arguments);
 				}
 			};
 		}

@@ -102,6 +102,22 @@ UnboxAndCall
 						return BoxParameter(UnboxAndCallFunction<TFunction, TArgs...>(method, methodInfo, arguments), td);
 					}
 				}
+
+				template<typename TFunction, typename ...TArgs>
+				Value InvokeObject(TFunction& function, MethodInfoImpl* methodInfo, const Ptr<IValueReadonlyList>& arguments)
+				{
+					using TResult = decltype(UnboxAndCallObject<TFunction&, TArgs...>(function, methodInfo, arguments));
+					if constexpr (std::is_same_v<TResult, void>)
+					{
+						UnboxAndCallObject<TFunction&, TArgs...>(function, methodInfo, arguments);
+						return {};
+					}
+					else
+					{
+						auto td = methodInfo ? methodInfo->GetReturn()->GetTypeDescriptor() : nullptr;
+						return BoxParameter(UnboxAndCallObject<TFunction&, TArgs...>(function, methodInfo, arguments), td);
+					}
+				}
 			}
 		}
 	}
