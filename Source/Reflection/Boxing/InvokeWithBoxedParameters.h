@@ -14,120 +14,157 @@ namespace vl
 	{
 		namespace description
 		{
-			/***********************************************************************
-			UnboxAndCall
-			***********************************************************************/
+/***********************************************************************
+UnboxAndCall
+***********************************************************************/
 
 			namespace unboxcall_helper
 			{
-				template<typename TFunction, typename ...TArgs>
-				auto UnboxAndCallObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<TArgs>()...))
+				template<typename T, vint I>
+				struct ArgPack
 				{
-					// function(arguments)
-					CHECK_FAIL(L"UnboxAndCallobject not implemented.");
-				}
+					using TArg = T;
+					static const vint Index = I;
+				};
 
-				template<typename TFunction, typename ...TArgs>
-				auto UnboxAndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<TArgs>()...))
+				template<typename ...TArgs>
+				struct ArgPacks
 				{
-					// function(arguments)
-					CHECK_FAIL(L"UnboxAndCallFunction not implemented.");
-				}
+				};
 
-				template<typename TClass, typename TFunction, typename ...TArgs>
-				auto UnboxAndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<TArgs>()...))
+				template<typename TArgPacks, typename ...TArgs>
+				struct MakeArgPacks_;
+
+				template<typename ...TPacked>
+				struct MakeArgPacks_<ArgPacks<TPacked...>>
 				{
-					// (object->*function)(arguments)
-					CHECK_FAIL(L"UnboxAndCallMethod not implemented.");
-				}
+					using Type = ArgPacks<TPacked...>;
+				};
 
-				template<typename TClass, typename TFunction, typename ...TArgs>
-				auto UnboxAndCallExternal(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype(function(object, std::declval<TArgs>()...))
+				template<typename ...TPacked, typename T0, typename ...TArgs>
+				struct MakeArgPacks_<ArgPacks<TPacked...>, T0, TArgs...>
 				{
-					// function(object, arguments)
-					CHECK_FAIL(L"UnboxAndCallExternal not implemented.");
-				}
-
-				template<typename TClass, typename R, typename ...TArgs>
-				R UnboxAndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
-				{
-					// new TClass(arguments)
-					CHECK_FAIL(L"UnboxAndNew not implemented.");
-				}
-
+					using Type = typename MakeArgPacks_<ArgPacks<TPacked..., ArgPack<T0, sizeof...(TPacked)>>, TArgs...>::Type;
+				};
 			}
+
+			template<typename ...TArgs>
+			using MakeArgPacks = typename unboxcall_helper::MakeArgPacks_<unboxcall_helper::ArgPacks<>, TArgs...>::Type;
+
+			namespace unboxcall_helper
+			{
+				template<typename TArgPacks>
+				struct Unbox;
+
+				template<typename ...TArgPacks>
+				struct Unbox<ArgPacks<TArgPacks...>>
+				{
+					template<typename TFunction>
+					static auto AndCallObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<TArgPacks::TArg>()...))
+					{
+						// function(arguments)
+						CHECK_FAIL(L"UnboxAndCallobject not implemented.");
+					}
+
+					template<typename TFunction>
+					static auto AndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<TArgPacks::TArg>()...))
+					{
+						// function(arguments)
+						CHECK_FAIL(L"UnboxAndCallFunction not implemented.");
+					}
+
+					template<typename TClass, typename TFunction>
+					static auto AndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<TArgPacks::TArg>()...))
+					{
+						// (object->*function)(arguments)
+						CHECK_FAIL(L"UnboxAndCallMethod not implemented.");
+					}
+
+					template<typename TClass, typename TFunction>
+					static auto AndCallExternal(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype(function(object, std::declval<TArgPacks::TArg>()...))
+					{
+						// function(object, arguments)
+						CHECK_FAIL(L"UnboxAndCallExternal not implemented.");
+					}
+
+					template<typename TClass, typename R>
+					static R AndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
+					{
+						// new TClass(arguments)
+						CHECK_FAIL(L"UnboxAndNew not implemented.");
+					}
+				};
+			}
+
+/***********************************************************************
+Invoke
+***********************************************************************/
 
 			namespace invoke_helper
 			{
 				template<typename TClass, typename R, typename ...TArgs>
 				Value InvokeMethod(TClass* object, R(__thiscall TClass::* method)(TArgs...), IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 				{
-					using TFunction = R(__thiscall TClass::*)(TArgs...);
+					using TArgPacks = MakeArgPacks<TArgs...>;
 					if constexpr (std::is_same_v<R, void>)
 					{
-						unboxcall_helper::UnboxAndCallMethod<TClass, TFunction, TArgs...>(method, methodInfo, arguments, object);
+						unboxcall_helper::Unbox<TArgPacks>::AndCallMethod(method, methodInfo, arguments, object);
 						return {};
 					}
 					else
 					{
 						auto td = methodInfo ? methodInfo->GetReturn()->GetTypeDescriptor() : nullptr;
-						return BoxParameter(unboxcall_helper::UnboxAndCallMethod<TClass, TFunction, TArgs...>(method, methodInfo, arguments, object), td);
+						return BoxParameter(unboxcall_helper::Unbox<TArgPacks>::AndCallMethod(method, methodInfo, arguments, object), td);
 					}
 				}
 
 				template<typename TClass, typename R, typename ...TArgs>
 				Value InvokeExternal(TClass* object, R(*method)(TClass*, TArgs...), IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 				{
-					using TFunction = R(*)(TClass*, TArgs...);
+					using TArgPacks = MakeArgPacks<TArgs...>;
 					if constexpr (std::is_same_v<R, void>)
 					{
-						unboxcall_helper::UnboxAndCallExternal<TClass, TFunction, TArgs...>(method, methodInfo, arguments, object);
+						unboxcall_helper::Unbox<TArgPacks>::AndCallExternal(method, methodInfo, arguments, object);
 						return {};
 					}
 					else
 					{
 						auto td = methodInfo ? methodInfo->GetReturn()->GetTypeDescriptor() : nullptr;
-						return BoxParameter(unboxcall_helper::UnboxAndCallExternal<TClass, TFunction, TArgs...>(method, methodInfo, arguments, object), td);
+						return BoxParameter(unboxcall_helper::Unbox<TArgPacks>::AndCallExternal(method, methodInfo, arguments, object), td);
 					}
 				}
 
 				template<typename R, typename ...TArgs>
 				Value InvokeFunction(R(*method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments)
 				{
-					using TFunction = R(*)(TArgs...);
+					using TArgPacks = MakeArgPacks<TArgs...>;
 					if constexpr (std::is_same_v<R, void>)
 					{
-						unboxcall_helper::UnboxAndCallFunction<TFunction, TArgs...>(method, methodInfo, arguments);
+						unboxcall_helper::Unbox<TArgPacks>::AndCallFunction(method, methodInfo, arguments);
 						return {};
 					}
 					else
 					{
 						auto td = methodInfo ? methodInfo->GetReturn()->GetTypeDescriptor() : nullptr;
-						return BoxParameter(unboxcall_helper::UnboxAndCallFunction<TFunction, TArgs...>(method, methodInfo, arguments), td);
+						return BoxParameter(unboxcall_helper::Unbox<TArgPacks>::AndCallFunction(method, methodInfo, arguments), td);
 					}
 				}
 
 				template<typename TFunction, typename ...TArgs>
 				Value InvokeObject(TFunction& function, MethodInfoImpl* methodInfo, const Ptr<IValueReadonlyList>& arguments)
 				{
-					using TResult = decltype(unboxcall_helper::UnboxAndCallObject<TFunction&, TArgs...>(function, methodInfo, arguments));
+					using TArgPacks = MakeArgPacks<TArgs...>;
+					using TResult = decltype(unboxcall_helper::Unbox<TArgPacks>::AndCallObject(function, methodInfo, arguments));
 					if constexpr (std::is_same_v<TResult, void>)
 					{
-						unboxcall_helper::UnboxAndCallObject<TFunction&, TArgs...>(function, methodInfo, arguments);
+						unboxcall_helper::Unbox<TArgPacks>::AndCallObject(function, methodInfo, arguments);
 						return {};
 					}
 					else
 					{
 						auto td = methodInfo ? methodInfo->GetReturn()->GetTypeDescriptor() : nullptr;
-						return BoxParameter(unboxcall_helper::UnboxAndCallObject<TFunction&, TArgs...>(function, methodInfo, arguments), td);
+						return BoxParameter(unboxcall_helper::Unbox<TArgPacks>::AndCallObject(function, methodInfo, arguments), td);
 					}
-				}
-
-				template<typename TClass, typename R, typename ...TArgs>
-				R UnboxAndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
-				{
-					// new TClass(arguments)
-					CHECK_FAIL(L"UnboxAndNew not implemented.");
 				}
 			}
 		}

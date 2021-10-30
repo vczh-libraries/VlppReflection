@@ -28,7 +28,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					using TClass = typename TypeInfoRetriver<R>::Type;
-					return BoxParameter(invoke_helper::UnboxAndNew<TClass, R, TArgs...>(this, arguments));
+					return BoxParameter(unboxcall_helper::Unbox<MakeArgPacks<TArgs...>>::template AndNew<TClass, R>(this, arguments));
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
