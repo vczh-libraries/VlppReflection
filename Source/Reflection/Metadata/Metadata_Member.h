@@ -18,6 +18,8 @@ namespace vl
 /***********************************************************************
 ConstructorArgumentAdder
 ***********************************************************************/
+
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			
 			namespace internal_helper
 			{
@@ -39,8 +41,6 @@ ConstructorArgumentAdder
 					}
 				};
 			}
-
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
  
 /***********************************************************************
 MethodInfoImpl

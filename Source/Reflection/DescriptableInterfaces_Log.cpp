@@ -326,7 +326,6 @@ LogTypeManager
 					writer.WriteLine(L"");
 				}
 			}
-
 #endif
 		}
 	}
