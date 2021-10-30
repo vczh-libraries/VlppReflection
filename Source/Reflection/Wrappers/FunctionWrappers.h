@@ -35,12 +35,12 @@ Function Wrappers
 					:function(_function)
 				{
 				}
- 
+
 				FunctionType GetFunction()
 				{
 					return function;
 				}
- 
+
 				Value Invoke(Ptr<IValueList> arguments)override
 				{
 					if (!arguments || arguments->GetCount() != sizeof...(TArgs))
@@ -62,6 +62,8 @@ Function Wrappers
 					}
 				}
 			};
+		}
+	}
 }
 
 #endif

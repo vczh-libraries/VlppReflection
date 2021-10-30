@@ -3,8 +3,7 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "Metadata_Event.h"
-#include "Metadata_Function.h"
+#include "Metadata.h"
 
 namespace vl
 {
