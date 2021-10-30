@@ -1297,17 +1297,6 @@ TypeDescriptorImpl
 				return constructorGroup.Obj();
 			}
 #endif
-
-/***********************************************************************
-Function Related
-***********************************************************************/
-
-			namespace internal_helper
-			{
-				void AddValueToList(Ptr<IValueList> arguments)
-				{
-				}
-			}
 		}
 	}
 }

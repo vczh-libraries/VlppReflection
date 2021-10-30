@@ -28,7 +28,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					using TClass = typename TypeInfoRetriver<R>::Type;
-					return BoxParameter(internal_helper::UnboxAndNew<TClass, R, TArgs...>(this, arguments));
+					return BoxParameter(invoke_helper::UnboxAndNew<TClass, R, TArgs...>(this, arguments));
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -105,7 +105,7 @@ CustomExternalMethodInfoImpl<TClass, R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					return internal_helper::InvokeMethod<TClass, R, TArgs...>(object, method, this, arguments);
+					return invoke_helper::InvokeMethod<TClass, R, TArgs...>(object, method, this, arguments);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -132,7 +132,7 @@ CustomExternalMethodInfoImpl<TClass, R(TArgs...)>
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
 					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					return internal_helper::InvokeExternal<TClass, R, TArgs...>(object, method, this, arguments);
+					return invoke_helper::InvokeExternal<TClass, R, TArgs...>(object, method, this, arguments);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
@@ -162,7 +162,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
  
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					return internal_helper::InvokeFunction<R, TArgs...>(method, this, arguments);
+					return invoke_helper::InvokeFunction<R, TArgs...>(method, this, arguments);
 				}
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override

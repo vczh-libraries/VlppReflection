@@ -51,7 +51,7 @@ Function Wrappers
 						CHECK_FAIL(L"Argument count mismatch.");
 #endif
 					}
-					return internal_helper::InvokeObject<FunctionType, TArgs...>(function, nullptr, arguments);
+					return invoke_helper::InvokeObject<FunctionType, TArgs...>(function, nullptr, arguments);
 				}
 			};
 		}

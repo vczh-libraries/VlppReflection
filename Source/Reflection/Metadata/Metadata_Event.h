@@ -89,7 +89,7 @@ CustomEventInfoImpl<void(TArgs...)>
 				{
 					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
 					Event<void(TArgs...)>& eventObject = object->*eventRef;
-					internal_helper::InvokeObject<Event<void(TArgs...)>, TArgs...>(eventObject, nullptr, arguments);
+					invoke_helper::InvokeObject<Event<void(TArgs...)>, TArgs...>(eventObject, nullptr, arguments);
 				}
 
 				Ptr<ITypeInfo> GetHandlerTypeInternal()override
