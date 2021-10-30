@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_REFLECTION_BOXING_BOXINGPARAMETER_CONTAINERS
 #define VCZH_REFLECTION_BOXING_BOXINGPARAMETER_CONTAINERS
 
-#include "BoxingParameter.h"
+#include "../Wrappers/ContainerWrappers.h"
 
 namespace vl
 {

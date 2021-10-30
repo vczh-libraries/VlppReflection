@@ -22,9 +22,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.h">
       <Filter>Predefined</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedWrappers.h">
-      <Filter>Predefined</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata.h">
       <Filter>Metadata</Filter>
     </ClInclude>
@@ -67,6 +64,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\Boxing.h">
       <Filter>Boxing</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\ContainerWrappers.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\FunctionWrappers.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Metadata">
@@ -80,6 +83,9 @@
     </Filter>
     <Filter Include="Reflection">
       <UniqueIdentifier>{20fb662b-3244-4d1d-b5b1-5f1abd4d4550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers">
+      <UniqueIdentifier>{91ef682b-b7fe-49b8-9d0d-3ffda9ea7704}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1117,40 +1117,6 @@ Value
 				/// ]]></example>
 				bool							DeleteRawPtr();
 			};
-
-/***********************************************************************
-Value_xs
-***********************************************************************/
-
-			class Value_xs
-			{
-			protected:
-				collections::Array<Value>	arguments;
-			public:
-				Value_xs()
-				{
-				}
-
-				template<typename T>
-				Value_xs& operator,(T& value)
-				{
-					arguments.Resize(arguments.Count() + 1);
-					arguments[arguments.Count() - 1] = BoxParameter(value);
-					return *this;
-				}
-
-				Value_xs& operator,(const Value& value)
-				{
-					arguments.Resize(arguments.Count() + 1);
-					arguments[arguments.Count() - 1] = value;
-					return *this;
-				}
-
-				operator collections::Array<Value>& ()
-				{
-					return arguments;
-				}
-			};
 		}
 	}
 }

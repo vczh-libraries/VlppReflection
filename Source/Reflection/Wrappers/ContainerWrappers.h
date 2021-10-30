@@ -3,11 +3,10 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
  
-#ifndef VCZH_REFLECTION_TYPES_PREDEFINEDWRAPPERS
-#define VCZH_REFLECTION_TYPES_PREDEFINEDWRAPPERS
+#ifndef VCZH_REFLECTION_WRAPPERS_CONTAINERWRAPPERS
+#define VCZH_REFLECTION_WRAPPERS_CONTAINERWRAPPERS
  
-#include "PredefinedTypes.h"
-#include "ObservableList.h"
+#include "../Boxing/BoxingParameter.h"
  
 namespace vl
 {

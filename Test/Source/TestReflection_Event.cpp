@@ -1,4 +1,4 @@
-#include "../../Source/Reflection/GuiTypeDescriptorReflection.h"
+#include "../../Source/Reflection/Reflection/Reflection.h"
 
 using namespace vl;
 using namespace vl::reflection;

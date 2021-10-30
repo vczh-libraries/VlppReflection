@@ -41,8 +41,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata_Member.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\ObservableList.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedWrappers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Macros.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\ContainerWrappers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\FunctionWrappers.h" />
   </ItemGroup>
 </Project>

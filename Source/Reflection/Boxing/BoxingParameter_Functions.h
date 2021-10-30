@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_REFLECTION_BOXING_BOXINGPARAMETER_FUNCTIONS
 #define VCZH_REFLECTION_BOXING_BOXINGPARAMETER_FUNCTIONS
 
-#include "InvokeWithBoxedParameters.h"
+#include "../Wrappers/FunctionWrappers.h"
 
 namespace vl
 {
@@ -14,54 +14,6 @@ namespace vl
 	{
 		namespace description
 		{
-/***********************************************************************
-Functions
-***********************************************************************/
-
-			template<typename T>
-			class ValueFunctionProxyWrapper
-			{
-			};
-
-			template<typename R, typename ...TArgs>
-			class ValueFunctionProxyWrapper<R(TArgs...)> : public Object, public virtual IValueFunctionProxy
-			{
-				typedef Func<R(TArgs...)>					FunctionType;
-			protected:
-				FunctionType			function;
-
-			public:
-				ValueFunctionProxyWrapper(const FunctionType& _function)
-					:function(_function)
-				{
-				}
- 
-				FunctionType GetFunction()
-				{
-					return function;
-				}
- 
-				Value Invoke(Ptr<IValueList> arguments)override
-				{
-					if (!arguments || arguments->GetCount() != sizeof...(TArgs))
-					{
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-						throw ArgumentCountMismtatchException();
-#else
-						CHECK_FAIL(L"Argument count mismatch.");
-#endif
-					}
-					if constexpr (std::is_same_v<R, void>)
-					{
-						internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments);
-						return {};
-					}
-					else
-					{
-						return BoxParameter(internal_helper::UnboxAndCallObject<FunctionType, TArgs...>(function, nullptr, arguments));
-					}
-				}
-			};
  
 			template<typename R, typename ...TArgs>
 			struct ParameterAccessor<Func<R(TArgs...)>, TypeFlags::FunctionType>

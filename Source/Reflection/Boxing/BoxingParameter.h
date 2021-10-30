@@ -7,7 +7,6 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_REFLECTION_BOXING_BOXINGPARAMETER
 
 #include "BoxingValue.h"
-#include "../Predefined/PredefinedWrappers.h"
 
 namespace vl
 {
@@ -88,7 +87,7 @@ BoxParameter, UnboxParameter
 			}
 
 /***********************************************************************
-AddValueToList
+BoxParametersToList
 ***********************************************************************/
 
 			inline void BoxParametersToList(Ptr<IValueList> arguments) {}
@@ -99,6 +98,36 @@ AddValueToList
 				arguments->Add(description::BoxParameter(p0));
 				AddValueToList(arguments, args...);
 			}
+
+			class Value_xs
+			{
+			protected:
+				collections::Array<Value>	arguments;
+			public:
+				Value_xs()
+				{
+				}
+
+				template<typename T>
+				Value_xs& operator,(T& value)
+				{
+					arguments.Resize(arguments.Count() + 1);
+					arguments[arguments.Count() - 1] = BoxParameter(value);
+					return *this;
+				}
+
+				Value_xs& operator,(const Value& value)
+				{
+					arguments.Resize(arguments.Count() + 1);
+					arguments[arguments.Count() - 1] = value;
+					return *this;
+				}
+
+				operator collections::Array<Value>& ()
+				{
+					return arguments;
+				}
+			};
  
 /***********************************************************************
 Basic Types
