@@ -60,28 +60,31 @@ UnboxAndCall
 				struct Unbox<ArgPacks<TArgPacks...>>
 				{
 					template<typename TFunction>
-					static auto AndCallObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<TArgPacks::TArg>()...))
+					static auto AndCallObject(TFunction&& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
-						CHECK_FAIL(L"UnboxAndCallobject not implemented.");
+						return function(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+							arguments->Get(TArgPacks::Index),
+							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
+							).Ref()...);
 					}
 
 					template<typename TFunction>
-					static auto AndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<TArgPacks::TArg>()...))
+					static auto AndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
 						CHECK_FAIL(L"UnboxAndCallFunction not implemented.");
 					}
 
 					template<typename TClass, typename TFunction>
-					static auto AndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<TArgPacks::TArg>()...))
+					static auto AndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// (object->*function)(arguments)
 						CHECK_FAIL(L"UnboxAndCallMethod not implemented.");
 					}
 
 					template<typename TClass, typename TFunction>
-					static auto AndCallExternal(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype(function(object, std::declval<TArgPacks::TArg>()...))
+					static auto AndCallExternal(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype(function(object, std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(object, arguments)
 						CHECK_FAIL(L"UnboxAndCallExternal not implemented.");
