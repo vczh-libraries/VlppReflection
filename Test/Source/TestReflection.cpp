@@ -550,13 +550,6 @@ namespace reflection_test
 
 			Value baseSummer = Value::Create(L"BaseSummer");
 			TEST_EXCEPTION(baseSummer.SetProperty(L"bases3", bases), PropertyIsNotWritableException, [](auto&&) {});
-
-			Value baseArray = baseSummer.GetProperty(L"bases3");
-			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count")) == 4);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a")) == 1);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a")) == 2);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a")) == 3);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a")) == 4);
 		}
 		{
 			Value baseSummer = Value::Create(L"BaseSummer");
