@@ -4,9 +4,11 @@ DEVELOPER: Zihan Chen(vczh)
 ***********************************************************************/
 #include "VlppReflection.h"
 
-#include "..\..\Source\Reflection\GuiTypeDescriptor.cpp"
-#include "..\..\Source\Reflection\GuiTypeDescriptorBuilder.cpp"
-#include "..\..\Source\Reflection\GuiTypeDescriptorPredefined.cpp"
-#include "..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp"
-#include "..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp"
-#include "..\..\Source\Reflection\GuiTypeDescriptor_Metaonly.cpp"
+#include "..\..\Source\Reflection\DescriptableInterfaces.cpp"
+#include "..\..\Source\Reflection\DescriptableInterfaces_Log.cpp"
+#include "..\..\Source\Reflection\DescriptableInterfaces_Metaonly.cpp"
+#include "..\..\Source\Reflection\DescriptableObject.cpp"
+#include "..\..\Source\Reflection\DescriptableValue.cpp"
+#include "..\..\Source\Reflection\Metadata\Metadata.cpp"
+#include "..\..\Source\Reflection\Predefined\PredefinedTypes.cpp"
+#include "..\..\Source\Reflection\Reflection\Reflection.cpp"
