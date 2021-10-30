@@ -123,7 +123,7 @@ interface system::Exception : system::Interface {
 
 @FullName:vl::reflection::description::IValueFunctionProxy
 interface system::Function : system::Interface {
-    function Invoke(arguments : system::List^) : system::Object;
+    function Invoke(arguments : system::ReadonlyList^) : system::Object;
 
 }
 
@@ -153,7 +153,7 @@ interface system::Interface {
 
 @FullName:vl::reflection::description::IValueInterfaceProxy
 interface system::InterfaceProxy : system::Interface {
-    function Invoke(methodInfo : system::reflection::MethodInfo*, arguments : system::List^) : system::Object;
+    function Invoke(methodInfo : system::reflection::MethodInfo*, arguments : system::ReadonlyList^) : system::Object;
 
 }
 

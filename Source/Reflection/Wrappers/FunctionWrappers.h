@@ -41,7 +41,7 @@ Function Wrappers
 					return function;
 				}
 
-				Value Invoke(Ptr<IValueList> arguments)override
+				Value Invoke(Ptr<IValueReadonlyList> arguments)override
 				{
 					if (!arguments || arguments->GetCount() != sizeof...(TArgs))
 					{

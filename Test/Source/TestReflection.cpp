@@ -636,7 +636,7 @@ namespace reflection_test
 	public:
 		IMethodInfo* lastMethodInfo = nullptr;
 
-		Value Invoke(IMethodInfo* methodInfo, Ptr<IValueList> arguments)
+		Value Invoke(IMethodInfo* methodInfo, Ptr<IValueReadonlyList> arguments)
 		{
 			lastMethodInfo = methodInfo;
 			return Value();

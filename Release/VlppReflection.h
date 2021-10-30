@@ -3537,7 +3537,7 @@ Interface Implementation Proxy
 			class IValueInterfaceProxy : public virtual IDescriptable, public Description<IValueInterfaceProxy>
 			{
 			public:
-				virtual Value					Invoke(IMethodInfo* methodInfo, Ptr<IValueList> arguments) = 0;
+				virtual Value					Invoke(IMethodInfo* methodInfo, Ptr<IValueReadonlyList> arguments) = 0;
 			};
 
 			/// <summary>A reflectable version of <see cref="Func`1"/>.</summary>
@@ -3548,7 +3548,7 @@ Interface Implementation Proxy
 				/// <summary>Call the function.</summary>
 				/// <returns>Return value from the function.</returns>
 				/// <param name="arguments">Arguments to call the function.</param>
-				virtual Value					Invoke(Ptr<IValueList> arguments) = 0;
+				virtual Value					Invoke(Ptr<IValueReadonlyList> arguments) = 0;
 			};
 
 			/// <summary>A reflectable subscription, usually created by the <b>bind</b> expression in Workflow script.</summary>
@@ -6390,7 +6390,7 @@ Function Wrappers
 					return function;
 				}
 
-				Value Invoke(Ptr<IValueList> arguments)override
+				Value Invoke(Ptr<IValueReadonlyList> arguments)override
 				{
 					if (!arguments || arguments->GetCount() != sizeof...(TArgs))
 					{

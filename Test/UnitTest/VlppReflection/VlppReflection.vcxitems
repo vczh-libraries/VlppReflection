@@ -21,7 +21,12 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces_Metaonly.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\Boxing.h" />
