@@ -14,7 +14,10 @@ namespace vl
 	{
 		namespace description
 		{
- 
+/***********************************************************************
+Functions
+***********************************************************************/
+
 			template<typename R, typename ...TArgs>
 			struct ParameterAccessor<Func<R(TArgs...)>, TypeFlags::FunctionType>
 			{
