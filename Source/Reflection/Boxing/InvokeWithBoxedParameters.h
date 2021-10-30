@@ -73,28 +73,43 @@ UnboxAndCall
 					static auto AndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
-						CHECK_FAIL(L"UnboxAndCallFunction not implemented.");
+						return function(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+							arguments[TArgPacks::Index],
+							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
+							).Ref()...);
 					}
 
 					template<typename TClass, typename TFunction>
 					static auto AndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// (object->*function)(arguments)
-						CHECK_FAIL(L"UnboxAndCallMethod not implemented.");
+						return (object->*function)(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+							arguments[TArgPacks::Index],
+							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
+							).Ref()...);
 					}
 
 					template<typename TClass, typename TFunction>
 					static auto AndCallExternal(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype(function(object, std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(object, arguments)
-						CHECK_FAIL(L"UnboxAndCallExternal not implemented.");
+						return function(
+							object,
+							UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+								arguments[TArgPacks::Index],
+								(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
+								).Ref()...
+							);
 					}
 
 					template<typename TClass, typename R>
 					static R AndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 					{
 						// new TClass(arguments)
-						CHECK_FAIL(L"UnboxAndNew not implemented.");
+						return R(new TClass(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+							arguments[TArgPacks::Index],
+							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
+							).Ref()...));
 					}
 				};
 			}
