@@ -24,10 +24,11 @@ CustomConstructorInfoImpl<R(TArgs...)>
 			template<typename R, typename ...TArgs>
 			class CustomConstructorInfoImpl<R(TArgs...)> : public MethodInfoImpl
 			{
+				using TClass = typename trait_helper::RemovePtr<std::remove_cvref_t<R>>::Type;
 			protected:
+
 				Value InvokeInternal(const Value& thisObject, collections::Array<Value>& arguments)override
 				{
-					using TClass = typename TypeInfoRetriver<R>::Type;
 					return BoxParameter(unboxcall_helper::Unbox<MakeArgPacks<TArgs...>>::template AndNew<TClass, R>(this, arguments));
 				}
  
@@ -36,7 +37,7 @@ CustomConstructorInfoImpl<R(TArgs...)>
 					Func<R(TArgs...)> proxy(
 						LAMBDA([](TArgs ...args)->R
 						{
-							R result = new typename TypeInfoRetriver<R>::Type(args...);
+							R result = new TClass(args...);
 							return result;
 						})
 					);

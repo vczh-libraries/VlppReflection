@@ -142,13 +142,13 @@ Basic Types
 			{
 				static Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor)
 				{
+					using Type = std::remove_cvref_t<T>;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					if(!typeDescriptor)
 					{
-						typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
+						typeDescriptor = GetTypeDescriptor<Type>();
 					}
 #endif
-					using Type = std::remove_cvref_t<T>;
 					return Value::From(new IValueType::TypedBox<Type>(object), typeDescriptor);
 				}
 
@@ -164,7 +164,7 @@ Basic Types
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 						if (!typeDescriptor)
 						{
-							typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
+							typeDescriptor = GetTypeDescriptor<Type>();
 						}
 						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::BoxedValue, value);
 #else

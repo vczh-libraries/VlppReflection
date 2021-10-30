@@ -325,56 +325,18 @@ Basic Types
 			struct DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>
 			{
 				static const ITypeInfo::Decorator						Decorator=ITypeInfo::TypeDescriptor;
-				typedef T												Type;
-				typedef T												TempValueType;
-				typedef T&												ResultReferenceType;
-				typedef T												ResultNonReferenceType;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>(), hint);
+					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<T>(), hint);
 				}
 #endif
 			};
 
-			template<typename T>
-			struct DetailTypeInfoRetriver<const T, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef T														TempValueType;
-				typedef const T&												ResultReferenceType;
-				typedef const T													ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return TypeInfoRetriver<T>::CreateTypeInfo();
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<volatile T, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef T														TempValueType;
-				typedef T&														ResultReferenceType;
-				typedef T														ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return TypeInfoRetriver<T>::CreateTypeInfo();
-				}
-#endif
-			};
+/***********************************************************************
+Decorated Types
+***********************************************************************/
 
 			template<typename T>
 			struct DetailTypeInfoRetriver<T*, TypeFlags::NonGenericType>
@@ -382,10 +344,6 @@ Basic Types
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
 				static const ITypeInfo::Decorator								Decorator=ITypeInfo::RawPtr;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef T*														TempValueType;
-				typedef T*&														ResultReferenceType;
-				typedef T*														ResultNonReferenceType;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
@@ -401,10 +359,6 @@ Basic Types
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
 				static const ITypeInfo::Decorator								Decorator=ITypeInfo::SharedPtr;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef Ptr<T>													TempValueType;
-				typedef Ptr<T>&													ResultReferenceType;
-				typedef Ptr<T>													ResultNonReferenceType;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
@@ -420,34 +374,11 @@ Basic Types
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
 				static const ITypeInfo::Decorator								Decorator=ITypeInfo::Nullable;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef Nullable<T>												TempValueType;
-				typedef Nullable<T>&											ResultReferenceType;
-				typedef Nullable<T>												ResultNonReferenceType;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T&, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef T&														ResultReferenceType;
-				typedef T														ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}
 #endif
 			};
@@ -462,21 +393,14 @@ Containers
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
 				static const ITypeInfo::Decorator								Decorator = UpLevelRetriver::Decorator;
-				typedef TCollectionType											Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::ElementType										ElementType;
-
 					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
+					genericType->AddGenericArgument(TypeInfoRetriver<typename T::ElementType>::CreateTypeInfo());
 
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
@@ -490,25 +414,15 @@ Containers
 				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
 
 				static const ITypeInfo::Decorator								Decorator = UpLevelRetriver::Decorator;
-				typedef TCollectionType											Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::KeyContainer									KeyContainer;
-					typedef typename ContainerType::ValueContainer									ValueContainer;
-					typedef typename KeyContainer::ElementType										KeyType;
-					typedef typename ValueContainer::ElementType									ValueType;
-
 					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
 
 					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
-					genericType->AddGenericArgument(TypeInfoRetriver<ValueType>::CreateTypeInfo());
+					genericType->AddGenericArgument(TypeInfoRetriver<typename T::KeyContainer::ElementType>::CreateTypeInfo());
+					genericType->AddGenericArgument(TypeInfoRetriver<typename T::ValueContainer::ElementType>::CreateTypeInfo());
 
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
@@ -584,10 +498,6 @@ Functions
 				typedef DetailTypeInfoRetriver<const Func<R(TArgs...)>, TypeFlags::NonGenericType>	UpLevelRetriver;
  
 				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef IValueList												Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
  
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
@@ -604,12 +514,6 @@ Functions
 #endif
 			};
 
-			template<typename R, typename ...TArgs>
-			struct DetailTypeInfoRetriver<const Func<R(TArgs...)>, TypeFlags::FunctionType>
-				: DetailTypeInfoRetriver<Func<R(TArgs...)>, TypeFlags::FunctionType>
-			{
-			};
-
 /***********************************************************************
 TypeInfoRetriver
 ***********************************************************************/
@@ -617,14 +521,10 @@ TypeInfoRetriver
 			template<typename T>
 			struct TypeInfoRetriver
 			{
-				static const TypeFlags															TypeFlag = TypeFlagSelector<T>::Result;
-				static const TypeInfoHint														Hint = TypeHintTester<T>::Result;
-				static const ITypeInfo::Decorator												Decorator = DetailTypeInfoRetriver<T, TypeFlag>::Decorator;
-
-				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::Type						Type;
-				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::TempValueType				TempValueType;
-				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::ResultReferenceType		ResultReferenceType;
-				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::ResultNonReferenceType	ResultNonReferenceType;
+				static const TypeFlags												TypeFlag = TypeFlagSelector<T>::Result;
+				static const TypeInfoHint											Hint = TypeHintTester<T>::Result;
+				typedef DetailTypeInfoRetriver<std::remove_cvref_t<T>, TypeFlag>	Detail;
+				static const ITypeInfo::Decorator									Decorator = Detail::Decorator;
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo()

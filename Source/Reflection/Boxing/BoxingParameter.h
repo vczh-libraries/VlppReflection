@@ -32,7 +32,7 @@ BoxParameter, UnboxParameter
 			Value BoxParameter(T&& object, ITypeDescriptor* typeDescriptor = nullptr)
 			{
 				using TIR = TypeInfoRetriver<std::remove_reference_t<T>>;
-				return ParameterAccessor<typename TIR::ResultNonReferenceType, TIR::TypeFlag>::BoxParameter(object, typeDescriptor);
+				return ParameterAccessor<std::remove_reference_t<T>, TIR::TypeFlag>::BoxParameter(object, typeDescriptor);
 			}
 
 			/// <summary>
