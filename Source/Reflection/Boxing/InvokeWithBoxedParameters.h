@@ -21,7 +21,7 @@ UnboxAndCall
 			namespace internal_helper
 			{
 				template<typename TFunction, typename ...TArgs>
-				auto UnboxAndCallObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueList>& arguments) -> decltype(function(std::declval<TArgs>()...))
+				auto UnboxAndCallObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<TArgs>()...))
 				{
 					// function(arguments)
 					CHECK_FAIL(L"UnboxAndCallobject not implemented.");

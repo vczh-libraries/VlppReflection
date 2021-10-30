@@ -38,8 +38,7 @@ Functions
 					typedef R(RawFunctionType)(TArgs...);
 					typedef Func<R(TArgs...)> FunctionType;
 					typedef ValueFunctionProxyWrapper<RawFunctionType> ProxyType;
-					Ptr<IValueFunctionProxy> functionProxy = UnboxValue<Ptr<IValueFunctionProxy>>(value, typeDescriptor, valueName);
-					if (functionProxy)
+					if (auto functionProxy = UnboxValue<Ptr<IValueFunctionProxy>>(value, typeDescriptor, valueName))
 					{
 						if (auto proxy = functionProxy.Cast<ProxyType>())
 						{
@@ -63,6 +62,10 @@ Functions
 								}
 							}), true };
 						}
+					}
+					else
+					{
+						return { new FunctionType(),true };
 					}
 				}
 			};

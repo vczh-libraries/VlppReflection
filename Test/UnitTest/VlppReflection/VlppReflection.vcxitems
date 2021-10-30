@@ -29,7 +29,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter_Containers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter_Functions.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingValue.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\DetailTypeInfoRetriver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\InvokeWithBoxedParameters.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\TypeInfoRetriver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.h" />

@@ -315,7 +315,7 @@ interface system::reflection::EventInfo : system::reflection::MemberInfo {
     function GetHandlerType() : system::reflection::TypeInfo*;
     function GetObservingProperty(index : system::Int32) : system::reflection::PropertyInfo*;
     function GetObservingPropertyCount() : system::Int32;
-    function Invoke(thisObject : system::Object, arguments : system::List^) : system::Void;
+    function Invoke(thisObject : system::Object, arguments : system::ReadonlyList^) : system::Void;
 
 }
 

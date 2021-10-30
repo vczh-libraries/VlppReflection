@@ -34,9 +34,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter.h">
       <Filter>Boxing</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\DetailTypeInfoRetriver.h">
-      <Filter>Boxing</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata_Function.h">
       <Filter>Metadata</Filter>
     </ClInclude>

@@ -96,7 +96,7 @@ BoxParametersToList
 			void BoxParametersToList(Ptr<IValueList> arguments, T0&& p0, TArgs&& ...args)
 			{
 				arguments->Add(description::BoxParameter(p0));
-				AddValueToList(arguments, args...);
+				BoxParametersToList(arguments, args...);
 			}
 
 			class Value_xs

@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_REFLECTION_BOXING_BOXINGVALUE
 #define VCZH_REFLECTION_BOXING_BOXINGVALUE
 
-#include "DetailTypeInfoRetriver.h"
+#include "TypeInfoRetriver.h"
 
 namespace vl
 {
