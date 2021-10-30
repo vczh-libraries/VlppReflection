@@ -153,7 +153,7 @@ Invoke
 				}
 
 				template<typename R, typename ...TArgs>
-				Value InvokeFunction(R(*method)(TArgs...), MethodInfoImpl* methodInfo, collections::Array<Value>& arguments)
+				Value InvokeFunction(R(*method)(TArgs...), IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 				{
 					using TArgPacks = MakeArgPacks<TArgs...>;
 					if constexpr (std::is_same_v<R, void>)
@@ -169,7 +169,7 @@ Invoke
 				}
 
 				template<typename TFunction, typename ...TArgs>
-				Value InvokeObject(TFunction& function, MethodInfoImpl* methodInfo, const Ptr<IValueReadonlyList>& arguments)
+				Value InvokeObject(TFunction& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments)
 				{
 					using TArgPacks = MakeArgPacks<TArgs...>;
 					using TResult = decltype(unboxcall_helper::Unbox<TArgPacks>::AndCallObject(function, methodInfo, arguments));
