@@ -283,59 +283,59 @@ namespace reflection_test
 	void TestReflectionInvoke()
 	{
 		{
-			Value base=Value::Create(L"Base");
+			Value base = Value::Create(L"Base");
 			TEST_ASSERT(base.GetTypeDescriptor());
-			TEST_ASSERT(base.GetTypeDescriptor()->GetTypeName()==L"Base");
-			TEST_ASSERT(UnboxValue<vint>(base.GetProperty(L"a"))==0);
+			TEST_ASSERT(base.GetTypeDescriptor()->GetTypeName() == L"Base");
+			TEST_ASSERT(UnboxValue<vint>(base.GetProperty(L"a")) == 0);
 
 			base.SetProperty(L"a", BoxValue<vint>(100));
-			TEST_ASSERT(UnboxValue<vint>(base.GetProperty(L"a"))==100);
+			TEST_ASSERT(UnboxValue<vint>(base.GetProperty(L"a")) == 100);
 
-			Value base2=Value::Create(L"Base", (Value_xs(), BoxValue<vint>(200)));
+			Value base2 = Value::Create(L"Base", (Value_xs(), BoxValue<vint>(200)));
 			TEST_ASSERT(base2.GetTypeDescriptor());
-			TEST_ASSERT(base2.GetTypeDescriptor()->GetTypeName()==L"Base");
-			TEST_ASSERT(UnboxValue<vint>(base2.GetProperty(L"a"))==200);
+			TEST_ASSERT(base2.GetTypeDescriptor()->GetTypeName() == L"Base");
+			TEST_ASSERT(UnboxValue<vint>(base2.GetProperty(L"a")) == 200);
 
-			Value base3=Value::Create(L"Base", (Value_xs(), BoxValue<vint>(100), BoxValue<vint>(200)));
+			Value base3 = Value::Create(L"Base", (Value_xs(), BoxValue<vint>(100), BoxValue<vint>(200)));
 			TEST_ASSERT(base3.GetTypeDescriptor());
-			TEST_ASSERT(base3.GetTypeDescriptor()->GetTypeName()==L"Base");
-			TEST_ASSERT(UnboxValue<vint>(base3.GetProperty(L"a"))==300);
+			TEST_ASSERT(base3.GetTypeDescriptor()->GetTypeName() == L"Base");
+			TEST_ASSERT(UnboxValue<vint>(base3.GetProperty(L"a")) == 300);
 		}
 		{
-			Value derived=Value::Create(L"Derived");
+			Value derived = Value::Create(L"Derived");
 			TEST_ASSERT(derived.GetTypeDescriptor());
-			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName()==L"Derived");
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==0);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==0);
+			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName() == L"Derived");
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 0);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 0);
 
 			derived.SetProperty(L"a", BoxValue<vint>(100));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==100);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 100);
 			derived.SetProperty(L"b", BoxValue<vint>(200));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==200);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 200);
 		}
 		{
-			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Value derived = Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			TEST_ASSERT(derived.GetTypeDescriptor());
-			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName()==L"Derived");
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			TEST_ASSERT(derived.GetTypeDescriptor()->GetTypeName() == L"Derived");
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 
 			derived.Invoke(L"Reset");
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==0);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==0);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 0);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 0);
 
 			derived.Invoke(L"Reset", (Value_xs(), BoxValue<vint>(30), BoxValue<vint>(40)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==30);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==40);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 30);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 40);
 
-			Ptr<Derived> d=UnboxValue<Ptr<Derived>>(derived);
-			TEST_ASSERT(d->a==30);
-			TEST_ASSERT(d->GetB()==40);
-		
-			Value derived2=Value::InvokeStatic(L"Derived", L"Create", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			Ptr<Derived> d = UnboxValue<Ptr<Derived>>(derived);
+			TEST_ASSERT(d->a == 30);
+			TEST_ASSERT(d->GetB() == 40);
+
+			Value derived2 = Value::InvokeStatic(L"Derived", L"Create", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
 			derived2.Invoke(L"Reset", (Value_xs(), derived));
-			TEST_ASSERT(UnboxValue<vint>(derived2.GetProperty(L"a"))==30);
-			TEST_ASSERT(UnboxValue<vint>(derived2.GetProperty(L"b"))==40);
+			TEST_ASSERT(UnboxValue<vint>(derived2.GetProperty(L"a")) == 30);
+			TEST_ASSERT(UnboxValue<vint>(derived2.GetProperty(L"b")) == 40);
 		}
 	}
 
@@ -377,110 +377,110 @@ namespace reflection_test
 	void TestReflectionEnum()
 	{
 		{
-			Value base=Value::Create(L"Base");
-			TEST_ASSERT(UnboxValue<Season>(base.GetProperty(L"season"))==Spring);
+			Value base = Value::Create(L"Base");
+			TEST_ASSERT(UnboxValue<Season>(base.GetProperty(L"season")) == Spring);
 
 			base.SetProperty(L"season", BoxValue<Season>(Winter));
-			TEST_ASSERT(UnboxValue<Season>(base.GetProperty(L"season"))==Winter);
+			TEST_ASSERT(UnboxValue<Season>(base.GetProperty(L"season")) == Winter);
 		}
 		{
-			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			Value derived = Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 
 			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>(ResetNone)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 		}
 		{
-			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			Value derived = Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 
 			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>(ResetA)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==0);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 0);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 		}
 		{
-			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			Value derived = Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 
 			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>(ResetB)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==0);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 0);
 		}
 		{
-			Value derived=Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==10);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==20);
+			Value derived = Value::Create(L"Derived", (Value_xs(), BoxValue<vint>(10), BoxValue<vint>(20)));
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 10);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 20);
 
-			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>((ResetOption)(ResetA|ResetB))));
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a"))==0);
-			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b"))==0);
-		} 
+			derived.Invoke(L"Reset", (Value_xs(), BoxValue<ResetOption>((ResetOption)(ResetA | ResetB))));
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"a")) == 0);
+			TEST_ASSERT(UnboxValue<vint>(derived.GetProperty(L"b")) == 0);
+		}
 	}
 
 	void TestReflectionNullable()
 	{
 		{
-			Value derived=Value::Create(L"Derived");
-			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c"))==false);
-			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C"))==false);
+			Value derived = Value::Create(L"Derived");
+			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c")) == false);
+			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C")) == false);
 
 			derived.SetProperty(L"c", BoxValue(Nullable<WString>(L"vczh")));
-			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c")).Value()==L"vczh");
-			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C")).Value()==L"vczh");
+			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c")).Value() == L"vczh");
+			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C")).Value() == L"vczh");
 
 			derived.SetProperty(L"C", BoxValue(Nullable<WString>()));
-			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c"))==false);
-			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C"))==false);
+			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"c")) == false);
+			TEST_ASSERT(UnboxValue<Nullable<WString>>(derived.GetProperty(L"C")) == false);
 		}
 	}
 
 	void TestReflectionStruct()
 	{
 		{
-			Point point={10, 20};
-			Value value=BoxValue<Point>(point);
+			Point point = { 10, 20 };
+			Value value = BoxValue<Point>(point);
 
-			point=UnboxValue<Point>(value);
-			TEST_ASSERT(point.x==10);
-			TEST_ASSERT(point.y==20);
+			point = UnboxValue<Point>(value);
+			TEST_ASSERT(point.x == 10);
+			TEST_ASSERT(point.y == 20);
 		}
 		{
-			Size size={10, 20};
-			Value value=BoxValue<Size>(size);
+			Size size = { 10, 20 };
+			Value value = BoxValue<Size>(size);
 
-			size=UnboxValue<Size>(value);
-			TEST_ASSERT(size.cx==10);
-			TEST_ASSERT(size.cy==20);
+			size = UnboxValue<Size>(value);
+			TEST_ASSERT(size.cx == 10);
+			TEST_ASSERT(size.cy == 20);
 		}
 		{
-			Rect rect={{10, 20}, {30, 40}};
-			Value value=BoxValue<Rect>(rect);
+			Rect rect = { {10, 20}, {30, 40} };
+			Value value = BoxValue<Rect>(rect);
 
-			rect=UnboxValue<Rect>(value);
-			TEST_ASSERT(rect.point.x==10);
-			TEST_ASSERT(rect.point.y==20);
-			TEST_ASSERT(rect.size.cx==30);
-			TEST_ASSERT(rect.size.cy==40);
+			rect = UnboxValue<Rect>(value);
+			TEST_ASSERT(rect.point.x == 10);
+			TEST_ASSERT(rect.point.y == 20);
+			TEST_ASSERT(rect.size.cx == 30);
+			TEST_ASSERT(rect.size.cy == 40);
 		}
 		{
-			Rect a={{1, 2}, {3, 4}};
+			Rect a = { {1, 2}, {3, 4} };
 			Rect b = { { 10, 20 }, { 30, 40 } };
-			RectPair rp={ a, b };
-			Value value=BoxValue<RectPair>(rp);
+			RectPair rp = { a, b };
+			Value value = BoxValue<RectPair>(rp);
 
-			rp=UnboxValue<RectPair>(value);
-			TEST_ASSERT(rp.a.point.x==1);
-			TEST_ASSERT(rp.a.point.y==2);
-			TEST_ASSERT(rp.a.size.cx==3);
-			TEST_ASSERT(rp.a.size.cy==4);
-			TEST_ASSERT(rp.b.point.x==10);
-			TEST_ASSERT(rp.b.point.y==20);
-			TEST_ASSERT(rp.b.size.cx==30);
-			TEST_ASSERT(rp.b.size.cy==40);
+			rp = UnboxValue<RectPair>(value);
+			TEST_ASSERT(rp.a.point.x == 1);
+			TEST_ASSERT(rp.a.point.y == 2);
+			TEST_ASSERT(rp.a.size.cx == 3);
+			TEST_ASSERT(rp.a.size.cy == 4);
+			TEST_ASSERT(rp.b.point.x == 10);
+			TEST_ASSERT(rp.b.point.y == 20);
+			TEST_ASSERT(rp.b.size.cx == 30);
+			TEST_ASSERT(rp.b.size.cy == 40);
 		}
 		{
 			Point point = { 10, 20 };
@@ -491,7 +491,7 @@ namespace reflection_test
 
 			value.SetProperty(L"x", BoxValue<vint>(1));
 			value.SetProperty(L"y", BoxValue<vint>(2));
-			
+
 			auto pa = UnboxValue<Point>(a);
 			TEST_ASSERT(pa.x == 10);
 			TEST_ASSERT(pa.y == 20);
@@ -505,129 +505,128 @@ namespace reflection_test
 	void TestReflectionList()
 	{
 		{
-			Value bases=Value::Create(L"system::Array");
+			Value bases = Value::Create(L"system::Array");
 			bases.Invoke(L"Resize", (Value_xs(), BoxValue<vint>(4)));
 			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(0), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
 			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(1), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
 			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(2), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
 			bases.Invoke(L"Set", (Value_xs(), BoxValue<vint>(3), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
-			Value baseSummer=Value::Create(L"BaseSummer");
+			Value baseSummer = Value::Create(L"BaseSummer");
 			baseSummer.Invoke(L"SetBases", (Value_xs(), bases));
-			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum"))==10);
+			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum")) == 10);
 
-			Value baseArray=baseSummer.Invoke(L"GetBases");
-			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count"))==4);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a"))==1);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a"))==2);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a"))==3);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a"))==4);
+			Value baseArray = baseSummer.Invoke(L"GetBases");
+			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count")) == 4);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a")) == 1);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a")) == 2);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a")) == 3);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a")) == 4);
 		}
 		{
-			Value bases=Value::Create(L"system::List");
+			Value bases = Value::Create(L"system::List");
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
-			Value baseSummer=Value::Create(L"BaseSummer");
+			Value baseSummer = Value::Create(L"BaseSummer");
 			baseSummer.Invoke(L"SetBases2", (Value_xs(), bases));
-			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum2"))==10);
+			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum2")) == 10);
 
-			Value baseArray=baseSummer.Invoke(L"GetBases2");
-			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count"))==4);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a"))==1);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a"))==2);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a"))==3);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a"))==4);
+			Value baseArray = baseSummer.Invoke(L"GetBases2");
+			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count")) == 4);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a")) == 1);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a")) == 2);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a")) == 3);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a")) == 4);
 		}
 		{
-			Value bases=Value::Create(L"system::List");
+			Value bases = Value::Create(L"system::List");
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(1)))));
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(2)))));
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(3)))));
 			bases.Invoke(L"Add", (Value_xs(), Value::Create(L"Base", (Value_xs(), BoxValue<vint>(4)))));
 
-			Value baseSummer=Value::Create(L"BaseSummer");
-			baseSummer.SetProperty(L"bases3", bases);
-			TEST_ASSERT(UnboxValue<vint>(baseSummer.Invoke(L"Sum2"))==10);
+			Value baseSummer = Value::Create(L"BaseSummer");
+			TEST_EXCEPTION(baseSummer.SetProperty(L"bases3", bases), PropertyIsNotWritableException, [](auto&&) {});
 
-			Value baseArray=baseSummer.GetProperty(L"bases3");
-			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count"))==4);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a"))==1);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a"))==2);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a"))==3);
-			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a"))==4);
+			Value baseArray = baseSummer.GetProperty(L"bases3");
+			TEST_ASSERT(UnboxValue<vint>(baseArray.GetProperty(L"Count")) == 4);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(0))).GetProperty(L"a")) == 1);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(1))).GetProperty(L"a")) == 2);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(2))).GetProperty(L"a")) == 3);
+			TEST_ASSERT(UnboxValue<vint>(baseArray.Invoke(L"Get", (Value_xs(), BoxValue<vint>(3))).GetProperty(L"a")) == 4);
 		}
 		{
-			Value baseSummer=Value::Create(L"BaseSummer");
-			Value f1=BoxParameter(LAMBDA([](vint i){return i+1;}));
-			Value f2=BoxParameter(LAMBDA([](vint i){return i+2;}));
-			Value f=baseSummer.Invoke(L"Sum3", (Value_xs(), f1, f2));
+			Value baseSummer = Value::Create(L"BaseSummer");
+			Value f1 = BoxParameter(LAMBDA([](vint i) {return i + 1; }));
+			Value f2 = BoxParameter(LAMBDA([](vint i) {return i + 2; }));
+			Value f = baseSummer.Invoke(L"Sum3", (Value_xs(), f1, f2));
 			auto fx = UnboxParameter<Func<vint(vint)>>(f);
-			TEST_ASSERT(fx.Ref()(10)==23);
+			TEST_ASSERT(fx.Ref()(10) == 23);
 		}
 	}
 
 	void TestReflectionDictionary()
 	{
-		Value map=Value::Create(L"system::Dictionary");
+		Value map = Value::Create(L"system::Dictionary");
 		map.Invoke(L"Set", (Value_xs(), BoxValue<vint>(1), BoxValue<vint>(1)));
 		map.Invoke(L"Set", (Value_xs(), BoxValue<vint>(2), BoxValue<vint>(4)));
 		map.Invoke(L"Set", (Value_xs(), BoxValue<vint>(3), BoxValue<vint>(9)));
 
-		TEST_ASSERT(3==UnboxValue<vint>(map.GetProperty(L"Count")));
-		TEST_ASSERT(1==UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
-		TEST_ASSERT(2==UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
-		TEST_ASSERT(3==UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(2)))));
-		TEST_ASSERT(1==UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
-		TEST_ASSERT(4==UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
-		TEST_ASSERT(9==UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(2)))));
+		TEST_ASSERT(3 == UnboxValue<vint>(map.GetProperty(L"Count")));
+		TEST_ASSERT(1 == UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
+		TEST_ASSERT(2 == UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
+		TEST_ASSERT(3 == UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(2)))));
+		TEST_ASSERT(1 == UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
+		TEST_ASSERT(4 == UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
+		TEST_ASSERT(9 == UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(2)))));
 
 		map.Invoke(L"Remove", (Value_xs(), BoxValue<vint>(2)));
-		TEST_ASSERT(2==UnboxValue<vint>(map.GetProperty(L"Count")));
-		TEST_ASSERT(1==UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
-		TEST_ASSERT(3==UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
-		TEST_ASSERT(1==UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
-		TEST_ASSERT(9==UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
+		TEST_ASSERT(2 == UnboxValue<vint>(map.GetProperty(L"Count")));
+		TEST_ASSERT(1 == UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
+		TEST_ASSERT(3 == UnboxValue<vint>(map.GetProperty(L"Keys").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
+		TEST_ASSERT(1 == UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(0)))));
+		TEST_ASSERT(9 == UnboxValue<vint>(map.GetProperty(L"Values").Invoke(L"Get", (Value_xs(), BoxValue<vint>(1)))));
 
 		map.Invoke(L"Clear", Value_xs());
-		TEST_ASSERT(0==UnboxValue<vint>(map.GetProperty(L"Count")));
+		TEST_ASSERT(0 == UnboxValue<vint>(map.GetProperty(L"Count")));
 	}
 
 	void TestSharedRawPtrConverting()
 	{
-		Base* b1=new Base;
-		volatile vint* rc=ReferenceCounterOperator<Base>::CreateCounter(b1);
-		TEST_ASSERT(*rc==0);
+		Base* b1 = new Base;
+		volatile vint* rc = ReferenceCounterOperator<Base>::CreateCounter(b1);
+		TEST_ASSERT(*rc == 0);
 
-		Ptr<Base> b2=b1;
-		TEST_ASSERT(*rc==1);
+		Ptr<Base> b2 = b1;
+		TEST_ASSERT(*rc == 1);
 
-		Value v1=BoxValue(b1);
-		TEST_ASSERT(v1.GetValueType()==Value::RawPtr);
-		TEST_ASSERT(*rc==1);
+		Value v1 = BoxValue(b1);
+		TEST_ASSERT(v1.GetValueType() == Value::RawPtr);
+		TEST_ASSERT(*rc == 1);
 
-		Value v2=BoxValue(b2);
-		TEST_ASSERT(v2.GetValueType()==Value::SharedPtr);
-		TEST_ASSERT(*rc==2);
+		Value v2 = BoxValue(b2);
+		TEST_ASSERT(v2.GetValueType() == Value::SharedPtr);
+		TEST_ASSERT(*rc == 2);
 
-		Base* b3=UnboxValue<Base*>(v2);
-		TEST_ASSERT(b3==b1);
-		TEST_ASSERT(*rc==2);
+		Base* b3 = UnboxValue<Base*>(v2);
+		TEST_ASSERT(b3 == b1);
+		TEST_ASSERT(*rc == 2);
 
-		Ptr<Base> b4=UnboxValue<Ptr<Base>>(v1);
-		TEST_ASSERT(b4==b1);
-		TEST_ASSERT(*rc==3);
+		Ptr<Base> b4 = UnboxValue<Ptr<Base>>(v1);
+		TEST_ASSERT(b4 == b1);
+		TEST_ASSERT(*rc == 3);
 	}
 
 	void TestSharedRawPtrDestructing()
 	{
 		{
-			Ptr<Base> b=new Base;
-			Ptr<Object> o=b;
-			b=0;
-			o=0;
+			Ptr<Base> b = new Base;
+			Ptr<Object> o = b;
+			b = 0;
+			o = 0;
 		}
 		{
 			//Base* b=new Base;
