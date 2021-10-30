@@ -3,10 +3,11 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
  
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_WRAPPERS
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_WRAPPERS
+#ifndef VCZH_REFLECTION_TYPES_PREDEFINEDWRAPPERS
+#define VCZH_REFLECTION_TYPES_PREDEFINEDWRAPPERS
  
-#include "GuiTypeDescriptorPredefined.h"
+#include "PredefinedTypes.h"
+#include "ObservableList.h"
  
 namespace vl
 {
@@ -505,6 +506,18 @@ Collection Wrappers
 #undef ENSURE_WRAPPER_POINTER
 #undef WRAPPER_POINTER
 #pragma warning(pop)
+		}
+	}
+
+	namespace collections
+	{
+		template<typename T>
+		void ObservableList<T>::NotifyUpdateInternal(vint start, vint count, vint newCount)
+		{
+			if (auto colref = this->TryGetCollectionReference<reflection::description::IValueObservableList>())
+			{
+				colref->ItemChanged(start, count, newCount);
+			}
 		}
 	}
 }

@@ -3,7 +3,7 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "GuiTypeDescriptorReflection.h"
+#include "DescriptableInterfaces.h"
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
@@ -668,7 +668,7 @@ IEventInfo
 					CHECK_FAIL(L"Not Supported!");
 				}
 
-				void Invoke(const Value& thisObject, Ptr<IValueList> arguments) override
+				void Invoke(const Value& thisObject, Ptr<IValueReadonlyList> arguments) override
 				{
 					CHECK_FAIL(L"Not Supported!");
 				}

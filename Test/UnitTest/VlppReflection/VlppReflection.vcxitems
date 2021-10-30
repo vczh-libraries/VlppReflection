@@ -14,25 +14,35 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp">
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor_Metaonly.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces_Log.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces_Metaonly.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptor.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Container.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Function.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Struct.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorMacros.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorObservableList.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorReflection.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\GuiTypeDescriptorWrappers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\Boxing.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter_Containers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter_Functions.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingValue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\DetailTypeInfoRetriver.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\InvokeWithBoxedParameters.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\TypeInfoRetriver.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata_Event.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata_Function.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata_Member.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\ObservableList.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedWrappers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Macros.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.h" />
   </ItemGroup>
 </Project>

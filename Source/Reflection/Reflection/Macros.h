@@ -3,13 +3,11 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORMACROS
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORMACROS
+#ifndef VCZH_REFLECTION_REFLECTION_MACROS
+#define VCZH_REFLECTION_REFLECTION_MACROS
 
-#include "GuiTypeDescriptorBuilder.h"
-#include "GuiTypeDescriptorBuilder_Container.h"
-#include "GuiTypeDescriptorBuilder_Function.h"
-#include "GuiTypeDescriptorBuilder_Struct.h"
+#include "../Metadata/Metadata_Event.h"
+#include "../Metadata/Metadata_Function.h"
 
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 

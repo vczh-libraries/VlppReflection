@@ -3,11 +3,11 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORPREDEFINED
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORPREDEFINED
+#ifndef VCZH_REFLECTION_TYPES_PREDEFINEDTYPES
+#define VCZH_REFLECTION_TYPES_PREDEFINEDTYPES
 
 #include <math.h>
-#include "GuiTypeDescriptor.h"
+#include "../DescriptableInterfaces.h"
 
 namespace vl
 {

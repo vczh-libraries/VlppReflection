@@ -3,8 +3,8 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
  
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_OBSERVABLELIST
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_OBSERVABLELIST
+#ifndef VCZH_REFLECTION_TYPES_OBSERVABLELIST
+#define VCZH_REFLECTION_TYPES_OBSERVABLELIST
  
 #include <Vlpp.h>
  

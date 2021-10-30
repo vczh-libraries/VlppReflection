@@ -3,7 +3,8 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "GuiTypeDescriptorBuilder.h"
+#include "Metadata_Event.h"
+#include "Metadata_Function.h"
 
 namespace vl
 {
@@ -722,7 +723,7 @@ EventInfoImpl
 #endif
 			}
 
-			void EventInfoImpl::Invoke(const Value& thisObject, Ptr<IValueList> arguments)
+			void EventInfoImpl::Invoke(const Value& thisObject, Ptr<IValueReadonlyList> arguments)
 			{
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 				if(thisObject.IsNull())

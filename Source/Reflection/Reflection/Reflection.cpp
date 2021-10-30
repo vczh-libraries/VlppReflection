@@ -5,8 +5,8 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include <limits.h>
 #include <float.h>
-#include "GuiTypeDescriptorReflection.h"
 #include <VlppRegex.h>
+#include "Reflection.h"
 
 namespace vl
 {

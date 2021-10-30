@@ -3,10 +3,10 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORREFLECTION
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORREFLECTION
+#ifndef VCZH_REFLECTION_REFLECTION_REFLECTION
+#define VCZH_REFLECTION_REFLECTION_REFLECTION
 
-#include "GuiTypeDescriptorMacros.h"
+#include "Macros.h"
 
 namespace vl
 {
@@ -82,6 +82,9 @@ Predefined Types
 			REFLECTION_PREDEFINED_COMPLEX_TYPES(DECL_TYPE_INFO, void)
 
 #endif
+
+			template<typename T>
+			struct TypedValueSerializerProvider;
 
 #define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
 			template<>\

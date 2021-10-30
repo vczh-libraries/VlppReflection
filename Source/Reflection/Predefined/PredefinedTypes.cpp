@@ -3,8 +3,8 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "GuiTypeDescriptorMacros.h"
-#include "GuiTypeDescriptorReflection.h"
+#include "PredefinedWrappers.h"
+#include "ObservableList.h"
 
 namespace vl
 {

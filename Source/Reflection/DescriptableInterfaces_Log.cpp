@@ -3,7 +3,8 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "GuiTypeDescriptorReflection.h"
+#include "DescriptableInterfaces.h"
+#include "./Reflection/Reflection.h"
 
 namespace vl
 {

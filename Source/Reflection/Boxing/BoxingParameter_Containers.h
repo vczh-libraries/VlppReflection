@@ -2,136 +2,20 @@
 Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
- 
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_CONTAINER
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_CONTAINER
- 
-#include "GuiTypeDescriptorWrappers.h"
- 
+
+#ifndef VCZH_REFLECTION_BOXING_BOXINGPARAMETER_CONTAINERS
+#define VCZH_REFLECTION_BOXING_BOXINGPARAMETER_CONTAINERS
+
+#include "BoxingParameter.h"
+
 namespace vl
 {
-	namespace collections
-	{
-/***********************************************************************
-DetailTypeInfoRetriver<TContainer>
-***********************************************************************/
-
-		template<typename T>
-		void ObservableList<T>::NotifyUpdateInternal(vint start, vint count, vint newCount)
-		{
-			if (auto colref = this->TryGetCollectionReference<reflection::description::IValueObservableList>())
-			{
-				colref->ItemChanged(start, count, newCount);
-			}
-		}
-	}
-
 	namespace reflection
 	{
 		namespace description
 		{
-
 /***********************************************************************
-DetailTypeInfoRetriver<TContainer>
-***********************************************************************/
-
-			template<typename T, typename TCollectionType>
-			struct DetailTypeInfoRetriver_Template1
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator = UpLevelRetriver::Decorator;
-				typedef TCollectionType											Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::ElementType										ElementType;
-
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
-
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
-
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
-					return type;
-				}
-#endif
-			};
-
-			template<typename T, typename TCollectionType>
-			struct DetailTypeInfoRetriver_Template2
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator = UpLevelRetriver::Decorator;
-				typedef TCollectionType											Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
-				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
-					typedef typename ContainerType::KeyContainer									KeyContainer;
-					typedef typename ContainerType::ValueContainer									ValueContainer;
-					typedef typename KeyContainer::ElementType										KeyType;
-					typedef typename ValueContainer::ElementType									ValueType;
-
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
-
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
-					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
-					genericType->AddGenericArgument(TypeInfoRetriver<ValueType>::CreateTypeInfo());
-
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
-					return type;
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::EnumerableType> : DetailTypeInfoRetriver_Template1<T, IValueEnumerable>
-			{
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ReadonlyListType> : DetailTypeInfoRetriver_Template1<T, IValueReadonlyList>
-			{
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ArrayType> : DetailTypeInfoRetriver_Template1<T, IValueArray>
-			{
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ListType> : DetailTypeInfoRetriver_Template1<T, IValueList>
-			{
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ObservableListType> : DetailTypeInfoRetriver_Template1<T, IValueObservableList>
-			{
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::ReadonlyDictionaryType> : DetailTypeInfoRetriver_Template2<T, IValueReadonlyDictionary>
-			{
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::DictionaryType> : DetailTypeInfoRetriver_Template2<T, IValueDictionary>
-			{
-			};
- 
-/***********************************************************************
-ParameterAccessor<TContainer>
+Containers
 ***********************************************************************/
 
 			template<typename TValueItf, typename TExpectedItf, template<typename T> class TValueImpl, typename T>
