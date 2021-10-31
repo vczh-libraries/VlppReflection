@@ -551,7 +551,7 @@ Collection Wrappers
 		template<typename T>
 		void ObservableList<T>::NotifyUpdateInternal(vint start, vint count, vint newCount)
 		{
-			if (auto colref = this->TryGetCollectionReference<reflection::description::IValueObservableList>())
+			if (auto colref = this->template TryGetCollectionReference<reflection::description::IValueObservableList>())
 			{
 				colref->ItemChanged(start, count, newCount);
 			}

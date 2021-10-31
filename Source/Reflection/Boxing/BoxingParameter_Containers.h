@@ -21,7 +21,7 @@ Containers
 			template<typename TValueItf, typename TExpectedItf, template<typename T> class TValueImpl, typename T>
 			auto GetValueCollectionFromCollection(T* collection) -> std::enable_if_t<std::is_convertible_v<TValueItf*, TExpectedItf*>, Ptr<TExpectedItf>>
 			{
-				auto colref = collection->TryGetCollectionReference<TValueImpl<T*>>();
+				auto colref = collection->template TryGetCollectionReference<TValueImpl<T*>>();
 				if (colref) return colref;
 				colref = MakePtr<TValueImpl<T*>>(collection);
 				collection->SetCollectionReference(colref);

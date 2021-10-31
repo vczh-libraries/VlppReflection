@@ -29,7 +29,7 @@ BoxValue, UnboxValue
 			/// <param name="object">The object to box.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
-			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor = nullptr)
+			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor)
 			{
 				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::BoxValue(object, typeDescriptor);
@@ -42,7 +42,7 @@ BoxValue, UnboxValue
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
-			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"))
+			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 			{
 				using Type = std::remove_cvref_t<T>;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::UnboxValue(value, typeDescriptor, valueName);

@@ -15,6 +15,59 @@ namespace vl
 	{
 		namespace description
 		{
+			template<typename T>
+			struct TypeInfoRetriver;
+
+			/// <summary>
+			/// A reference holder to an unboxed object.
+			/// </summary>
+			/// <typeparam name="T">The type of the unboxed object.</typeparam>
+			template<typename T>
+			struct Unboxed
+			{
+			private:
+				T*				object;
+				bool			owned;
+
+			public:
+				Unboxed(T* _object, bool _owned) : object(_object), owned(_owned) {}
+				Unboxed(Unboxed<T>&& unboxed) : object(unboxed.object), owned(unboxed.owned) { unboxed.object = nullptr; }
+				~Unboxed() { if (object && owned) { delete object; } }
+
+				Unboxed() = delete;
+				Unboxed(const Unboxed<T>&&) = delete;
+				Unboxed<T>& operator=(const Unboxed<T>&) = delete;
+				Unboxed<T>& operator=(Unboxed<T>&&) = delete;
+
+				/// <summary>
+				/// Get the reference of the unboxed object.
+				/// It is recommended only to use this reference when the <see cref="Unboxe`1"/> is still alive.
+				/// </summary>
+				/// <returns>The unboxed object.</returns>
+				T& Ref() const { CHECK_ERROR(object, L"vl::reflection::description::Unboxed<T>::Ref()#The object has been moved away.");  return *object; }
+
+				/// <summary>
+				/// Test if the unboxed object is owned.
+				/// </summary>
+				/// <returns></returns>
+				bool IsOwned() const
+				{
+					return owned;
+				}
+			};
+
+			template<typename T>
+			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor = nullptr);
+
+			template<typename T>
+			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"));
+
+			template<typename T>
+			Value BoxParameter(T&& object, ITypeDescriptor* typeDescriptor = nullptr);
+
+			template<typename T>
+			Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"));
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************

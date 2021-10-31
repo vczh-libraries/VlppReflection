@@ -15,6 +15,9 @@ namespace vl
 		namespace description
 		{
 			class IValueReadonlyList;
+
+			template<typename T>
+			struct TypedValueSerializerProvider;
 		}
 
 		namespace description

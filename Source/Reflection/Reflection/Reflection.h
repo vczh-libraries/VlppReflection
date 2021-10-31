@@ -83,9 +83,6 @@ Predefined Types
 
 #endif
 
-			template<typename T>
-			struct TypedValueSerializerProvider;
-
 #define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
 			template<>\
 			struct TypedValueSerializerProvider<TYPENAME>\
