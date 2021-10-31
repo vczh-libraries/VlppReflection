@@ -157,6 +157,10 @@ Collections
 				/// <returns>The enumerator.</returns>
 				virtual Ptr<IValueEnumerator>	CreateEnumerator() = 0;
 
+				/// <summary>Get the underlying collection object, which is boxed to be this interface.</summary>
+				/// <returns>The underlying collection object, could be nullptr.</returns>
+				virtual const Object*			GetCollectionObject() = 0;
+
 				/// <summary>Create an enumerable from another lazy list.</summary>
 				/// <returns>The created enumerable.</returns>
 				/// <param name="values">The lazy list to wrap.</param>
@@ -577,6 +581,10 @@ Collections
 				/// <returns>The reference to the value. It will crash if the key does not exist.</returns>
 				/// <param name="key">The key to find.</param>
 				virtual Value					Get(const Value& key) = 0;
+
+				/// <summary>Get the underlying collection object, which is boxed to be this interface.</summary>
+				/// <returns>The underlying collection object, could be nullptr.</returns>
+				virtual const Object*			GetCollectionObject() = 0;
 			};
 
 			/// <summary>

@@ -103,25 +103,41 @@ Containers
 				return BoxValue(result, td);
 			}
 
-			template<typename TCollection, typename TValueItf>
-			Unboxed<TCollection> UnboxCollection(const Ptr<TValueItf>& colref)
+			template<typename T, typename TValueItf>
+			Unboxed<T> UnboxCollection(const Ptr<TValueItf>& colref)
 			{
-				auto collection = new TCollection();
-				auto lazyList = GetLazyList<typename TCollection::ElementType>(colref);
-				collections::CopyFrom(*collection, lazyList);
-				return { collection, true };
+				using TCollection = std::remove_const_t<T>;
+				if (auto colobj = dynamic_cast<TCollection*>(const_cast<Object*>(colref->GetCollectionObject())))
+				{
+					return { colobj,false };
+				}
+				else
+				{
+					auto collection = new TCollection();
+					auto lazyList = GetLazyList<typename TCollection::ElementType>(colref);
+					collections::CopyFrom(*collection, lazyList);
+					return { collection, true };
+				}
 			}
 
-			template<typename TCollection, typename TValueItf>
-			Unboxed<TCollection> UnboxDictionary(const Ptr<TValueItf>& colref)
+			template<typename T, typename TValueItf>
+			Unboxed<T> UnboxDictionary(const Ptr<TValueItf>& colref)
 			{
-				auto collection = new TCollection();
-				auto lazyList = GetLazyList<
-					typename TCollection::KeyContainer::ElementType,
-					typename TCollection::ValueContainer::ElementType
+				using TCollection = std::remove_const_t<T>;
+				if (auto colobj = dynamic_cast<TCollection*>(const_cast<Object*>(colref->GetCollectionObject())))
+				{
+					return { colobj,false };
+				}
+				else
+				{
+					auto collection = new TCollection();
+					auto lazyList = GetLazyList<
+						typename TCollection::KeyContainer::ElementType,
+						typename TCollection::ValueContainer::ElementType
 					>(colref);
-				collections::CopyFrom(*collection, lazyList);
-				return { collection, true };
+					collections::CopyFrom(*collection, lazyList);
+					return { collection, true };
+				}
 			}
 
 			template<typename T>

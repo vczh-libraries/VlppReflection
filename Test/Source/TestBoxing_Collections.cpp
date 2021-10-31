@@ -186,8 +186,8 @@ namespace reflection_test_boxunboxcollections
 
 		xu2.Ref().Remove(0);
 		yu2.Ref().Remove(0);
-		TEST_ASSERT(xs.Count() == 3);
-		TEST_ASSERT(ys.Count() == 3);
+		TEST_ASSERT(xs.Count() == 4);
+		TEST_ASSERT(ys.Count() == 4);
 	}
 }
 using namespace reflection_test_boxunboxcollections;

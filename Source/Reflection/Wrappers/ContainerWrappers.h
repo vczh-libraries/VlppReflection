@@ -266,6 +266,25 @@ Collection Wrappers
 						wrapperPointer->CreateEnumerator()
 					);
 				}
+
+				const Object* GetCollectionObject()override
+				{
+					if constexpr (std::is_same_v<typename trait_helper::RemovePtr<T>::Type*, T>)
+					{
+						if (wrapperPointer->GetCollectionReference() == this)
+						{
+							return wrapperPointer;
+						}
+						else
+						{
+							return nullptr;
+						}
+					}
+					else
+					{
+						return nullptr;
+					}
+				}
 			};
 
 			template<typename T>
@@ -461,6 +480,25 @@ Collection Wrappers
 					KeyKeyType item = UnboxValue<KeyKeyType>(key);
 					ValueType result = wrapperPointer->Get(item);
 					return BoxValue<ValueType>(result);
+				}
+
+				const Object* GetCollectionObject()override
+				{
+					if constexpr (std::is_same_v<typename trait_helper::RemovePtr<T>::Type*, T>)
+					{
+						if (wrapperPointer->GetCollectionReference() == this)
+						{
+							return wrapperPointer;
+						}
+						else
+						{
+							return nullptr;
+						}
+					}
+					else
+					{
+						return nullptr;
+					}
 				}
 			};
 
