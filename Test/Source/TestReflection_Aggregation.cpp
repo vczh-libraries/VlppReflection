@@ -1,4 +1,4 @@
-#include "../../Source/Reflection/Reflection/Reflection.h"
+#include "Common.h"
 
 using namespace vl;
 using namespace vl::reflection;
@@ -331,17 +331,7 @@ namespace reflection_test_aggregation
 }
 using namespace reflection_test_aggregation;
 
-#define TEST_CASE_REFLECTION(NAME)\
-	TEST_CASE(L ## #NAME)\
-	{\
-		TEST_ASSERT(LoadPredefinedTypes());\
-		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(new TestTypeLoader_Aggregation));\
-		TEST_ASSERT(GetGlobalTypeManager()->Load());\
-		{\
-			NAME();\
-		}\
-		TEST_ASSERT(ResetGlobalTypeManager());\
-	});\
+#define TEST_CASE_REFLECTION(NAME) TEST_CASE_REFLECTION_LOADER(NAME, TestTypeLoader_Aggregation)
 
 TEST_FILE
 {

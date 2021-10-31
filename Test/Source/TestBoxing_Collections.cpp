@@ -1,4 +1,4 @@
-#include "../../Source/Reflection/Reflection/Reflection.h"
+#include "Common.h"
 
 using namespace vl;
 using namespace vl::collections;
@@ -134,19 +134,65 @@ namespace reflection_test_boxunboxcollections
 		cs = nullptr;
 		TEST_EXCEPTION(xs->CreateEnumerator(), ObjectDisposedException, [](auto) {});
 	}
+
+	void TestBoxingThenUnboxing()
+	{
+		List<vint> xs;
+		Array<vint> ys;
+		{
+			vint zs[] = { 1,2,3 };
+			CopyFrom(xs, From(zs));
+			CopyFrom(ys, From(zs));
+		}
+
+		auto xrv = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter(xs));
+		auto yrv = UnboxValue<Ptr<IValueReadonlyList>>(BoxParameter(ys));
+		auto xv = xrv.Cast<IValueList>();
+		auto yv = yrv.Cast<IValueArray>();
+
+		TEST_ASSERT(xrv);
+		TEST_ASSERT(yrv);
+		TEST_ASSERT(xv);
+		TEST_ASSERT(yv);
+
+		xv->Add(BoxValue<vint>(4));
+		yv->Resize(4);
+		yv->Set(3, BoxValue<vint>(5));
+
+		TEST_ASSERT(xs.Count() == 4);
+		TEST_ASSERT(xs[0] == 1);
+		TEST_ASSERT(xs[1] == 2);
+		TEST_ASSERT(xs[2] == 3);
+		TEST_ASSERT(xs[3] == 4);
+
+		TEST_ASSERT(ys.Count() == 4);
+		TEST_ASSERT(ys[0] == 1);
+		TEST_ASSERT(ys[1] == 2);
+		TEST_ASSERT(ys[2] == 3);
+		TEST_ASSERT(ys[3] == 5);
+
+		auto xu1 = UnboxParameter<List<vint>>(BoxValue(xrv));
+		auto yu1 = UnboxParameter<Array<vint>>(BoxValue(yrv));
+		auto xu2 = UnboxParameter<SortedList<vint>>(BoxValue(xrv));
+		auto yu2 = UnboxParameter<SortedList<vint>>(BoxValue(yrv));
+
+		TEST_ASSERT(&xu1.Ref() == &xs);
+		TEST_ASSERT(&yu1.Ref() == &ys);
+
+		TEST_ASSERT(xu1.IsOwned() == false);
+		TEST_ASSERT(yu1.IsOwned() == false);
+		TEST_ASSERT(xu2.IsOwned() == true);
+		TEST_ASSERT(yu2.IsOwned() == true);
+
+		xu2.Ref().Remove(0);
+		yu2.Ref().Remove(0);
+		TEST_ASSERT(xs.Count() == 3);
+		TEST_ASSERT(ys.Count() == 3);
+	}
 }
 using namespace reflection_test_boxunboxcollections;
 
-#define TEST_CASE_REFLECTION(NAME)\
-	TEST_CASE(L ## #NAME)\
-	{\
-		TEST_ASSERT(LoadPredefinedTypes());\
-		TEST_ASSERT(GetGlobalTypeManager()->Load());\
-		{\
-			NAME();\
-		}\
-		TEST_ASSERT(ResetGlobalTypeManager());\
-	});\
+#define TEST_CASE_REFLECTION(NAME) TEST_CASE_REFLECTION_NOLOADER(NAME)
 
 TEST_FILE
 {
@@ -156,4 +202,5 @@ TEST_FILE
 	TEST_CASE_REFLECTION(TestSortedList)
 	TEST_CASE_REFLECTION(TestDictionary)
 	TEST_CASE_REFLECTION(TestObservableList)
+	TEST_CASE_REFLECTION(TestBoxingThenUnboxing)
 }

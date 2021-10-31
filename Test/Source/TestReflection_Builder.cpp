@@ -1,4 +1,4 @@
-#include "../../Source/Reflection/Reflection/Reflection.h"
+#include "Common.h"
 
 using namespace vl;
 using namespace vl::reflection;
@@ -65,16 +65,7 @@ namespace reflection_test_builder
 }
 using namespace reflection_test_builder;
 
-#define TEST_CASE_REFLECTION(NAME)\
-	TEST_CASE(L ## #NAME)\
-	{\
-		TEST_ASSERT(LoadPredefinedTypes());\
-		TEST_ASSERT(GetGlobalTypeManager()->Load());\
-		{\
-			NAME();\
-		}\
-		TEST_ASSERT(ResetGlobalTypeManager());\
-	});\
+#define TEST_CASE_REFLECTION(NAME) TEST_CASE_REFLECTION_NOLOADER(NAME)
 
 TEST_FILE
 {

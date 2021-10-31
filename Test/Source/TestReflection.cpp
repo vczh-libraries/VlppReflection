@@ -1,4 +1,4 @@
-#include "../../Source/Reflection/Reflection/Reflection.h"
+#include "Common.h"
 
 using namespace vl;
 using namespace vl::collections;
@@ -788,17 +788,7 @@ namespace reflection_test
 }
 using namespace reflection_test;
 
-#define TEST_CASE_REFLECTION(NAME)\
-	TEST_CASE(L ## #NAME)\
-	{\
-		TEST_ASSERT(LoadPredefinedTypes());\
-		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(new TestTypeLoader));\
-		TEST_ASSERT(GetGlobalTypeManager()->Load());\
-		{\
-			NAME();\
-		}\
-		TEST_ASSERT(ResetGlobalTypeManager());\
-	});\
+#define TEST_CASE_REFLECTION(NAME) TEST_CASE_REFLECTION_LOADER(NAME, TestTypeLoader)
 
 TEST_FILE
 {

@@ -3,7 +3,6 @@
 ## 2.0
 
 - Add DisposedFlag to collections and all reflectable classes and interfaces.
-- Try to grab the `List<vint>` reference when unboxing from a `Ptr<IValueList>` which was created from a `List<vint>`.
 - Dump and reload type metadata with some types not included.
   - Version number in binary file.
   - List dependency type, check if all of them are available before loading this file.
