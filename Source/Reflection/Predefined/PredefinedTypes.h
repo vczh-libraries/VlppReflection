@@ -159,7 +159,7 @@ Collections
 
 				/// <summary>Get the underlying collection object, which is boxed to be this interface.</summary>
 				/// <returns>The underlying collection object, could be nullptr.</returns>
-				virtual const Object*			GetCollectionObject() = 0;
+				virtual const Object*			GetCollectionObject() { return nullptr; }
 
 				/// <summary>Create an enumerable from another lazy list.</summary>
 				/// <returns>The created enumerable.</returns>
@@ -584,7 +584,7 @@ Collections
 
 				/// <summary>Get the underlying collection object, which is boxed to be this interface.</summary>
 				/// <returns>The underlying collection object, could be nullptr.</returns>
-				virtual const Object*			GetCollectionObject() = 0;
+				virtual const Object*			GetCollectionObject() { return nullptr; }
 			};
 
 			/// <summary>

@@ -130,11 +130,6 @@ Interface Implementation Proxy (Implement)
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(CreateEnumerator);
 				}
-
-				const Object* GetCollectionObject()override
-				{
-					return nullptr;
-				}
 			END_INTERFACE_PROXY(IValueEnumerable)
 
 			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueReadonlyList, IValueEnumerable)
@@ -225,11 +220,6 @@ Interface Implementation Proxy (Implement)
 				Value Get(const Value& key)override
 				{
 					INVOKEGET_INTERFACE_PROXY(Get, key);
-				}
-
-				const Object* GetCollectionObject()override
-				{
-					return nullptr;
 				}
 			END_INTERFACE_PROXY(IValueReadonlyDictionary)
 
