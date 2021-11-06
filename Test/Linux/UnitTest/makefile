@@ -18,13 +18,19 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/Vlpp.o ./Obj/VlppOS.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/Reflection.o ./Obj/TestBoxing.o ./Obj/TestReflection.o ./Obj/TestReflection_Aggregation.o ./Obj/TestBoxing_Collections.o ./Obj/TestReflection_Builder.o ./Obj/TestReflection_Event.o ./Obj/TestReflection_Hint.o ./Obj/Main.o
+./Bin/UnitTest:./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/Reflection.o ./Obj/TestBoxing.o ./Obj/TestReflection.o ./Obj/TestReflection_Aggregation.o ./Obj/TestBoxing_Collections.o ./Obj/TestReflection_Builder.o ./Obj/TestReflection_Event.o ./Obj/TestReflection_Hint.o ./Obj/Main.o
 	$(CPP_LINK)
 
 ./Obj/Vlpp.o: ../../../Import/Vlpp.cpp ../../../Import/Vlpp.h
 	$(CPP_COMPILE)
 
+./Obj/Vlpp.Linux.o: ../../../Import/Vlpp.Linux.cpp ../../../Import/Vlpp.h
+	$(CPP_COMPILE)
+
 ./Obj/VlppOS.o: ../../../Import/VlppOS.cpp ../../../Import/VlppOS.h ../../../Import/Vlpp.h
+	$(CPP_COMPILE)
+
+./Obj/VlppOS.Linux.o: ../../../Import/VlppOS.Linux.cpp ../../../Import/VlppOS.h ../../../Import/Vlpp.h
 	$(CPP_COMPILE)
 
 ./Obj/VlppRegex.o: ../../../Import/VlppRegex.cpp ../../../Import/VlppRegex.h ../../../Import/Vlpp.h

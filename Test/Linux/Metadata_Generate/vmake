@@ -5,7 +5,11 @@ CPP_VCXPROJS=(
     "../../UnitTest/VlppReflection/VlppReflection.vcxitems"
     "../../UnitTest/Metadata_Generate/Metadata_Generate.vcxproj"
     )
-CPP_REMOVES=("../../UnitTest/UnitTest/Main.cpp")
+CPP_REMOVES=(
+    "../../../Import/Vlpp.Windows.cpp"
+    "../../../Import/VlppOS.Windows.cpp"
+    "../../UnitTest/UnitTest/Main.cpp"
+    )
 CPP_ADDS=("../Main.cpp")
 FOLDERS=("../../Output")
 TARGETS=("${CPP_TARGET}")
