@@ -7,6 +7,5 @@
   - Version number in binary file.
   - List dependency type, check if all of them are available before loading this file.
     - Or implement delay loading like GacUI resources.
-- Move platform-dependent code to separated files as what `Vlpp` does.
 
 ## Optional
