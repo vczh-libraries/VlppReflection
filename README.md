@@ -6,7 +6,9 @@
 
 This project is licensed under [the License repo](https://github.com/vczh-libraries/License).
 
-This project is not open sourced and for development only. But you are able to use the open sourced version in [the Release repo](https://github.com/vczh-libraries/Release).
+Source code in this repo is for reference only, please use the source code in [the Release repo](https://github.com/vczh-libraries/Release).
+
+You are welcome to contribute to this repo by opening pull requests.
 
 ## Document
 
@@ -16,11 +18,6 @@ For **VlppReflection**: click [here](http://vczh-libraries.github.io/doc/current
 
 ## Unit Test
 
-- **Reflection for C++**
-  - **TEST** [TestReflection.cpp](./Test/Source/TestReflection.cpp)
-  - **TUTORIAL** [GuiTypeDescriptor.h](./Source/Reflection/GuiTypeDescriptor.h)
+For **Windows**, open `Test/UnitTest/UnitTest.sln`, and run the `UnitTest` project.
 
-- Execution Order:
-  - Metadata_Generate
-  - Metadata_Test
-  - UnitTest
+For **Linux**, use `Test/Linux/makefile` to build and unit test.
