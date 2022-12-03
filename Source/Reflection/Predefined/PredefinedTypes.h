@@ -123,7 +123,7 @@ Collections
 			///         LazyList<Ptr<MyClass>> cs = Range<vint>(1, 10)
 			///             .Select([](vint i)
 			///             {
-			///                 return MakePtr<MyClass>(i);
+			///                 return Ptr(new MyClass(i));
 			///             });
 			/// 
 			///         Value boxed = BoxParameter(cs);
@@ -322,7 +322,7 @@ Collections
 			///         CopyFrom(cs, Range<vint>(1, 10)
 			///             .Select([](vint i)
 			///             {
-			///                 return MakePtr<MyClass>(i);
+			///                 return Ptr(new MyClass(i));
 			///             })
 			///         );
 			/// 
@@ -486,7 +486,7 @@ Collections
 			///         CopyFrom(cs, Range<vint>(1, 10)
 			///             .Select([](vint i)
 			///             {
-			///                 return MakePtr<MyClass>(i);
+			///                 return Ptr(new MyClass(i));
 			///             })
 			///         );
 			/// 
@@ -674,7 +674,7 @@ Collections
 			///         CopyFrom(cs, Range<vint>(1, 10)
 			///             .Select([](vint i) -> Pair<vint, Ptr<MyClass>>
 			///             {
-			///                 return { i, MakePtr<MyClass>(i * i) };
+			///                 return { i, Ptr(new MyClass(i * i)) };
 			///             })
 			///         );
 			/// 

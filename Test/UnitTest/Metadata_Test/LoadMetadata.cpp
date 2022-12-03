@@ -19,7 +19,7 @@ extern WString GetTestOutputPath();
 #endif
 
 #define INSTALL_SERIALIZABLE_TYPE(TYPE)\
-	serializableTypes.Add(TypeInfo<TYPE>::content.typeName, MakePtr<SerializableType<TYPE>>());
+	serializableTypes.Add(TypeInfo<TYPE>::content.typeName, Ptr(new SerializableType<TYPE>()));
 
 BEGIN_GLOBAL_STORAGE_CLASS(MetaonlyTypeDescriptors)
 	Ptr<ITypeLoader>		typeLoader;

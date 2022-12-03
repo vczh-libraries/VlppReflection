@@ -78,7 +78,7 @@ TEST_FILE
 			TEST_ASSERT(UnboxValue<WString>(value) == L"abc");
 		}
 		{
-			Ptr<Base> base = MakePtr<Base>();
+			auto base = Ptr(new Base);
 			{
 				auto value = BoxValue<Base*>(base.Obj());
 				TEST_ASSERT(UnboxValue<Base*>(value) == base.Obj());

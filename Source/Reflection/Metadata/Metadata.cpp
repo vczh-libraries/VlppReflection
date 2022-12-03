@@ -987,7 +987,7 @@ TypeDescriptorImpl
 				vint index=methodGroups.Keys().IndexOf(name);
 				if(index==-1)
 				{
-					Ptr<MethodGroupInfoImpl> methodGroup=new MethodGroupInfoImpl(this, name);
+					auto methodGroup=Ptr(new MethodGroupInfoImpl(this, name));
 					methodGroups.Add(name, methodGroup);
 					return methodGroup.Obj();
 				}
@@ -1001,7 +1001,7 @@ TypeDescriptorImpl
 			{
 				if(!constructorGroup)
 				{
-					constructorGroup=new MethodGroupInfoImpl(this, L"");
+					constructorGroup=Ptr(new MethodGroupInfoImpl(this, L""));
 				}
 				return constructorGroup.Obj();
 			}

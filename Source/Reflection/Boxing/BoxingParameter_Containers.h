@@ -23,7 +23,7 @@ Containers
 			{
 				auto colref = collection->template TryGetCollectionReference<TValueImpl<T*>>();
 				if (colref) return colref;
-				colref = MakePtr<TValueImpl<T*>>(collection);
+				colref = Ptr(new TValueImpl<T*>(collection));
 				collection->SetCollectionReference(colref);
 				return colref;
 			}

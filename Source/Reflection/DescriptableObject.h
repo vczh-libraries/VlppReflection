@@ -73,7 +73,7 @@ DescriptableObject
 		/// 
 		/// int main()
 		/// {
-		///     auto myClass = MakePtr<MyClass>();
+		///     auto myClass = Ptr(new MyClass);
 		///     myClass->data = L"Hello, world!";
 		/// 
 		///     Ptr<DescriptableObject> obj = myClass;

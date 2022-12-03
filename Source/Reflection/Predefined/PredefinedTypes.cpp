@@ -20,8 +20,8 @@ IValueEnumerable
 
 			Ptr<IValueEnumerable> IValueEnumerable::Create(collections::LazyList<Value> values)
 			{
-				Ptr<IEnumerable<Value>> enumerable = new LazyList<Value>(values);
-				return new ValueEnumerableWrapper<Ptr<IEnumerable<Value>>>(enumerable);
+				Ptr<IEnumerable<Value>> enumerable(new LazyList<Value>(values));
+				return Ptr(new ValueEnumerableWrapper<Ptr<IEnumerable<Value>>>(enumerable));
 			}
 
 /***********************************************************************
@@ -40,9 +40,9 @@ IValueArray
 
 			Ptr<IValueArray> IValueArray::Create(collections::LazyList<Value> values)
 			{
-				Ptr<Array<Value>> list = new Array<Value>;
+				auto list = Ptr(new Array<Value>);
 				CopyFrom(*list.Obj(), values);
-				return new ValueArrayWrapper<Ptr<Array<Value>>>(list);
+				return Ptr(new ValueArrayWrapper<Ptr<Array<Value>>>(list));
 			}
 
 /***********************************************************************
@@ -61,9 +61,9 @@ IValueList
 
 			Ptr<IValueList> IValueList::Create(collections::LazyList<Value> values)
 			{
-				Ptr<List<Value>> list = new List<Value>;
+				auto list = Ptr(new List<Value>);
 				CopyFrom(*list.Obj(), values);
-				return new ValueListWrapper<Ptr<List<Value>>>(list);
+				return Ptr(new ValueListWrapper<Ptr<List<Value>>>(list));
 			}
 
 /***********************************************************************
@@ -97,9 +97,9 @@ IObservableList
 
 			Ptr<IValueObservableList> IValueObservableList::Create(collections::LazyList<Value> values)
 			{
-				auto list = MakePtr<ReversedObservableList>();
+				auto list = Ptr(new ReversedObservableList);
 				CopyFrom(*list.Obj(), values);
-				auto wrapper = MakePtr<ValueObservableListWrapper<Ptr<ReversedObservableList>>>(list);
+				auto wrapper = Ptr(new ValueObservableListWrapper<Ptr<ReversedObservableList>>(list));
 				list->observableList = wrapper.Obj();
 				return wrapper;
 			}
@@ -110,22 +110,22 @@ IValueDictionary
 
 			Ptr<IValueDictionary> IValueDictionary::Create()
 			{
-				Ptr<Dictionary<Value, Value>> dictionary = new Dictionary<Value, Value>;
-				return new ValueDictionaryWrapper<Ptr<Dictionary<Value, Value>>>(dictionary);
+				auto dictionary = Ptr(new Dictionary<Value, Value>);
+				return Ptr(new ValueDictionaryWrapper<Ptr<Dictionary<Value, Value>>>(dictionary));
 			}
 
 			Ptr<IValueDictionary> IValueDictionary::Create(Ptr<IValueReadonlyDictionary> values)
 			{
-				Ptr<Dictionary<Value, Value>> dictionary = new Dictionary<Value, Value>;
+				auto dictionary = Ptr(new Dictionary<Value, Value>);
 				CopyFrom(*dictionary.Obj(), GetLazyList<Value, Value>(values));
-				return new ValueDictionaryWrapper<Ptr<Dictionary<Value, Value>>>(dictionary);
+				return Ptr(new ValueDictionaryWrapper<Ptr<Dictionary<Value, Value>>>(dictionary));
 			}
 
 			Ptr<IValueDictionary> IValueDictionary::Create(collections::LazyList<collections::Pair<Value, Value>> values)
 			{
-				Ptr<Dictionary<Value, Value>> dictionary = new Dictionary<Value, Value>;
+				auto dictionary = Ptr(new Dictionary<Value, Value>);
 				CopyFrom(*dictionary.Obj(), values);
-				return new ValueDictionaryWrapper<Ptr<Dictionary<Value, Value>>>(dictionary);
+				return Ptr(new ValueDictionaryWrapper<Ptr<Dictionary<Value, Value>>>(dictionary));
 			}
 
 /***********************************************************************
@@ -166,7 +166,7 @@ IValueException
 
 			Ptr<IValueException> IValueException::Create(const WString& message)
 			{
-				return new DefaultValueException(message);
+				return Ptr(new DefaultValueException(message));
 			}
 		}
 	}

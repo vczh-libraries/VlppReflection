@@ -32,7 +32,7 @@ namespace reflection_test_boxunboxcollections
 	{
 		LazyList<vint> ll;
 		{
-			auto cs = MakePtr<List<vint>>();
+			auto cs = Ptr(new List<vint>);
 			cs->Add(0);
 			cs->Add(1);
 			cs->Add(2);
@@ -56,7 +56,7 @@ namespace reflection_test_boxunboxcollections
 
 	void TestArray()
 	{
-		auto cs = MakePtr<Array<vint>>();
+		auto cs = Ptr(new Array<vint>);
 		auto xs = UnboxCollection<IValueArray>(cs);
 
 		xs->Resize(1);
@@ -73,7 +73,7 @@ namespace reflection_test_boxunboxcollections
 
 	void TestList()
 	{
-		auto cs = MakePtr<List<vint>>();
+		auto cs = Ptr(new List<vint>);
 		auto xs = UnboxCollection<IValueList>(cs);
 
 		xs->Add(BoxValue<vint>(100));
@@ -89,7 +89,7 @@ namespace reflection_test_boxunboxcollections
 
 	void TestSortedList()
 	{
-		auto cs = MakePtr<SortedList<vint>>();
+		auto cs = Ptr(new SortedList<vint>);
 		auto xs = UnboxCollection<IValueReadonlyList>(cs);
 
 		cs->Add(100);
@@ -105,7 +105,7 @@ namespace reflection_test_boxunboxcollections
 
 	void TestDictionary()
 	{
-		auto cs = MakePtr<Dictionary<vint, vint>>();
+		auto cs = Ptr(new Dictionary<vint, vint>);
 		auto xs = UnboxCollection<IValueDictionary>(cs);
 
 		xs->Set(BoxValue<vint>(100), BoxValue<vint>(200));
@@ -121,7 +121,7 @@ namespace reflection_test_boxunboxcollections
 
 	void TestObservableList()
 	{
-		auto cs = MakePtr<ObservableList<vint>>();
+		auto cs = Ptr(new ObservableList<vint>);
 		auto xs = UnboxCollection<IValueObservableList>(cs);
 
 		cs->Add(100);
