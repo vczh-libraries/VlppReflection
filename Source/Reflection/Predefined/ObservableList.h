@@ -14,7 +14,6 @@ namespace vl
 	{
 		/// <summary>Base type of observable container which triggers callbacks whenever items are changed.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		/// <remarks>
 		/// <p>Methods are the same to <see cref="List`2"/>, except that operator[] is readonly.</p>
 		/// <p>
@@ -37,11 +36,12 @@ namespace vl
 		/// Arguments is exactly the same as <see cref="reflection::description::IValueObservableList::ItemChanged"/>.
 		/// </p>
 		/// </remarks>
-		template<typename T, typename K = typename KeyType<T>::Type>
+		template<typename T>
 		class ObservableListBase : public collections::EnumerableBase<T>
 		{
+			using K = typename KeyType<T>::Type;
 		protected:
-			collections::List<T, K>					items;
+			collections::List<T>					items;
 
 			virtual void NotifyUpdateInternal(vint start, vint count, vint newCount)
 			{
@@ -240,7 +240,6 @@ namespace vl
 
 		/// <summary>An observable container that maintain an implementation of <see cref="reflection::description::IValueObservableList"/>.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		template<typename T>
 		class ObservableList : public ObservableListBase<T>
 		{

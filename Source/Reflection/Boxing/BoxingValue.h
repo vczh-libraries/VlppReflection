@@ -98,7 +98,7 @@ Basic Types
 					Ptr<T> result;
 					if(value.GetValueType()==Value::RawPtr || value.GetValueType()==Value::SharedPtr)
 					{
-						result = value.GetRawPtr()->SafeAggregationCast<T>();
+						result = Ptr(value.GetRawPtr()->SafeAggregationCast<T>());
 					}
 					if(!result)
 					{
@@ -149,7 +149,7 @@ Basic Types
 						typeDescriptor = GetTypeDescriptor<Type>();
 					}
 #endif
-					return Value::From(new IValueType::TypedBox<Type>(object), typeDescriptor);
+					return Value::From(Ptr(new IValueType::TypedBox<Type>(object)), typeDescriptor);
 				}
 
 				static T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)

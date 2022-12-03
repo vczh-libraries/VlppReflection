@@ -34,13 +34,11 @@ CustomConstructorInfoImpl<R(TArgs...)>
  
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
 				{
-					Func<R(TArgs...)> proxy(
-						LAMBDA([](TArgs ...args)->R
-						{
-							R result = new TClass(args...);
-							return result;
-						})
-					);
+					auto proxy = Func([](TArgs ...args)->R
+					{
+						R result = R(new TClass(args...));
+						return result;
+					});
 					return BoxParameter(proxy);
 				}
 			public:
@@ -139,7 +137,7 @@ CustomExternalMethodInfoImpl<TClass, R(TArgs...)>
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
 				{
 					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					Func<R(TArgs...)> proxy = Curry(Func<R(TClass*, TArgs...)>(method))(object);
+					auto proxy = [object, this](TArgs... args) { return method(object, args...); };
 					return BoxParameter(proxy);
 				}
 			public:

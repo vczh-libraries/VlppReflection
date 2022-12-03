@@ -258,13 +258,13 @@ Collection Wrappers
 				Ptr<IValueEnumerator> CreateEnumerator()override
 				{
 					ENSURE_WRAPPER_POINTER;
-					return new ValueEnumeratorWrapper<
+					return Ptr(new ValueEnumeratorWrapper<
 						ValueEnumerableWrapper<T>,
 						Ptr<collections::IEnumerator<ElementType>>
 					>(
-						this,
-						wrapperPointer->CreateEnumerator()
-					);
+						Ptr(this),
+						Ptr(wrapperPointer->CreateEnumerator())
+					));
 				}
 
 				const Object* GetCollectionObject()override

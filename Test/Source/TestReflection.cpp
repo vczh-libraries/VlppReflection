@@ -53,7 +53,7 @@ namespace TestReflection_TestObjects
 		Season season;
 		Base():a(0), season(Spring){}
 		Base(vint _a):a(_a){}
-		static Ptr<Base> Create(vint _a, vint _b){return new Base(_a+_b);}
+		static Ptr<Base> Create(vint _a, vint _b){return Ptr(new Base(_a+_b));}
 	};
 
 	class Derived : public Base, public Description<Derived>
@@ -63,8 +63,8 @@ namespace TestReflection_TestObjects
 	public:
 		Derived():b(0){}
 		Derived(vint _a, vint _b):Base(_a),b(_b){}
-		static Ptr<Derived> Create(){return new Derived();}
-		static Ptr<Derived> Create(vint _a, vint _b){return new Derived(_a, _b);}
+		static Ptr<Derived> Create(){return Ptr(new Derived());}
+		static Ptr<Derived> Create(vint _a, vint _b){return Ptr(new Derived(_a, _b));}
 
 		vint GetB(){return b;}
 		void SetB(vint value){b=value;}
@@ -228,7 +228,7 @@ BEGIN_TYPE_INFO_NAMESPACE
 
 	Ptr<IValueReadonlyList> BaseSummer_GetBases(BaseSummer* thisObject)
 	{
-		return new ValueReadonlyListWrapper<const Array<Ptr<Base>>*>(&thisObject->GetBases());
+		return Ptr(new ValueReadonlyListWrapper<const Array<Ptr<Base>>*>(&thisObject->GetBases()));
 	}
 
 	void BaseSummer_SetBases(BaseSummer* thisObject, Ptr<IValueReadonlyList> bases)
@@ -553,8 +553,8 @@ namespace reflection_test
 		}
 		{
 			Value baseSummer = Value::Create(L"BaseSummer");
-			Value f1 = BoxParameter(LAMBDA([](vint i) {return i + 1; }));
-			Value f2 = BoxParameter(LAMBDA([](vint i) {return i + 2; }));
+			Value f1 = BoxParameter(Func([](vint i) {return i + 1; }));
+			Value f2 = BoxParameter(Func([](vint i) {return i + 2; }));
 			Value f = baseSummer.Invoke(L"Sum3", (Value_xs(), f1, f2));
 			auto fx = UnboxParameter<Func<vint(vint)>>(f);
 			TEST_ASSERT(fx.Ref()(10) == 23);
@@ -593,7 +593,7 @@ namespace reflection_test
 		volatile vint* rc = ReferenceCounterOperator<Base>::CreateCounter(b1);
 		TEST_ASSERT(*rc == 0);
 
-		Ptr<Base> b2 = b1;
+		Ptr<Base> b2(b1);
 		TEST_ASSERT(*rc == 1);
 
 		Value v1 = BoxValue(b1);
@@ -616,7 +616,7 @@ namespace reflection_test
 	void TestSharedRawPtrDestructing()
 	{
 		{
-			Ptr<Base> b = new Base;
+			auto b = Ptr(new Base);
 			Ptr<Object> o = b;
 			b = 0;
 			o = 0;
@@ -645,7 +645,7 @@ namespace reflection_test
 
 	void TestInterfaceProxy()
 	{
-		auto mock = MakePtr<InterfaceProxy>();
+		auto mock = Ptr(new InterfaceProxy);
 		Ptr<IValueEnumerable> proxy = ValueInterfaceProxy<IValueEnumerable>::Create(mock);
 		proxy->CreateEnumerator();
 

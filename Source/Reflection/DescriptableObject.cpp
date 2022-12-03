@@ -226,7 +226,7 @@ DescriptableObject
 			{
 				if (value)
 				{
-					internalProperties = new InternalPropertyMap;
+					internalProperties = Ptr(new InternalPropertyMap);
 					internalProperties->Add(name, value);
 				}
 			}

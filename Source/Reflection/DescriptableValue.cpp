@@ -47,7 +47,7 @@ description::Value
 				if (value)
 				{
 					rawPtr = value->SafeGetAggregationRoot();
-					sharedPtr = rawPtr;
+					sharedPtr = Ptr(rawPtr);
 				}
 #else
 				rawPtr = value.Obj();

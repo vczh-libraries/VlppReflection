@@ -122,7 +122,7 @@ Type
 #define END_TYPE_INFO_NAMESPACE }}}
 #define ADD_TYPE_INFO(TYPENAME)\
 			{\
-				Ptr<ITypeDescriptor> type=new CustomTypeDescriptorSelector<TYPENAME>::CustomTypeDescriptorImpl();\
+				auto type = Ptr(new CustomTypeDescriptorSelector<TYPENAME>::CustomTypeDescriptorImpl());\
 				manager->SetTypeDescriptor(TypeInfo<TYPENAME>::content.typeName, type);\
 			}
 
@@ -141,7 +141,7 @@ InterfaceProxy
 #define INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
 			static Ptr<INTERFACE> Create(Ptr<IValueInterfaceProxy> proxy)\
 			{\
-				auto obj = new ValueInterfaceProxy<INTERFACE>();\
+				auto obj = Ptr(new ValueInterfaceProxy<INTERFACE>());\
 				obj->SetProxy(proxy);\
 				return obj;\
 			}\
@@ -276,7 +276,7 @@ Struct
 			};
 
 #define STRUCT_MEMBER(FIELDNAME)\
-	fields.Add(L ## #FIELDNAME, new StructFieldInfo<decltype(((StructType*)0)->FIELDNAME)>(this, &StructType::FIELDNAME, L ## #FIELDNAME));
+	fields.Add(L ## #FIELDNAME, Ptr(new StructFieldInfo<decltype(((StructType*)0)->FIELDNAME)>(this, &StructType::FIELDNAME, L ## #FIELDNAME)));
 
 /***********************************************************************
 Class
@@ -374,11 +374,11 @@ Field
 
 #define CLASS_MEMBER_FIELD(FIELDNAME)\
 			AddProperty(\
-				new CustomFieldInfoImpl<\
+				Ptr(new CustomFieldInfoImpl<\
 					ClassType,\
 					decltype(((ClassType*)0)->FIELDNAME)\
 					>(this, L ## #FIELDNAME, &ClassType::FIELDNAME)\
-				);
+				));
 
 /***********************************************************************
 Constructor
@@ -390,14 +390,14 @@ Constructor
 #define CLASS_MEMBER_CONSTRUCTOR(FUNCTIONTYPE, PARAMETERNAMES)\
 			{\
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
-				AddConstructor(new CustomConstructorInfoImpl<FUNCTIONTYPE>(parameterNames));\
+				AddConstructor(Ptr(new CustomConstructorInfoImpl<FUNCTIONTYPE>(parameterNames)));\
 			}
 
 #define CLASS_MEMBER_EXTERNALCTOR_TEMPLATE(FUNCTIONTYPE, PARAMETERNAMES, SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE)\
 			{\
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
 				AddConstructor(\
-					new CustomStaticMethodInfoImpl<FUNCTIONTYPE>(parameterNames, SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE)\
+					Ptr(new CustomStaticMethodInfoImpl<FUNCTIONTYPE>(parameterNames, SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE))\
 					);\
 			}
 
@@ -413,10 +413,10 @@ Method
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
 				AddMethod(\
 					L ## #FUNCTIONNAME,\
-					new CustomExternalMethodInfoImpl<\
+					Ptr(new CustomExternalMethodInfoImpl<\
 						ClassType,\
 						vl::function_lambda::LambdaRetriveType<FUNCTIONTYPE>::FunctionType\
-						>(parameterNames, SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE)\
+						>(parameterNames, SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE))\
 					);\
 			}
 
@@ -426,17 +426,17 @@ Method
 #define CLASS_MEMBER_METHOD_OVERLOAD_RENAME_TEMPLATE(EXPECTEDNAME, FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE, INVOKETEMPLATE, CLOSURETEMPLATE)\
 			{\
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
-				auto methodInfo = new CustomMethodInfoImpl<\
+				auto methodInfo = Ptr(new CustomMethodInfoImpl<\
 						ClassType,\
 						vl::function_lambda::LambdaRetriveType<FUNCTIONTYPE>::FunctionType\
 						>\
-					(parameterNames, (FUNCTIONTYPE)&ClassType::FUNCTIONNAME, INVOKETEMPLATE, CLOSURETEMPLATE);\
+					(parameterNames, (FUNCTIONTYPE)&ClassType::FUNCTIONNAME, INVOKETEMPLATE, CLOSURETEMPLATE));\
 				AddMethod(\
 					L ## #EXPECTEDNAME,\
 					methodInfo\
 					);\
 				MethodPointerBinaryDataRetriver<FUNCTIONTYPE> binaryDataRetriver(&ClassType::FUNCTIONNAME);\
-				MethodPointerBinaryDataRecorder<ClassType, TDFlags>::RecordMethod(binaryDataRetriver.GetBinaryData(), this, methodInfo);\
+				MethodPointerBinaryDataRecorder<ClassType, TDFlags>::RecordMethod(binaryDataRetriver.GetBinaryData(), this, methodInfo.Obj());\
 			}
 
 #define CLASS_MEMBER_METHOD_OVERLOAD_RENAME(EXPECTEDNAME, FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE)\
@@ -460,9 +460,9 @@ Static Method
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
 				AddMethod(\
 					L ## #FUNCTIONNAME,\
-					new CustomStaticMethodInfoImpl<\
+					Ptr(new CustomStaticMethodInfoImpl<\
 						std::remove_pointer_t<FUNCTIONTYPE>\
-						>(parameterNames, (FUNCTIONTYPE)SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE)\
+						>(parameterNames, (FUNCTIONTYPE)SOURCE, INVOKETEMPLATE, CLOSURETEMPLATE))\
 					);\
 			}
 
@@ -481,10 +481,10 @@ Event
 
 #define CLASS_MEMBER_EVENT(EVENTNAME)\
 			AddEvent(\
-				new CustomEventInfoImpl<\
+				Ptr(new CustomEventInfoImpl<\
 					ClassType,\
 					CustomEventFunctionTypeRetriver<decltype(&ClassType::EVENTNAME)>::Type\
-					>(this, L ## #EVENTNAME, &ClassType::EVENTNAME)\
+					>(this, L ## #EVENTNAME, &ClassType::EVENTNAME))\
 				);
 
 /***********************************************************************
@@ -493,58 +493,58 @@ Property
 
 #define CLASS_MEMBER_PROPERTY_READONLY(PROPERTYNAME, GETTER)\
 			AddProperty(\
-				new PropertyInfoImpl(\
+				Ptr(new PropertyInfoImpl(\
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					nullptr,\
 					nullptr\
-					)\
+					))\
 				);
 
 #define CLASS_MEMBER_PROPERTY(PROPERTYNAME, GETTER, SETTER)\
 			AddProperty(\
-				new PropertyInfoImpl(\
+				Ptr(new PropertyInfoImpl(\
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #SETTER, true)->GetMethod(0)),\
 					nullptr\
-					)\
+					))\
 				);
 
 #define CLASS_MEMBER_PROPERTY_EVENT(PROPERTYNAME, GETTER, SETTER, EVENT)\
 			AddProperty(\
-				new PropertyInfoImpl(\
+				Ptr(new PropertyInfoImpl(\
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #SETTER, true)->GetMethod(0)),\
 					dynamic_cast<EventInfoImpl*>(GetEventByName(L ## #EVENT, true))\
-					)\
+					))\
 				);
 
 #define CLASS_MEMBER_PROPERTY_EVENT_READONLY(PROPERTYNAME, GETTER, EVENT)\
 			AddProperty(\
-				new PropertyInfoImpl(\
+				Ptr(new PropertyInfoImpl(\
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					nullptr,\
 					dynamic_cast<EventInfoImpl*>(GetEventByName(L ## #EVENT, true))\
-					)\
+					))\
 				);
 
 #define CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(PROPERTYNAME, GETTER, SETTER, REFERENCETEMPLATE)\
 			AddProperty(\
-				new PropertyInfoImpl_StaticCpp(\
+				Ptr(new PropertyInfoImpl_StaticCpp(\
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #SETTER, true)->GetMethod(0)),\
 					nullptr,\
 					WString::Unmanaged(REFERENCETEMPLATE)\
-					)\
+					))\
 				);
 
 #define CLASS_MEMBER_PROPERTY_READONLY_FAST(PROPERTYNAME)\

@@ -24,7 +24,7 @@ Functions
 				static Value BoxParameter(const Func<R(TArgs...)>& object, ITypeDescriptor* typeDescriptor)
 				{
 					typedef R(RawFunctionType)(TArgs...);
-					Ptr<IValueFunctionProxy> result=new ValueFunctionProxyWrapper<RawFunctionType>(object);
+					Ptr<IValueFunctionProxy> result=Ptr(new ValueFunctionProxyWrapper<RawFunctionType>(object));
 
 					ITypeDescriptor* td = nullptr;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA

@@ -34,7 +34,7 @@ using namespace vl::reflection::description;
 	TEST_CASE(L ## #NAME)\
 	{\
 		TEST_ASSERT(LoadPredefinedTypes());\
-		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(new LOADER));\
+		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(Ptr(new LOADER)));\
 		TEST_CASE_REFLECTION_BODY(NAME)\
 	});\
 

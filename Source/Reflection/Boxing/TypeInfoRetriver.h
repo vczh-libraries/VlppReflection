@@ -77,14 +77,14 @@ TypeFlagTester
 			template<typename TDerived>
 			struct TypeFlagTester<TDerived, TypeFlags::ReadonlyListType>
 			{
-				template<typename T, typename K>
-				static void* Inherit(const collections::Array<T, K>* source){ return {}; }
-				template<typename T, typename K>
-				static void* Inherit(const collections::List<T, K>* source) { return {}; }
-				template<typename T, typename K>
-				static void* Inherit(const collections::SortedList<T, K>* source) { return {}; }
-				template<typename T, typename K>
-				static void* Inherit(const collections::ObservableListBase<T, K>* source) { return {}; }
+				template<typename T>
+				static void* Inherit(const collections::Array<T>* source){ return {}; }
+				template<typename T>
+				static void* Inherit(const collections::List<T>* source) { return {}; }
+				template<typename T>
+				static void* Inherit(const collections::SortedList<T>* source) { return {}; }
+				template<typename T>
+				static void* Inherit(const collections::ObservableListBase<T>* source) { return {}; }
 				static char Inherit(void* source){ return {}; }
 				static char Inherit(const void* source){ return {}; }
 
@@ -94,8 +94,8 @@ TypeFlagTester
 			template<typename TDerived>
 			struct TypeFlagTester<TDerived, TypeFlags::ArrayType>
 			{
-				template<typename T, typename K>
-				static void* Inherit(collections::Array<T, K>* source) { return {}; }
+				template<typename T>
+				static void* Inherit(collections::Array<T>* source) { return {}; }
 				static char Inherit(void* source) { return {}; }
 				static char Inherit(const void* source) { return {}; }
 
@@ -105,10 +105,10 @@ TypeFlagTester
 			template<typename TDerived>
 			struct TypeFlagTester<TDerived, TypeFlags::ListType>
 			{
-				template<typename T, typename K>
-				static void* Inherit(collections::List<T, K>* source) { return {}; }
-				template<typename T, typename K>
-				static void* Inherit(collections::ObservableListBase<T, K>* source) { return {}; }
+				template<typename T>
+				static void* Inherit(collections::List<T>* source) { return {}; }
+				template<typename T>
+				static void* Inherit(collections::ObservableListBase<T>* source) { return {}; }
 				static char Inherit(void* source){ return {}; }
 				static char Inherit(const void* source){ return {}; }
 
@@ -329,7 +329,7 @@ Basic Types
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<T>(), hint);
+					return Ptr(new TypeDescriptorTypeInfo(GetTypeDescriptor<T>(), hint));
 				}
 #endif
 			};
@@ -348,7 +348,7 @@ Decorated Types
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					return MakePtr<RawPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
+					return Ptr(new RawPtrTypeInfo(TypeInfoRetriver<T>::CreateTypeInfo()));
 				}
 #endif
 			};
@@ -363,7 +363,7 @@ Decorated Types
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					return MakePtr<SharedPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
+					return Ptr(new SharedPtrTypeInfo(TypeInfoRetriver<T>::CreateTypeInfo()));
 				}
 #endif
 			};
@@ -378,7 +378,7 @@ Decorated Types
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
+					return Ptr(new NullableTypeInfo(TypeInfoRetriver<T>::CreateTypeInfo()));
 				}
 #endif
 			};
@@ -397,12 +397,12 @@ Containers
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
+					auto arrayType = Ptr(new TypeDescriptorTypeInfo(GetTypeDescriptor<TCollectionType>(), hint));
 
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
+					auto genericType = Ptr(new GenericTypeInfo(arrayType));
 					genericType->AddGenericArgument(TypeInfoRetriver<typename T::ElementType>::CreateTypeInfo());
 
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
+					auto type = Ptr(new SharedPtrTypeInfo(genericType));
 					return type;
 				}
 #endif
@@ -418,13 +418,13 @@ Containers
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<TCollectionType>(), hint);
+					auto arrayType = Ptr(new TypeDescriptorTypeInfo(GetTypeDescriptor<TCollectionType>(), hint));
 
-					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
+					auto genericType = Ptr(new GenericTypeInfo(arrayType));
 					genericType->AddGenericArgument(TypeInfoRetriver<typename T::KeyContainer::ElementType>::CreateTypeInfo());
 					genericType->AddGenericArgument(TypeInfoRetriver<typename T::ValueContainer::ElementType>::CreateTypeInfo());
 
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
+					auto type = Ptr(new SharedPtrTypeInfo(genericType));
 					return type;
 				}
 #endif
@@ -502,13 +502,13 @@ Functions
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					auto functionType = MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<IValueFunctionProxy>(), hint);
+					auto functionType = Ptr(new TypeDescriptorTypeInfo(GetTypeDescriptor<IValueFunctionProxy>(), hint));
  
-					auto genericType = MakePtr<GenericTypeInfo>(functionType);
+					auto genericType = Ptr(new GenericTypeInfo(functionType));
 					genericType->AddGenericArgument(TypeInfoRetriver<R>::CreateTypeInfo());
 					internal_helper::GenericArgumentAdder<TypeTuple<TArgs...>>::Add(genericType);
 
-					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
+					auto type = Ptr(new SharedPtrTypeInfo(genericType));
 					return type;
 				}
 #endif

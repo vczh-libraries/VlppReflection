@@ -74,7 +74,7 @@ ValueType
 
 					Ptr<IBoxedValue> Copy()override
 					{
-						return new TypedBox<T>(value);
+						return Ptr(new TypedBox<T>(value));
 					}
 
 					CompareResult ComparePrimitive(Ptr<IBoxedValue> boxedValue)override

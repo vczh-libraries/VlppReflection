@@ -36,7 +36,7 @@ ConstructorArgumentAdder
 				{
 					static void Add(MethodInfoImpl* methodInfo, const wchar_t* parameterNames[], vint index)
 					{
-						methodInfo->AddParameter(new ParameterInfoImpl(methodInfo, parameterNames[index], TypeInfoRetriver<T0>::CreateTypeInfo()));
+						methodInfo->AddParameter(Ptr(new ParameterInfoImpl(methodInfo, parameterNames[index], TypeInfoRetriver<T0>::CreateTypeInfo())));
 						ConstructorArgumentAdder<TypeTuple<TNextArgs...>>::Add(methodInfo, parameterNames, index + 1);
 					}
 				};

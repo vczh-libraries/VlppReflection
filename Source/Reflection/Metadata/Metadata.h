@@ -737,8 +737,8 @@ EnumTypeDescriptor
 
 				void LoadInternal()override
 				{
-					this->enumType = new TEnumType;
-					this->valueType = new EnumValueType<T>();
+					this->enumType = Ptr(new TEnumType);
+					this->valueType = Ptr(new EnumValueType<T>());
 					TypedValueTypeDescriptorBase<T, TDFlags>::enumType = enumType;
 				}
 			};
@@ -810,7 +810,7 @@ StructTypeDescriptor
 			public:
 				StructTypeDescriptor()
 				{
-					this->valueType = new StructValueType<T>();
+					this->valueType = Ptr(new StructValueType<T>());
 				}
 
 				vint GetPropertyCount()override
