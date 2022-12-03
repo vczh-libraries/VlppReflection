@@ -50,13 +50,13 @@ TEST_FILE
 		volatile vint* counter = ReferenceCounterOperator<Base>::CreateCounter(raw);
 		TEST_ASSERT(0 == *counter);
 		{
-			Ptr<Base> ptr1 = raw;
+			Ptr<Base> ptr1(raw);
 			TEST_ASSERT(1 == *counter);
 			{
-				Ptr<Base> ptr2 = raw;
+				Ptr<Base> ptr2(raw);
 				TEST_ASSERT(2 == *counter);
 				{
-					Ptr<Base> ptr3 = raw;
+					Ptr<Base> ptr3(raw);
 					TEST_ASSERT(3 == *counter);
 				}
 				TEST_ASSERT(2 == *counter);

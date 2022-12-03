@@ -25,7 +25,7 @@ namespace reflection_test_boxunboxcollections
 			TEST_ASSERT(xs1 == baseline);
 			TEST_ASSERT(xs1 == xs2);
 		}
-		return baseline;
+		return Ptr(baseline);
 	}
 
 	void TestLazyList()

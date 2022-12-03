@@ -644,8 +644,8 @@ PrimitiveTypeDescriptor
 			protected:
 				void LoadInternal()override
 				{
-					this->valueType = new SerializableValueType<T>();
-					this->serializableType = new SerializableType<T>();
+					this->valueType = Ptr(new SerializableValueType<T>());
+					this->serializableType = Ptr(new SerializableType<T>());
 				}
 			};
 

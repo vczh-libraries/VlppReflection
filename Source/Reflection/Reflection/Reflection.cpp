@@ -569,8 +569,8 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(IDescriptable)
 
 			BEGIN_STRUCT_MEMBER(DateTime)
-				valueType = new SerializableValueType<DateTime>();
-				serializableType = new SerializableType<DateTime>();
+				valueType = Ptr(new SerializableValueType<DateTime>());
+				serializableType = Ptr(new SerializableType<DateTime>());
 				STRUCT_MEMBER(year)
 				STRUCT_MEMBER(month)
 				STRUCT_MEMBER(dayOfWeek)
@@ -849,8 +849,8 @@ LoadPredefinedTypes
 			public:
 				void Load(ITypeManager* manager)override
 				{
-					manager->SetTypeDescriptor(TypeInfo<Value>::content.typeName, new TypedValueTypeDescriptorBase<Value, TypeDescriptorFlags::Object>);
-#define ADD_PRIMITIVE_TYPE(TYPE) manager->SetTypeDescriptor(TypeInfo<TYPE>::content.typeName, new PrimitiveTypeDescriptor<TYPE>());
+					manager->SetTypeDescriptor(TypeInfo<Value>::content.typeName, Ptr(new TypedValueTypeDescriptorBase<Value, TypeDescriptorFlags::Object>));
+#define ADD_PRIMITIVE_TYPE(TYPE) manager->SetTypeDescriptor(TypeInfo<TYPE>::content.typeName, Ptr(new PrimitiveTypeDescriptor<TYPE>()));
 					REFLECTION_PREDEFINED_PRIMITIVE_TYPES(ADD_PRIMITIVE_TYPE)
 #undef ADD_PRIMITIVE_TYPE
 					REFLECTION_PREDEFINED_COMPLEX_TYPES(ADD_TYPE_INFO, VoidValue)
@@ -869,7 +869,7 @@ LoadPredefinedTypes
 				ITypeManager* manager = GetGlobalTypeManager();
 				if (manager)
 				{
-					Ptr<ITypeLoader> loader = new PredefinedTypeLoader;
+					auto loader = Ptr(new PredefinedTypeLoader);
 					return manager->AddTypeLoader(loader);
 				}
 #endif

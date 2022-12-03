@@ -38,7 +38,7 @@ namespace TestReflection_TestObjects_Aggregation
 	public:
 		AggParentBase()
 		{
-			Ptr<DescriptableObject> shared = new AggParentShared;
+			Ptr<DescriptableObject> shared(new AggParentShared);
 			auto raw = new AggParentRaw;
 
 			InitializeAggregation(2);
@@ -157,14 +157,14 @@ namespace reflection_test_aggregation
 			TEST_ASSERT(derivedRC == sharedRC);
 			TEST_ASSERT(derivedRC == rawRC);
 
-			Ptr<Agg> derivedPtr = derived;
+			Ptr<Agg> derivedPtr(derived);
 			TEST_ASSERT(*derivedRC == 1);
 			{
-				Ptr<Agg> basePtr = base;
+				Ptr<Agg> basePtr(base);
 				TEST_ASSERT(*derivedRC == 2);
-				Ptr<Agg> sharedPtr = shared;
+				Ptr<Agg> sharedPtr(shared);
 				TEST_ASSERT(*derivedRC == 3);
-				Ptr<Agg> rawPtr = raw;
+				Ptr<Agg> rawPtr(raw);
 				TEST_ASSERT(*derivedRC == 4);
 			}
 			TEST_ASSERT(*derivedRC == 1);
@@ -187,19 +187,19 @@ namespace reflection_test_aggregation
 		}
 		{
 			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived;
+			Ptr<Agg> agg(derived);
 		}
 		{
 			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived->GetParentBase();
+			Ptr<Agg> agg(derived->GetParentBase());
 		}
 		{
 			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived->GetParentBase()->GetParentShared();
+			Ptr<Agg> agg(derived->GetParentBase()->GetParentShared());
 		}
 		{
 			auto derived = new AggParentDerived;
-			Ptr<Agg> agg = derived->GetParentBase()->GetParentRaw();
+			Ptr<Agg> agg(derived->GetParentBase()->GetParentRaw());
 		}
 	}
 
@@ -285,7 +285,7 @@ namespace reflection_test_aggregation
 			auto shared = base->GetParentShared();
 			auto raw = base->GetParentRaw();
 
-			Ptr<Agg> ptr = derived;
+			Ptr<Agg> ptr(derived);
 			{
 				auto value = Value::From(ptr);
 				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
