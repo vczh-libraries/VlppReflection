@@ -137,7 +137,7 @@ CustomExternalMethodInfoImpl<TClass, R(TArgs...)>
 				Value CreateFunctionProxyInternal(const Value& thisObject)override
 				{
 					TClass* object = UnboxValue<TClass*>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-					auto proxy = [object, this](TArgs... args) { return method(object, args...); };
+					auto proxy = Func([object, this](TArgs... args) { return method(object, args...); });
 					return BoxParameter(proxy);
 				}
 			public:
