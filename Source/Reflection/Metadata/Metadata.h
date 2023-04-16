@@ -604,13 +604,6 @@ PrimitiveTypeDescriptor
 				{
 					return BoxValue<T>(TypedValueSerializerProvider<T>::GetDefaultValue());
 				}
-
-				IBoxedValue::CompareResult Compare(const Value& a, const Value& b)override
-				{
-					auto va = UnboxValue<T>(a);
-					auto vb = UnboxValue<T>(b);
-					return TypedValueSerializerProvider<T>::Compare(va, vb);
-				}
 			};
 
 			template<typename T>
@@ -660,15 +653,6 @@ EnumTypeDescriptor
 				Value CreateDefault()override
 				{
 					return BoxValue<T>(static_cast<T>(0));
-				}
-
-				IBoxedValue::CompareResult Compare(const Value& a, const Value& b)override
-				{
-					auto ea = static_cast<vuint64_t>(UnboxValue<T>(a));
-					auto eb = static_cast<vuint64_t>(UnboxValue<T>(b));
-					if (ea < eb) return IBoxedValue::Smaller;
-					if (ea > eb)return IBoxedValue::Greater;
-					return IBoxedValue::Equal;
 				}
 			};
 
@@ -754,11 +738,6 @@ StructTypeDescriptor
 				Value CreateDefault()override
 				{
 					return BoxValue<T>(T{});
-				}
-
-				IBoxedValue::CompareResult Compare(const Value& a, const Value& b)override
-				{
-					return IBoxedValue::NotComparable;
 				}
 			};
 

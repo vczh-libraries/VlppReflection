@@ -82,18 +82,6 @@ TypeName
 TypedValueSerializerProvider
 ***********************************************************************/
 
-#define DEFINE_COMPARE(TYPENAME)\
-			IBoxedValue::CompareResult TypedValueSerializerProvider<TYPENAME>::Compare(const TYPENAME& a, const TYPENAME& b)\
-			{\
-				if (a < b) return IBoxedValue::Smaller;\
-				if (a > b) return IBoxedValue::Greater;\
-				return IBoxedValue::Equal;\
-			}\
-
-			REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
-
-#undef DEFINE_COMPARE
-
 			vuint8_t TypedValueSerializerProvider<vuint8_t>::GetDefaultValue()
 			{
 				return 0;
@@ -467,15 +455,6 @@ DateTimeValueSerializer
 				return true;
 			}
 
-			IBoxedValue::CompareResult TypedValueSerializerProvider<DateTime>::Compare(const DateTime& a, const DateTime& b)
-			{
-				auto ta = a.filetime;
-				auto tb = b.filetime;
-				if (ta < tb) return IBoxedValue::Smaller;
-				if (ta > tb) return IBoxedValue::Greater;
-				return IBoxedValue::Equal;
-			}
-
 /***********************************************************************
 Helper Functions
 ***********************************************************************/
@@ -700,7 +679,6 @@ LoadPredefinedTypes
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IValueType)
 				CLASS_MEMBER_METHOD(CreateDefault, NO_PARAMETER)
-				CLASS_MEMBER_METHOD(Compare, { L"a" _ L"b" })
 			END_INTERFACE_MEMBER(IValueType)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IEnumType)

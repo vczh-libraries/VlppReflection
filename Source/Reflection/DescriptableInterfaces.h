@@ -32,33 +32,6 @@ ValueType
 				template<typename T>
 				class TypedBox : public IBoxedValue
 				{
-				private:
-					template<typename U = T>
-					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, std::enable_if_t<sizeof(decltype(&TypedValueSerializerProvider<U>::Compare)) >= 0, vint>)
-					{
-						return TypedValueSerializerProvider<U>::Compare(a, b);
-					}
-
-					template<typename U = T>
-					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, double)
-					{
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdynamic-class-memaccess"
-#elif defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
-#endif
-						auto result = memcmp(&a, &b, sizeof(U));
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
-						if (result < 0) return IBoxedValue::Smaller;
-						if (result > 0) return IBoxedValue::Greater;
-						return IBoxedValue::Equal;
-					}
 				public:
 					T							value;
 
@@ -81,17 +54,27 @@ ValueType
 					{
 						if (auto typedBox = boxedValue.Cast<TypedBox<T>>())
 						{
-							return ComparePrimitiveInternal(value, typedBox->value, (vint)0);
+							if constexpr (std::three_way_comparable<T, std::strong_ordering>)
+							{
+								auto r = value <=> typedBox->value;
+								if (r < 0) return IBoxedValue::Smaller;
+								if (r > 0) return IBoxedValue::Greater;
+								return IBoxedValue::Equal;
+							}
+							else if constexpr (std::three_way_comparable<T, std::partial_ordering>)
+							{
+								auto r = value <=> typedBox->value;
+								if (r == std::partial_ordering::unordered) return IBoxedValue::NotComparable;
+								if (r < 0) return IBoxedValue::Smaller;
+								if (r > 0) return IBoxedValue::Greater;
+								return IBoxedValue::Equal;
+							}
 						}
-						else
-						{
-							return IBoxedValue::NotComparable;
-						}
+						return IBoxedValue::NotComparable;
 					}
 				};
 
 				virtual Value						CreateDefault() = 0;
-				virtual IBoxedValue::CompareResult	Compare(const Value& a, const Value& b) = 0;
 			};
 
 			class IEnumType : public virtual IDescriptable, public Description<IEnumType>

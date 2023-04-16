@@ -726,11 +726,6 @@ ITypeDescriptor
 					CHECK_FAIL(L"Not Supported!");
 				}
 
-				IBoxedValue::CompareResult Compare(const Value& a, const Value& b) override
-				{
-					CHECK_FAIL(L"Not Supported!");
-				}
-
 				// IEnumType
 
 				bool IsFlagEnum() override

@@ -90,7 +90,6 @@ Predefined Types
 				static TYPENAME GetDefaultValue();\
 				static bool Serialize(const TYPENAME& input, WString& output);\
 				static bool Deserialize(const WString& input, TYPENAME& output);\
-				static IBoxedValue::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
 			};\
 
 			REFLECTION_PREDEFINED_SERIALIZABLE_TYPES(DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER)
