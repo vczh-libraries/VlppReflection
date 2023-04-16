@@ -159,7 +159,7 @@ namespace reflection_test
 	{
 		ValueToCompare a1 = { L"a",1 };
 		ValueToCompare a2 = { L"a",2 };
-		ValueToCompare b2 = { L"a",2 };
+		ValueToCompare b2 = { L"b",2 };
 
 		unittest::UnitTest::PrintMessage(L"a1 <=> a1", unittest::UnitTest::MessageKind::Info);
 		TestComparison<ValueToCompare>(a1, a1);
