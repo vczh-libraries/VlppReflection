@@ -15,7 +15,95 @@ namespace vl
 		namespace description
 		{
 /***********************************************************************
-DateTime
+Signed Types
+***********************************************************************/
+
+			template<typename T, T MinValue, T MaxValue>
+			struct TypedValueSerializerProvider_Signed
+			{
+				static T GetDefaultValue()
+				{
+					return 0;
+				}
+
+				static bool Serialize(const T& input, WString& output)
+				{
+					output = u64tow(input);
+					return true;
+				}
+
+				static bool Deserialize(const WString& input, T& output)
+				{
+					bool success = false;
+					T result = wtoi64_test(input, success);
+					if (!success) return false;
+					if (result < MinValue || result > MaxValue) return false;
+					output = (vint8_t)result;
+					return true;
+				}
+			};
+
+/***********************************************************************
+Unsigned Types
+***********************************************************************/
+
+			template<typename T, T MaxValue>
+			struct TypedValueSerializerProvider_Unsigned
+			{
+				static T GetDefaultValue()
+				{
+					return 0;
+				}
+
+				static bool Serialize(const T& input, WString& output)
+				{
+					output = u64tow(input);
+					return true;
+				}
+
+				static bool Deserialize(const WString& input, T& output)
+				{
+					bool success = false;
+					T result = wtou64_test(input, success);
+					if (!success) return false;
+					if (result > MaxValue) return false;
+					output = (vuint8_t)result;
+					return true;
+				}
+			};
+
+/***********************************************************************
+Floating Point Types
+***********************************************************************/
+
+			template<typename T, T MaxValue>
+			struct TypedValueSerializerProvider_FloatingPoint
+			{
+				static T GetDefaultValue()
+				{
+					return 0;
+				}
+
+				static bool Serialize(const T& input, WString& output)
+				{
+					output = ftow(input);
+					if (output == L"-0") output = L"0";
+					return true;
+				}
+
+				static bool Deserialize(const WString& input, T& output)
+				{
+					bool success = false;
+					double result = wtof_test(input, success);
+					if (!success) return false;
+					if (result < -MaxValue || result > MaxValue) return false;
+					output = (T)result;
+					return true;
+				}
+			};
+
+/***********************************************************************
+Serializable Types
 ***********************************************************************/
 			
 #define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
