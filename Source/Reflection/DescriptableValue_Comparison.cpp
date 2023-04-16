@@ -4,7 +4,6 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "DescriptableInterfaces.h"
-#include "Boxing/BoxingValue.h"
 
 namespace vl
 {
@@ -24,36 +23,34 @@ description::Value
 				template<typename T>
 				struct UnboxTypeBase { using Type = T; };
 
-				template<PredefinedBoxableType> struct RealUnboxType;
 				template<PredefinedBoxableType> struct ExpectedUnboxType;
+				template<PredefinedBoxableType> struct RealUnboxType;
 
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S8>	: UnboxTypeBase<vint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S16>	: UnboxTypeBase<vint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S32>	: UnboxTypeBase<vint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S64>	: UnboxTypeBase<vint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U8>	: UnboxTypeBase<vuint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U16>	: UnboxTypeBase<vuint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U32>	: UnboxTypeBase<vuint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U64>	: UnboxTypeBase<vuint64_t> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_F32>	: UnboxTypeBase<double> {};
-				template<> struct RealUnboxType<PredefinedBoxableType::PBT_F64>	: UnboxTypeBase<double> {};
+				constexpr vint PBT_MIN = (vint)PredefinedBoxableType::PBT_S8;
+				constexpr vint PBT_MAX = (vint)PredefinedBoxableType::PBT_F64;
+				constexpr vint PBT_COUNT = PBT_MAX - PBT_MIN + 1;
 
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S8>	: UnboxTypeBase<vint8_t> {};
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S16>	: UnboxTypeBase<vint16_t> {};
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S32>	: UnboxTypeBase<vint32_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S8>	: UnboxTypeBase<vint64_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S16>	: UnboxTypeBase<vint64_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S32>	: UnboxTypeBase<vint64_t> {};
 				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S64>	: UnboxTypeBase<vint64_t> {};
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U8>	: UnboxTypeBase<vuint8_t> {};
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U16>	: UnboxTypeBase<vuint16_t> {};
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U32>	: UnboxTypeBase<vuint32_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U8>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U16>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U32>	: UnboxTypeBase<vuint64_t> {};
 				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U64>	: UnboxTypeBase<vuint64_t> {};
-				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_F32>	: UnboxTypeBase<float> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_F32>	: UnboxTypeBase<double> {};
 				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_F64>	: UnboxTypeBase<double> {};
 
-				template<PredefinedBoxableType PBT>
-				typename ExpectedUnboxType<PBT>::Type UnboxForComparison(const Value& v)
-				{
-					return (typename ExpectedUnboxType<PBT>::Type)UnboxValue<typename RealUnboxType<PBT>::Type>(v);
-				}
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S8>	: UnboxTypeBase<vint8_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S16>	: UnboxTypeBase<vint16_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S32>	: UnboxTypeBase<vint32_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S64>	: UnboxTypeBase<vint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U8>	: UnboxTypeBase<vuint8_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U16>	: UnboxTypeBase<vuint16_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U32>	: UnboxTypeBase<vuint32_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U64>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_F32>	: UnboxTypeBase<float> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_F64>	: UnboxTypeBase<double> {};
 
 #define DEFINE_PBT_COMPARE(TYPE1, TYPE2)\
 				inline std::partial_ordering Compare(TYPE1& v1, TYPE2& v2)\
@@ -89,8 +86,8 @@ description::Value
 					using R1 = typename RealUnboxType<PBT1>::Type;
 					using R2 = typename RealUnboxType<PBT2>::Type;
 
-					E1 e1 = (E1)UnboxValue<R1>(v1);
-					E2 e2 = (E2)UnboxValue<R2>(v2);
+					E1 e1 = (E1)v1.GetBoxedValue().Cast<IValueType::TypedBox<R1>>()->value;
+					E2 e2 = (E2)v2.GetBoxedValue().Cast<IValueType::TypedBox<R2>>()->value;
 					return Compare(e1, e2);
 				}
 
@@ -134,76 +131,54 @@ description::Value
 						}
 					}
 
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-					auto aSt = a.GetTypeDescriptor()->GetSerializableType();
-					auto bSt = b.GetTypeDescriptor()->GetSerializableType();
-					if (aSt)
-					{
-						if (bSt)
-						{
-							auto aSt = a.GetTypeDescriptor()->GetSerializableType();
-							auto bSt = b.GetTypeDescriptor()->GetSerializableType();
 
-							WString aText;
-							WString bText;
-							aSt->Serialize(a, aText);
-							bSt->Serialize(b, bText);
-							return aText <=> bText;
-						}
-						else
-						{
-							return std::strong_ordering::greater;
-						}
-					}
-					else
-					{
-						if (bSt)
-						{
-							return std::strong_ordering::less;
-						}
-						else
-						{
-							if (a.GetTypeDescriptor() != b.GetTypeDescriptor())
-							{
-								auto aText = a.GetTypeDescriptor()->GetTypeName();
-								auto bText = b.GetTypeDescriptor()->GetTypeName();
-								return aText <=> bText;
-							}
+#define DEFINE_PBT_MATRIX2(PBT1, PBT2) &pbt_selector::PBT_Compare<(PredefinedBoxableType)PBT1, (PredefinedBoxableType)PBT2>
 
-							switch (a.GetTypeDescriptor()->GetTypeDescriptorFlags())
+#define DEFINE_PBT_MATRIX1(PBT1)\
+			DEFINE_PBT_MATRIX2(PBT1, 0),\
+			DEFINE_PBT_MATRIX2(PBT1, 1),\
+			DEFINE_PBT_MATRIX2(PBT1, 2),\
+			DEFINE_PBT_MATRIX2(PBT1, 3),\
+			DEFINE_PBT_MATRIX2(PBT1, 4),\
+			DEFINE_PBT_MATRIX2(PBT1, 5),\
+			DEFINE_PBT_MATRIX2(PBT1, 6),\
+			DEFINE_PBT_MATRIX2(PBT1, 7),\
+			DEFINE_PBT_MATRIX2(PBT1, 8),\
+			DEFINE_PBT_MATRIX2(PBT1, 9)
+
+#define DEFINE_PBT_MATRIX\
+			DEFINE_PBT_MATRIX1(0),\
+			DEFINE_PBT_MATRIX1(1),\
+			DEFINE_PBT_MATRIX1(2),\
+			DEFINE_PBT_MATRIX1(3),\
+			DEFINE_PBT_MATRIX1(4),\
+			DEFINE_PBT_MATRIX1(5),\
+			DEFINE_PBT_MATRIX1(6),\
+			DEFINE_PBT_MATRIX1(7),\
+			DEFINE_PBT_MATRIX1(8),\
+			DEFINE_PBT_MATRIX1(9)
+
+					{
+						static std::partial_ordering(*PBT_CompareMatrix[pbt_selector::PBT_COUNT][pbt_selector::PBT_COUNT])(const Value & v1, const Value & v2) = { DEFINE_PBT_MATRIX };
+						auto apbt = (vint)a.GetBoxedValue()->GetBoxableType();
+						auto bpbt = (vint)b.GetBoxedValue()->GetBoxableType();
+						if (pbt_selector::PBT_MIN <= apbt && apbt <= pbt_selector::PBT_MAX)
+						{
+							if (pbt_selector::PBT_MIN <= bpbt && bpbt <= pbt_selector::PBT_MAX)
 							{
-							case TypeDescriptorFlags::Struct:
-								{
-									auto td = a.GetTypeDescriptor();
-									vint count = td->GetPropertyCount();
-									for (vint i = 0; i < count; i++)
-									{
-										auto prop = td->GetProperty(i);
-										auto ap = prop->GetValue(a);
-										auto bp = prop->GetValue(b);
-										auto r = ap <=> bp;
-										if (r != 0) return r;
-									}
-								}
-								return std::strong_ordering::equal;
-							case TypeDescriptorFlags::FlagEnum:
-							case TypeDescriptorFlags::NormalEnum:
-								{
-									auto ai = a.GetTypeDescriptor()->GetEnumType()->FromEnum(a);
-									auto bi = a.GetTypeDescriptor()->GetEnumType()->FromEnum(b);
-									return ai <=> bi;
-								}
-							default:
-								return std::strong_ordering::equal;
+								return PBT_CompareMatrix[apbt][bpbt](a, b);
 							}
 						}
 					}
-#else
-					std::partial_ordering::unordered
-#endif
+
+#undef DEFINE_PBT_MATRIX
+#undef DEFINE_PBT_MATRIX1
+#undef DEFINE_PBT_MATRI2
+
+					std::partial_ordering::unordered;
 				}
 
-				return std::strong_ordering::equal;
+				return std::partial_ordering::equivalent;
 			}
 		}
 	}

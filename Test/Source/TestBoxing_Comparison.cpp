@@ -194,4 +194,5 @@ TEST_FILE
 	TEST_CASE_REFLECTION(TestCompareString)
 	TEST_CASE_REFLECTION(TestCompareLocale)
 	TEST_CASE_REFLECTION(TestCompareStruct)
+	CHECK_FAIL(L"Compare different type");
 }
