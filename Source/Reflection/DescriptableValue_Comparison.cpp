@@ -116,7 +116,7 @@ description::Value
 
 				if (avt == Value::BoxedValue)
 				{
-#ifndef VCZH_DEBUG_NO_REFLECTION
+#ifndef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					auto adt = a.GetTypeDescriptor();
 					auto bdt = b.GetTypeDescriptor();
 					if (adt == bdt)
