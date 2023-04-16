@@ -7,7 +7,6 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_REFLECTION_TYPES_PREDEFINEDTYPES
 
 #include <math.h>
-#include "../DescriptableInterfaces.h"
 #include "TypedValueSerializerProvider.h"
 
 namespace vl

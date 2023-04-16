@@ -15,8 +15,16 @@ namespace vl
 		namespace description
 		{
 /***********************************************************************
-Collections
+DateTime
 ***********************************************************************/
+			
+			template<>
+			struct TypedValueSerializerProvider<DateTime>
+			{
+				static DateTime GetDefaultValue();
+				static bool Serialize(const DateTime& input, WString& output);
+				static bool Deserialize(const WString& input, DateTime& output);
+			};
 		}
 	}
 }
