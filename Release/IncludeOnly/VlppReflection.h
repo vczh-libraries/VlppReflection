@@ -10,6 +10,7 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Reflection\DescriptableValue.h"
 #include "..\..\Source\Reflection\DescriptableInterfaces.h"
 #include "..\..\Source\Reflection\Predefined\ObservableList.h"
+#include "..\..\Source\Reflection\Predefined\TypedValueSerializerProvider.h"
 #include "..\..\Source\Reflection\Predefined\PredefinedTypes.h"
 #include "..\..\Source\Reflection\Metadata\Metadata.h"
 #include "..\..\Source\Reflection\Boxing\TypeInfoRetriver.h"
