@@ -15,6 +15,91 @@ namespace vl
 		namespace description
 		{
 /***********************************************************************
+wchar_t
+***********************************************************************/
+
+			wchar_t TypedValueSerializerProvider<wchar_t>::GetDefaultValue()
+			{
+				return 0;
+			}
+
+			bool TypedValueSerializerProvider<wchar_t>::Serialize(const wchar_t& input, WString& output)
+			{
+				output = input ? WString::FromChar(input) : L"";
+				return true;
+			}
+
+			bool TypedValueSerializerProvider<wchar_t>::Deserialize(const WString& input, wchar_t& output)
+			{
+				if (input.Length() > 1) return false;
+				output = input.Length() == 0 ? 0 : input[0];
+				return true;
+			}
+
+/***********************************************************************
+bool
+***********************************************************************/
+
+			WString TypedValueSerializerProvider<WString>::GetDefaultValue()
+			{
+				return L"";
+			}
+
+			bool TypedValueSerializerProvider<WString>::Serialize(const WString& input, WString& output)
+			{
+				output = input;
+				return true;
+			}
+
+			bool TypedValueSerializerProvider<WString>::Deserialize(const WString& input, WString& output)
+			{
+				output = input;
+				return true;
+			}
+
+/***********************************************************************
+WString
+***********************************************************************/
+
+			bool TypedValueSerializerProvider<bool>::GetDefaultValue()
+			{
+				return false;
+			}
+
+			bool TypedValueSerializerProvider<bool>::Serialize(const bool& input, WString& output)
+			{
+				output = input ? L"true" : L"false";
+				return true;
+			}
+
+			bool TypedValueSerializerProvider<bool>::Deserialize(const WString& input, bool& output)
+			{
+				output = input == L"true";
+				return input == L"true" || input == L"false";
+			}
+
+/***********************************************************************
+Locale
+***********************************************************************/
+
+			Locale TypedValueSerializerProvider<Locale>::GetDefaultValue()
+			{
+				return Locale();
+			}
+
+			bool TypedValueSerializerProvider<Locale>::Serialize(const Locale& input, WString& output)
+			{
+				output = input.GetName();
+				return true;
+			}
+
+			bool TypedValueSerializerProvider<Locale>::Deserialize(const WString& input, Locale& output)
+			{
+				output = Locale(input);
+				return true;
+			}
+
+/***********************************************************************
 DateTime
 ***********************************************************************/
 

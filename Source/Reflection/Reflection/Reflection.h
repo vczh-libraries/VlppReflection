@@ -83,17 +83,6 @@ Predefined Types
 
 #endif
 
-#define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
-			template<>\
-			struct TypedValueSerializerProvider<TYPENAME>\
-			{\
-				static TYPENAME GetDefaultValue();\
-				static bool Serialize(const TYPENAME& input, WString& output);\
-				static bool Deserialize(const WString& input, TYPENAME& output);\
-			};\
-
-			REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER)
-
 #undef DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER
 
 /***********************************************************************
