@@ -35,10 +35,10 @@ Signed Types
 				static bool Deserialize(const WString& input, T& output)
 				{
 					bool success = false;
-					T result = wtoi64_test(input, success);
+					vint64_t result = wtoi64_test(input, success);
 					if (!success) return false;
 					if (result < MinValue || result > MaxValue) return false;
-					output = (vint8_t)result;
+					output = (T)result;
 					return true;
 				}
 			};
@@ -64,10 +64,10 @@ Unsigned Types
 				static bool Deserialize(const WString& input, T& output)
 				{
 					bool success = false;
-					T result = wtou64_test(input, success);
+					vuint64_t result = wtou64_test(input, success);
 					if (!success) return false;
 					if (result > MaxValue) return false;
-					output = (vuint8_t)result;
+					output = (T)result;
 					return true;
 				}
 			};
@@ -105,8 +105,33 @@ Floating Point Types
 /***********************************************************************
 Serializable Types
 ***********************************************************************/
+
+#define DEFINE_SIGNED_TVSP(TYPENAME, MINVALUE, MAXVALUE)\
+		template<> struct TypedValueSerializerProvider<TYPENAME> : TypedValueSerializerProvider_Signed<TYPENAME, MINVALUE, MAXVALUE> {};\
+
+		DEFINE_SIGNED_TVSP(vint8_t, _I8_MIN, _I8_MAX)
+		DEFINE_SIGNED_TVSP(vint16_t, _I16_MIN, _I16_MAX)
+		DEFINE_SIGNED_TVSP(vint32_t, _I32_MIN, _I32_MAX)
+		DEFINE_SIGNED_TVSP(vint64_t, _I64_MIN, _I64_MAX)
+#undef DEFINE_SIGNED_TVSP
+
+#define DEFINE_UNSIGNED_TVSP(TYPENAME, MAXVALUE)\
+		template<> struct TypedValueSerializerProvider<TYPENAME> : TypedValueSerializerProvider_Unsigned<TYPENAME, MAXVALUE> {};\
+
+		DEFINE_UNSIGNED_TVSP(vuint8_t, _UI8_MAX)
+		DEFINE_UNSIGNED_TVSP(vuint16_t, _UI16_MAX)
+		DEFINE_UNSIGNED_TVSP(vuint32_t, _UI32_MAX)
+		DEFINE_UNSIGNED_TVSP(vuint64_t, _UI64_MAX)
+#undef DEFINE_UNSIGNED_TVSP
+
+#define DEFINE_FLOAT_TVSP(TYPENAME, MAXVALUE)\
+		template<> struct TypedValueSerializerProvider<TYPENAME> : TypedValueSerializerProvider_FloatingPoint<TYPENAME, MAXVALUE> {};\
+
+		DEFINE_FLOAT_TVSP(float, (float)FLT_MAX)
+		DEFINE_FLOAT_TVSP(double, (double)FLT_MAX)
+#undef DEFINE_FLOAT_TVSP
 			
-#define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
+#define DEFINE_TVSP(TYPENAME)\
 			template<>\
 			struct TypedValueSerializerProvider<TYPENAME>\
 			{\
@@ -115,21 +140,11 @@ Serializable Types
 				static bool Deserialize(const WString& input, TYPENAME& output);\
 			};\
 
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint8_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint16_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint32_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint64_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint8_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint16_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint32_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint64_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(float)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(double)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(wchar_t)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(bool)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(WString)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(Locale)
-		DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(DateTime)
+		DEFINE_TVSP(wchar_t)
+		DEFINE_TVSP(bool)
+		DEFINE_TVSP(WString)
+		DEFINE_TVSP(Locale)
+		DEFINE_TVSP(DateTime)
 
 #undef DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER
 		}
