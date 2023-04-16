@@ -22,6 +22,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue_Comparison.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\TypedValueSerializerProvider.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
@@ -46,6 +47,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Metadata\Metadata_Member.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\ObservableList.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\PredefinedTypes.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\TypedValueSerializerProvider.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Macros.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Reflection\Reflection.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\ContainerWrappers.h" />

@@ -16,6 +16,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue_Comparison.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\TypedValueSerializerProvider.cpp">
+      <Filter>Predefined</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces.h" />
@@ -72,6 +75,9 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\TypedValueSerializerProvider.h">
+      <Filter>Predefined</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Metadata">

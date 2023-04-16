@@ -8,6 +8,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include <math.h>
 #include "../DescriptableInterfaces.h"
+#include "TypedValueSerializerProvider.h"
 
 namespace vl
 {
