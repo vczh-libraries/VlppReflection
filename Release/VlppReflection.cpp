@@ -2793,9 +2793,11 @@ description::Value
 
 				if (avt == Value::BoxedValue)
 				{
+#ifndef VCZH_DEBUG_NO_REFLECTION
 					auto adt = a.GetTypeDescriptor();
 					auto bdt = b.GetTypeDescriptor();
 					if (adt == bdt)
+#endif
 					{
 						auto pa = a.GetBoxedValue();
 						auto pb = b.GetBoxedValue();

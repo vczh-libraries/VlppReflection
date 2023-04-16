@@ -28,7 +28,7 @@ Signed Types
 
 				static bool Serialize(const T& input, WString& output)
 				{
-					output = u64tow(input);
+					output = i64tow(input);
 					return true;
 				}
 
@@ -128,7 +128,7 @@ Serializable Types
 		template<> struct TypedValueSerializerProvider<TYPENAME> : TypedValueSerializerProvider_FloatingPoint<TYPENAME, MAXVALUE> {};\
 
 		DEFINE_FLOAT_TVSP(float, (float)FLT_MAX)
-		DEFINE_FLOAT_TVSP(double, (double)FLT_MAX)
+		DEFINE_FLOAT_TVSP(double, (double)DBL_MAX)
 #undef DEFINE_FLOAT_TVSP
 			
 #define DEFINE_TVSP(TYPENAME)\
