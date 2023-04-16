@@ -29,6 +29,19 @@ namespace vl
 Value
 ***********************************************************************/
 
+			enum class PredefinedBoxableType : vint
+			{
+				PBT_Unknown = -1,
+				PBT_BOOL,
+				PBT_S8, PBT_S16, PBT_S32, PBT_S64,
+				PBT_U8, PBT_U16, PBT_U32, PBT_U64,
+				PBT_F8, PBT_F16,
+				PBT_WCHAR,
+				PBT_STRING,
+				PBT_LOCALE,
+				PBT_DATETIME,
+			};
+
 			class IBoxedValue : public virtual IDescriptable, public Description<IBoxedValue>
 			{
 			public:
@@ -40,6 +53,7 @@ Value
 					NotComparable,
 				};
 
+				virtual PredefinedBoxableType	GetBoxableType() = 0;
 				virtual Ptr<IBoxedValue>		Copy() = 0;
 				virtual CompareResult			ComparePrimitive(Ptr<IBoxedValue> boxedValue) = 0;
 			};

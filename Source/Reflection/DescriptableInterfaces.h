@@ -26,6 +26,33 @@ namespace vl
 ValueType
 ***********************************************************************/
 
+			namespace pbt_selector
+			{
+				template<PredefinedBoxableType _Value>
+				struct SelectorBase { static constexpr PredefinedBoxableType Value = _Value; };
+
+				template<typename T> struct Selector : SelectorBase<PredefinedBoxableType::PBT_Unknown> {};
+
+				template<> struct Selector<vint8_t> : SelectorBase<PredefinedBoxableType::PBT_S8> {};
+				template<> struct Selector<vint16_t> : SelectorBase<PredefinedBoxableType::PBT_S16> {};
+				template<> struct Selector<vint32_t> : SelectorBase<PredefinedBoxableType::PBT_S32> {};
+				template<> struct Selector<vint64_t> : SelectorBase<PredefinedBoxableType::PBT_S64> {};
+
+				template<> struct Selector<vuint8_t> : SelectorBase<PredefinedBoxableType::PBT_U8> {};
+				template<> struct Selector<vuint16_t> : SelectorBase<PredefinedBoxableType::PBT_U16> {};
+				template<> struct Selector<vuint32_t> : SelectorBase<PredefinedBoxableType::PBT_U32> {};
+				template<> struct Selector<vuint64_t> : SelectorBase<PredefinedBoxableType::PBT_U64> {};
+
+				template<> struct Selector<float> : SelectorBase<PredefinedBoxableType::PBT_F8> {};
+				template<> struct Selector<double> : SelectorBase<PredefinedBoxableType::PBT_F16> {};
+
+				template<> struct Selector<bool> : SelectorBase<PredefinedBoxableType::PBT_BOOL> {};
+				template<> struct Selector<wchar_t> : SelectorBase<PredefinedBoxableType::PBT_WCHAR> {};
+				template<> struct Selector<WString> : SelectorBase<PredefinedBoxableType::PBT_STRING> {};
+				template<> struct Selector<Locale> : SelectorBase<PredefinedBoxableType::PBT_LOCALE> {};
+				template<> struct Selector<DateTime> : SelectorBase<PredefinedBoxableType::PBT_DATETIME> {};
+			}
+
 			class IValueType : public virtual IDescriptable, public Description<IValueType>
 			{
 			public:
@@ -43,6 +70,11 @@ ValueType
 					TypedBox(const T& _value)
 						:value(_value)
 					{
+					}
+
+					PredefinedBoxableType GetBoxableType()override
+					{
+						return pbt_selector::Selector<T>::Value;
 					}
 
 					Ptr<IBoxedValue> Copy()override

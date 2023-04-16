@@ -140,8 +140,8 @@ Serializable Types
 				static bool Deserialize(const WString& input, TYPENAME& output);\
 			};\
 
-		DEFINE_TVSP(wchar_t)
 		DEFINE_TVSP(bool)
+		DEFINE_TVSP(wchar_t)
 		DEFINE_TVSP(WString)
 		DEFINE_TVSP(Locale)
 		DEFINE_TVSP(DateTime)
