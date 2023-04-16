@@ -15,6 +15,7 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue_Comparison.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableInterfaces.h" />
