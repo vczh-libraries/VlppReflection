@@ -18,7 +18,7 @@ description::Value
 
 		namespace description
 		{
-			std::strong_ordering operator<=>(const Value& a, const Value& b)
+			std::partial_ordering operator<=>(const Value& a, const Value& b)
 			{
 				auto avt = a.GetValueType();
 				auto bvt = b.GetValueType();
@@ -40,6 +40,21 @@ description::Value
 
 				if (avt == Value::BoxedValue)
 				{
+					auto adt = a.GetTypeDescriptor();
+					auto bdt = b.GetTypeDescriptor();
+					if (adt == bdt)
+					{
+						auto pa = a.GetBoxedValue();
+						auto pb = b.GetBoxedValue();
+						switch (pa->ComparePrimitive(pb))
+						{
+						case IBoxedValue::Smaller: return std::partial_ordering::less;
+						case IBoxedValue::Greater: return std::partial_ordering::greater;
+						case IBoxedValue::Equal: return std::partial_ordering::equivalent;
+						default: return std::partial_ordering::unordered;
+						}
+					}
+
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 					auto aSt = a.GetTypeDescriptor()->GetSerializableType();
 					auto bSt = b.GetTypeDescriptor()->GetSerializableType();
@@ -105,16 +120,7 @@ description::Value
 						}
 					}
 #else
-					auto pa = a.GetBoxedValue();
-					auto pb = b.GetBoxedValue();
-					switch (pa->ComparePrimitive(pb))
-					{
-					case IBoxedValue::Smaller: return std::strong_ordering::less;
-					case IBoxedValue::Greater: return std::strong_ordering::greater;
-					case IBoxedValue::Equal: return std::strong_ordering::equal;
-					default:;
-					}
-					return pa.Obj() <=> pb.Obj();
+					std::partial_ordering::unordered
 #endif
 				}
 

@@ -87,7 +87,7 @@ Value
 				Value(const Value& value);
 				Value&							operator=(const Value& value);
 
-				friend std::strong_ordering		operator<=>(const Value& a, const Value& b);
+				friend std::partial_ordering	operator<=>(const Value& a, const Value& b);
 				friend bool						operator==(const Value& a, const Value& b) { return (a <=> b) == 0; }
 
 				/// <summary>Find out how the value is stored.</summary>
