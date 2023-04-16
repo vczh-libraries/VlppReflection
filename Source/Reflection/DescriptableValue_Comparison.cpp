@@ -4,6 +4,7 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "DescriptableInterfaces.h"
+#include "Boxing/BoxingValue.h"
 
 namespace vl
 {
@@ -18,6 +19,84 @@ description::Value
 
 		namespace description
 		{
+			namespace pbt_selector
+			{
+				template<typename T>
+				struct UnboxTypeBase { using Type = T; };
+
+				template<PredefinedBoxableType> struct RealUnboxType;
+				template<PredefinedBoxableType> struct ExpectedUnboxType;
+
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S8>	: UnboxTypeBase<vint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S16>	: UnboxTypeBase<vint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S32>	: UnboxTypeBase<vint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_S64>	: UnboxTypeBase<vint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U8>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U16>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U32>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_U64>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_F32>	: UnboxTypeBase<double> {};
+				template<> struct RealUnboxType<PredefinedBoxableType::PBT_F64>	: UnboxTypeBase<double> {};
+
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S8>	: UnboxTypeBase<vint8_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S16>	: UnboxTypeBase<vint16_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S32>	: UnboxTypeBase<vint32_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_S64>	: UnboxTypeBase<vint64_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U8>	: UnboxTypeBase<vuint8_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U16>	: UnboxTypeBase<vuint16_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U32>	: UnboxTypeBase<vuint32_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_U64>	: UnboxTypeBase<vuint64_t> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_F32>	: UnboxTypeBase<float> {};
+				template<> struct ExpectedUnboxType<PredefinedBoxableType::PBT_F64>	: UnboxTypeBase<double> {};
+
+				template<PredefinedBoxableType PBT>
+				typename ExpectedUnboxType<PBT>::Type UnboxForComparison(const Value& v)
+				{
+					return (typename ExpectedUnboxType<PBT>::Type)UnboxValue<typename RealUnboxType<PBT>::Type>(v);
+				}
+
+#define DEFINE_PBT_COMPARE(TYPE1, TYPE2)\
+				inline std::partial_ordering Compare(TYPE1& v1, TYPE2& v2)\
+				{\
+					return v1 <=> v2;\
+				}\
+
+				DEFINE_PBT_COMPARE(vint64_t, vint64_t)
+				DEFINE_PBT_COMPARE(vuint64_t, vuint64_t)
+				DEFINE_PBT_COMPARE(double, double)
+				DEFINE_PBT_COMPARE(vint64_t, double)
+				DEFINE_PBT_COMPARE(vuint64_t, double)
+				DEFINE_PBT_COMPARE(double, vint64_t)
+				DEFINE_PBT_COMPARE(double, vuint64_t)
+					
+				inline std::partial_ordering Compare(vint64_t& v1, vuint64_t& v2)
+				{
+					if (v2 > _I64_MAX) return std::partial_ordering::less;
+					return v1 <=> (vint64_t)v2;
+				}
+
+				inline std::partial_ordering Compare(vuint64_t& v1, vint64_t& v2)
+				{
+					if (v1 > _I64_MAX) return std::partial_ordering::greater;
+					return (vint64_t)v1 <=> v2;
+				}
+
+				template<PredefinedBoxableType PBT1, PredefinedBoxableType PBT2>
+				std::partial_ordering PBT_Compare(const Value& v1, const Value& v2)
+				{
+					using E1 = typename ExpectedUnboxType<PBT1>::Type;
+					using E2 = typename ExpectedUnboxType<PBT2>::Type;
+					using R1 = typename RealUnboxType<PBT1>::Type;
+					using R2 = typename RealUnboxType<PBT2>::Type;
+
+					E1 e1 = (E1)UnboxValue<R1>(v1);
+					E2 e2 = (E2)UnboxValue<R2>(v2);
+					return Compare(e1, e2);
+				}
+
+#undef DEFINE_PBT_COMPARE
+			}
+
 			std::partial_ordering operator<=>(const Value& a, const Value& b)
 			{
 				auto avt = a.GetValueType();

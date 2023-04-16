@@ -14,6 +14,28 @@ namespace vl
 	{
 		namespace description
 		{
+
+/***********************************************************************
+bool
+***********************************************************************/
+
+			bool TypedValueSerializerProvider<bool>::GetDefaultValue()
+			{
+				return false;
+			}
+
+			bool TypedValueSerializerProvider<bool>::Serialize(const bool& input, WString& output)
+			{
+				output = input ? L"true" : L"false";
+				return true;
+			}
+
+			bool TypedValueSerializerProvider<bool>::Deserialize(const WString& input, bool& output)
+			{
+				output = input == L"true";
+				return input == L"true" || input == L"false";
+			}
+
 /***********************************************************************
 wchar_t
 ***********************************************************************/
@@ -37,7 +59,7 @@ wchar_t
 			}
 
 /***********************************************************************
-bool
+WString
 ***********************************************************************/
 
 			WString TypedValueSerializerProvider<WString>::GetDefaultValue()
@@ -55,27 +77,6 @@ bool
 			{
 				output = input;
 				return true;
-			}
-
-/***********************************************************************
-WString
-***********************************************************************/
-
-			bool TypedValueSerializerProvider<bool>::GetDefaultValue()
-			{
-				return false;
-			}
-
-			bool TypedValueSerializerProvider<bool>::Serialize(const bool& input, WString& output)
-			{
-				output = input ? L"true" : L"false";
-				return true;
-			}
-
-			bool TypedValueSerializerProvider<bool>::Deserialize(const WString& input, bool& output)
-			{
-				output = input == L"true";
-				return input == L"true" || input == L"false";
 			}
 
 /***********************************************************************

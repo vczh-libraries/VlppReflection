@@ -43,8 +43,8 @@ ValueType
 				template<> struct Selector<vuint32_t> : SelectorBase<PredefinedBoxableType::PBT_U32> {};
 				template<> struct Selector<vuint64_t> : SelectorBase<PredefinedBoxableType::PBT_U64> {};
 
-				template<> struct Selector<float> : SelectorBase<PredefinedBoxableType::PBT_F8> {};
-				template<> struct Selector<double> : SelectorBase<PredefinedBoxableType::PBT_F16> {};
+				template<> struct Selector<float> : SelectorBase<PredefinedBoxableType::PBT_F32> {};
+				template<> struct Selector<double> : SelectorBase<PredefinedBoxableType::PBT_F64> {};
 
 				template<> struct Selector<bool> : SelectorBase<PredefinedBoxableType::PBT_BOOL> {};
 				template<> struct Selector<wchar_t> : SelectorBase<PredefinedBoxableType::PBT_WCHAR> {};

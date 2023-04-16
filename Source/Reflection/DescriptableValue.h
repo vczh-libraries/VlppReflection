@@ -32,10 +32,10 @@ Value
 			enum class PredefinedBoxableType : vint
 			{
 				PBT_Unknown = -1,
-				PBT_BOOL,
 				PBT_S8, PBT_S16, PBT_S32, PBT_S64,
 				PBT_U8, PBT_U16, PBT_U32, PBT_U64,
-				PBT_F8, PBT_F16,
+				PBT_F32, PBT_F64,
+				PBT_BOOL,
 				PBT_WCHAR,
 				PBT_STRING,
 				PBT_LOCALE,
