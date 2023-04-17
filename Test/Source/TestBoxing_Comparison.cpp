@@ -52,39 +52,45 @@ END_TYPE_INFO_NAMESPACE
 
 namespace reflection_test
 {
-	template<typename T>
-	void TestComparison(T a, T b)
+	template<typename T, typename U>
+	void TestComparison2(T a, U b)
 	{
 		{
 			auto x = a < b;
-			auto y = BoxValue<T>(a) < BoxValue<T>(b);
+			auto y = BoxValue<T>(a) < BoxValue<U>(b);
 			TEST_ASSERT(x == y);
 		}
 		{
 			auto x = a <= b;
-			auto y = BoxValue<T>(a) <= BoxValue<T>(b);
+			auto y = BoxValue<T>(a) <= BoxValue<U>(b);
 			TEST_ASSERT(x == y);
 		}
 		{
 			auto x = a > b;
-			auto y = BoxValue<T>(a) > BoxValue<T>(b);
+			auto y = BoxValue<T>(a) > BoxValue<U>(b);
 			TEST_ASSERT(x == y);
 		}
 		{
 			auto x = a >= b;
-			auto y = BoxValue<T>(a) >= BoxValue<T>(b);
+			auto y = BoxValue<T>(a) >= BoxValue<U>(b);
 			TEST_ASSERT(x == y);
 		}
 		{
 			auto x = a == b;
-			auto y = BoxValue<T>(a) == BoxValue<T>(b);
+			auto y = BoxValue<T>(a) == BoxValue<U>(b);
 			TEST_ASSERT(x == y);
 		}
 		{
 			auto x = a != b;
-			auto y = BoxValue<T>(a) != BoxValue<T>(b);
+			auto y = BoxValue<T>(a) != BoxValue<U>(b);
 			TEST_ASSERT(x == y);
 		}
+	}
+
+	template<typename T>
+	void TestComparison(T a, T b)
+	{
+		TestComparison2<T, T>(a, b);
 	}
 
 	template<typename T>
@@ -172,6 +178,17 @@ namespace reflection_test
 		unittest::UnitTest::PrintMessage(L"a2 <=> a1", unittest::UnitTest::MessageKind::Info);
 		TestComparison<ValueToCompare>(a2, a1);
 	}
+
+	template<typename T, typename U>
+	void TestCompareDifferentNumber()
+	{
+		unittest::UnitTest::PrintMessage(L"0 <=> 0", unittest::UnitTest::MessageKind::Info);
+		TestComparison2<T, U>(0, 0);
+		unittest::UnitTest::PrintMessage(L"0 <=> 1", unittest::UnitTest::MessageKind::Info);
+		TestComparison2<T, U>(0, 1);
+		unittest::UnitTest::PrintMessage(L"1 <=> 0", unittest::UnitTest::MessageKind::Info);
+		TestComparison2<T, U>(1, 0);
+	}
 }
 using namespace reflection_test;
 
@@ -194,5 +211,15 @@ TEST_FILE
 	TEST_CASE_REFLECTION(TestCompareString)
 	TEST_CASE_REFLECTION(TestCompareLocale)
 	TEST_CASE_REFLECTION(TestCompareStruct)
-	CHECK_FAIL(L"Compare different type");
+
+#define _ ,
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vint8_t _ vint64_t>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vint64_t _ vint8_t>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint8_t _ vuint64_t>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint64_t _ vuint8_t>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint8_t _ vint64_t>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint64_t _ vint8_t>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vint8_t _ double>)
+	TEST_CASE_REFLECTION(TestCompareDifferentNumber<double _ vuint8_t>)
+#undef _
 }
