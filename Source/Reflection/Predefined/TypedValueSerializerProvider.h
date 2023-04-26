@@ -7,6 +7,9 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_REFLECTION_TYPES_TYPEDVALUESERIALIZERPROVIDER
 
 #include "../DescriptableInterfaces.h"
+#ifdef VCZH_GCC
+#include <float.h>
+#endif
 
 namespace vl
 {
