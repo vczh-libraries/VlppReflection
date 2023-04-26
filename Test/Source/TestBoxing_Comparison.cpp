@@ -212,14 +212,22 @@ TEST_FILE
 	TEST_CASE_REFLECTION(TestCompareLocale)
 	TEST_CASE_REFLECTION(TestCompareStruct)
 
-#define _ ,
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vint8_t _ vint64_t>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vint64_t _ vint8_t>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint8_t _ vuint64_t>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint64_t _ vuint8_t>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint8_t _ vint64_t>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vuint64_t _ vint8_t>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<vint8_t _ double>)
-	TEST_CASE_REFLECTION(TestCompareDifferentNumber<double _ vuint8_t>)
-#undef _
+// workaround clang++ 14.0.0-1ubuntu1
+
+#define TEST_CASE_REFLECTION_DIFFERENT_NUMBER(TYPE1, TYPE2)\
+	{\
+		constexpr auto TestCompareDifferentNumber_ ## TYPE1 ## _ ## TYPE2 = &TestCompareDifferentNumber<TYPE1, TYPE2>;\
+		TEST_CASE_REFLECTION(TestCompareDifferentNumber_ ## TYPE1 ## _ ## TYPE2)\
+	}\
+
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vint8_t, vint64_t)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vint64_t, vint8_t)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint8_t, vuint64_t)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint64_t, vuint8_t)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint8_t, vint64_t)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint64_t, vint8_t)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vint8_t, double)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(double, vuint8_t)
+
+#undef TEST_CASE_REFLECTION_DIFFERENT_NUMBER
 }
