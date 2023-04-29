@@ -171,6 +171,12 @@ DescriptableObject
 			DescriptableObject();
 			virtual ~DescriptableObject();
 
+			// all fields are describing the object, it would be incorrect if they are copied from one to another.
+			DescriptableObject(const DescriptableObject&) : DescriptableObject() {}
+			DescriptableObject(DescriptableObject&&) : DescriptableObject() {}
+			DescriptableObject& operator=(const DescriptableObject&) { return *this; }
+			DescriptableObject& operator=(DescriptableObject&&) { return *this; }
+
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			/// <summary>
 			/// <p>Get the type descriptor that describe the real type of this object.</p>
