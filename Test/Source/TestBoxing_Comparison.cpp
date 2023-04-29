@@ -189,6 +189,20 @@ namespace reflection_test
 		unittest::UnitTest::PrintMessage(L"1 <=> 0", unittest::UnitTest::MessageKind::Info);
 		TestComparison2<T, U>(1, 0);
 	}
+	
+#define TEST_CASE_REFLECTION_DIFFERENT_NUMBER(F)\
+	F(vint8_t, vint64_t)\
+	F(vint64_t, vint8_t)\
+	F(vuint8_t, vuint64_t)\
+	F(vuint64_t, vuint8_t)\
+	F(vuint8_t, vint64_t)\
+	F(vuint64_t, vint8_t)\
+	F(vint8_t, double)\
+	F(double, vuint8_t)\
+
+#define DEFINE_TEST_COMPARE_DIFFERENT_NUMBER_FUNCTION(TYPE1, TYPE2) constexpr auto TestCompareDifferentNumber_ ## TYPE1 ## _ ## TYPE2 = &TestCompareDifferentNumber<TYPE1, TYPE2>;
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(DEFINE_TEST_COMPARE_DIFFERENT_NUMBER_FUNCTION)
+#undef DEFINE_TEST_COMPARE_DIFFERENT_NUMBER_FUNCTION
 }
 using namespace reflection_test;
 
@@ -214,20 +228,7 @@ TEST_FILE
 
 // workaround clang++ 14.0.0-1ubuntu1
 
-#define TEST_CASE_REFLECTION_DIFFERENT_NUMBER(TYPE1, TYPE2)\
-	{\
-		constexpr auto TestCompareDifferentNumber_ ## TYPE1 ## _ ## TYPE2 = &TestCompareDifferentNumber<TYPE1, TYPE2>;\
-		TEST_CASE_REFLECTION(TestCompareDifferentNumber_ ## TYPE1 ## _ ## TYPE2)\
-	}\
-
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vint8_t, vint64_t)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vint64_t, vint8_t)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint8_t, vuint64_t)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint64_t, vuint8_t)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint8_t, vint64_t)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vuint64_t, vint8_t)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(vint8_t, double)
-	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(double, vuint8_t)
-
-#undef TEST_CASE_REFLECTION_DIFFERENT_NUMBER
+#define DEFINE_TEST_COMPARE_DIFFERENT_NUMBER_TEST_CASE(TYPE1, TYPE2) TEST_CASE_REFLECTION(TestCompareDifferentNumber_ ## TYPE1 ## _ ## TYPE2)
+	TEST_CASE_REFLECTION_DIFFERENT_NUMBER(DEFINE_TEST_COMPARE_DIFFERENT_NUMBER_TEST_CASE)
+#undef DEFINE_TEST_COMPARE_DIFFERENT_NUMBER_TEST_CASE
 }

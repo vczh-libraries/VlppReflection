@@ -590,7 +590,7 @@ namespace reflection_test
 	void TestSharedRawPtrConverting()
 	{
 		Base* b1 = new Base;
-		volatile vint* rc = ReferenceCounterOperator<Base>::CreateCounter(b1);
+		atomic_vint* rc = ReferenceCounterOperator<Base>::CreateCounter(b1);
 		TEST_ASSERT(*rc == 0);
 
 		Ptr<Base> b2(b1);

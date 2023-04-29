@@ -97,7 +97,7 @@ DescriptableObject
 			typedef collections::Dictionary<WString, Ptr<Object>>		InternalPropertyMap;
 			typedef bool(*DestructorProc)(DescriptableObject* obj, bool forceDisposing);
 		private:
-			volatile vint							referenceCounter;
+			atomic_vint								referenceCounter;
 
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			size_t									objectSize;
@@ -670,7 +670,7 @@ ReferenceCounterOperator
 	template<typename T>
 	struct ReferenceCounterOperator<T, std::enable_if_t<std::is_convertible_v<T*, reflection::DescriptableObject*>>>
 	{
-		static __forceinline volatile vint* CreateCounter(T* reference)
+		static __forceinline atomic_vint* CreateCounter(T* reference)
 		{
 			reflection::DescriptableObject* obj=reference;
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
@@ -685,7 +685,7 @@ ReferenceCounterOperator
 			return &obj->referenceCounter;
 		}
 
-		static __forceinline void DeleteReference(volatile vint* counter, void* reference)
+		static __forceinline void DeleteReference(atomic_vint* counter, void* reference)
 		{
 			reflection::DescriptableObject* obj=(T*)reference;
 			obj->Dispose(false);

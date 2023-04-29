@@ -47,7 +47,7 @@ TEST_FILE
 		TEST_ASSERT((std::is_convertible_v<Derived*, DescriptableObject*>));
 
 		Base* raw = new Base;
-		volatile vint* counter = ReferenceCounterOperator<Base>::CreateCounter(raw);
+		atomic_vint* counter = ReferenceCounterOperator<Base>::CreateCounter(raw);
 		TEST_ASSERT(0 == *counter);
 		{
 			Ptr<Base> ptr1(raw);
