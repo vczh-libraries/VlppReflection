@@ -37,40 +37,20 @@ namespace vl
 
 				vint data[4];
 
-				static inline vint Compare(const MethodPointerBinaryData& a, const MethodPointerBinaryData& b)
+				friend std::strong_ordering operator<=>(const MethodPointerBinaryData& a, const MethodPointerBinaryData& b)
 				{
+					for (vint i = 0; i < sizeof(data) / sizeof(*data); i++)
 					{
-						auto result = a.data[0] - b.data[0];
+						auto result = a.data[i] <=> b.data[i];
 						if (result != 0) return result;
 					}
-					{
-						auto result = a.data[1] - b.data[1];
-						if (result != 0) return result;
-					}
-					{
-						auto result = a.data[2] - b.data[2];
-						if (result != 0) return result;
-					}
-					{
-						auto result = a.data[3] - b.data[3];
-						if (result != 0) return result;
-					}
-					return 0;
+					return std::strong_ordering::equal;
 				}
 
-#define COMPARE(OPERATOR)\
-				inline bool operator OPERATOR(const MethodPointerBinaryData& d)const\
-				{\
-					return Compare(*this, d) OPERATOR 0;\
+				friend bool operator==(const MethodPointerBinaryData& a, const MethodPointerBinaryData& b)
+				{
+					return (a <=> b) == 0;
 				}
-
-				COMPARE(<)
-				COMPARE(<=)
-				COMPARE(>)
-				COMPARE(>=)
-				COMPARE(==)
-				COMPARE(!=)
-#undef COMPARE
 			};
 
 			template<typename T>

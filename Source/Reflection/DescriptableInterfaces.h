@@ -86,21 +86,14 @@ ValueType
 					{
 						if (auto typedBox = boxedValue.Cast<TypedBox<T>>())
 						{
-							if constexpr (std::three_way_comparable<T, std::strong_ordering>)
+							auto r = value <=> typedBox->value;
+							if constexpr (std::is_same_v<decltype(r), std::partial_ordering>)
 							{
-								auto r = value <=> typedBox->value;
-								if (r < 0) return IBoxedValue::Smaller;
-								if (r > 0) return IBoxedValue::Greater;
-								return IBoxedValue::Equal;
-							}
-							else if constexpr (std::three_way_comparable<T, std::partial_ordering>)
-							{
-								auto r = value <=> typedBox->value;
 								if (r == std::partial_ordering::unordered) return IBoxedValue::NotComparable;
-								if (r < 0) return IBoxedValue::Smaller;
-								if (r > 0) return IBoxedValue::Greater;
-								return IBoxedValue::Equal;
 							}
+							if (r < 0) return IBoxedValue::Smaller;
+							if (r > 0) return IBoxedValue::Greater;
+							return IBoxedValue::Equal;
 						}
 						return IBoxedValue::NotComparable;
 					}

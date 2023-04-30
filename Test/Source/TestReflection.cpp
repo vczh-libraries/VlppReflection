@@ -26,24 +26,32 @@ namespace TestReflection_TestObjects
 	{
 		vint x;
 		vint y;
+
+		auto operator<=>(const Point&) const = default;
 	};
 
 	struct Size
 	{
 		vint cx;
 		vint cy;
+
+		auto operator<=>(const Size&) const = default;
 	};
 
 	struct Rect
 	{
 		Point point;
 		Size size;
+
+		auto operator<=>(const Rect&) const = default;
 	};
 
 	struct RectPair
 	{
 		Rect a;
 		Rect b;
+
+		auto operator<=>(const RectPair&) const = default;
 	};
 
 	class Base : public Object, public Description<Base>
