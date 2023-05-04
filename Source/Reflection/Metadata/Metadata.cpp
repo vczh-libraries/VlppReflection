@@ -507,6 +507,7 @@ MethodInfoImpl
 				{
 					throw ArgumentCountMismtatchException(ownerMethodGroup);
 				}
+				// TODO: (enumerable) foreach
 				for(vint i=0;i<parameters.Count();i++)
 				{
 					if(!arguments[i].CanConvertTo(parameters[i]->GetType()))
@@ -562,6 +563,7 @@ MethodInfoImpl
 
 			bool MethodInfoImpl::AddParameter(Ptr<IParameterInfo> parameter)
 			{
+				// TODO: (enumerable) foreach
 				for(vint i=0;i<parameters.Count();i++)
 				{
 					if(parameters[i]->GetName()==parameter->GetName())
@@ -1101,6 +1103,7 @@ TypeDescriptorImpl
 			{
 				Load();
 				if (this == targetType) return true;
+				// TODO: (enumerable) foreach
 				for (vint i = 0; i < baseTypeDescriptors.Count(); i++)
 				{
 					if (baseTypeDescriptors[i]->CanConvertTo(targetType)) return true;
@@ -1136,6 +1139,7 @@ TypeDescriptorImpl
 				}
 				if(inheritable)
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<baseTypeDescriptors.Count();i++)
 					{
 						if(baseTypeDescriptors[i]->IsPropertyExists(name, true))
@@ -1157,6 +1161,7 @@ TypeDescriptorImpl
 				}
 				if(inheritable)
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<baseTypeDescriptors.Count();i++)
 					{
 						IPropertyInfo* result=baseTypeDescriptors[i]->GetPropertyByName(name, true);
@@ -1197,6 +1202,7 @@ TypeDescriptorImpl
 				}
 				if(inheritable)
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<baseTypeDescriptors.Count();i++)
 					{
 						if(baseTypeDescriptors[i]->IsEventExists(name, true))
@@ -1218,6 +1224,7 @@ TypeDescriptorImpl
 				}
 				if(inheritable)
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<baseTypeDescriptors.Count();i++)
 					{
 						IEventInfo* result=baseTypeDescriptors[i]->GetEventByName(name, true);
@@ -1258,6 +1265,7 @@ TypeDescriptorImpl
 				}
 				if(inheritable)
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<baseTypeDescriptors.Count();i++)
 					{
 						if(baseTypeDescriptors[i]->IsMethodGroupExists(name, true))
@@ -1279,6 +1287,7 @@ TypeDescriptorImpl
 				}
 				if(inheritable)
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<baseTypeDescriptors.Count();i++)
 					{
 						IMethodGroupInfo* result=baseTypeDescriptors[i]->GetMethodGroupByName(name, true);

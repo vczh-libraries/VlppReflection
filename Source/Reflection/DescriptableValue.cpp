@@ -253,6 +253,7 @@ description::Value
 				}
 				else
 				{
+					// TODO: (enumerable) foreach
 					for(vint i=0;i<methods.Count();i++)
 					{
 						IMethodInfo* method=methods[i];

@@ -124,6 +124,7 @@ MetaonlyTypeInfo
 					default:;
 					}
 					WString result = elementType->GetTypeFriendlyName() + L"<";
+					// TODO: (enumerable) Linq:Aggregate
 					for (auto [type, i] : indexed(genericArguments))
 					{
 						if (i > 0) result += L", ";
@@ -366,6 +367,7 @@ IMethodInfo
 					: context(_context)
 					, metadata(_metadata)
 				{
+					// TODO: (enumerable) foreach
 					for (vint i = 0; i < metadata->parameters.Count(); i++)
 					{
 						parameters.Add(Ptr(new MetaonlyParameterInfo(context, metadata->parameters[i], metadata->ownerTypeDescriptor, this)));
@@ -702,6 +704,7 @@ ITypeDescriptor
 						serializableType = context->serializableTypes[metadata->typeName].Obj();
 					}
 
+					// TODO: (enumerable) foreach
 					for (vint i = 0; i < metadata->methodGroups.Count(); i++)
 					{
 						methodGroups.Add(Ptr(new MetaonlyMethodGroupInfo(context, metadata, metadata->methodGroups[i])));
@@ -918,6 +921,7 @@ ITypeDescriptor
 
 				IMethodGroupInfo* GetMethodGroupByName(const WString& name, bool inheritable) override
 				{
+					// TODO: (enumerable) foreach
 					for (vint i = 0; i < methodGroups.Count(); i++)
 					{
 						auto info = methodGroups[i].Obj();
@@ -1191,6 +1195,7 @@ LoadMetaonlyTypes
 
 				void Load(ITypeManager* manager) override
 				{
+					// TODO: (enumerable) foreach
 					for (vint i = 0; i < context->tds.Count(); i++)
 					{
 						auto td = context->tds[i];

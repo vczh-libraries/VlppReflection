@@ -130,6 +130,7 @@ description::TypeManager
 					{
 						loaded = true;
 						auto oldTypeVersion = typeVersion;
+						// TODO: (enumerable) foreach
 						for (vint i = 0; i < typeLoaders.Count(); i++)
 						{
 							typeLoaders[i]->Load(this);
@@ -150,6 +151,7 @@ description::TypeManager
 						loaded = false;
 						rootType = 0;
 						auto oldTypeVersion = typeVersion;
+						// TODO: (enumerable) foreach
 						for (vint i = 0; i < typeLoaders.Count(); i++)
 						{
 							typeLoaders[i]->Unload(this);
