@@ -227,10 +227,6 @@ Metadata
 Serialization
 ***********************************************************************/
 
-			SERIALIZE_ENUM(reflection::description::ITypeInfo::Decorator)
-			SERIALIZE_ENUM(reflection::description::TypeInfoHint)
-			SERIALIZE_ENUM(reflection::description::TypeDescriptorFlags)
-
 			BEGIN_SERIALIZATION(reflection::description::IdRange)
 				SERIALIZE(start)
 				SERIALIZE(count)

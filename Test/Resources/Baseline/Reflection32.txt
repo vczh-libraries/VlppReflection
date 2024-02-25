@@ -54,13 +54,13 @@ primitive system::Char;
 struct system::DateTime {
     property day : system::Int32;
     property dayOfWeek : system::Int32;
-    property filetime : system::UInt64;
     property hour : system::Int32;
     property milliseconds : system::Int32;
     property minute : system::Int32;
     property month : system::Int32;
+    property osInternal : system::UInt64;
+    property osMilliseconds : system::UInt64;
     property second : system::Int32;
-    property totalMilliseconds : system::UInt64;
     property year : system::Int32;
 }
 
