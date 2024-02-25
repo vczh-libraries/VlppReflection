@@ -21,24 +21,24 @@ WString GetExePath()
 	return WString::CopyFrom(buffer, pos + 1);
 }
 
-WString GetTestOutputPath()
+WString GetTestMetadataPath()
 {
 #ifdef _WIN64
-	return GetExePath() + L"../../../Output/";
+	return GetExePath() + L"../../../Metadata/";
 #else
-	return GetExePath() + L"../../Output/";
+	return GetExePath() + L"../../Metadata/";
 #endif
 }
 
 TEST_FILE
 {
-	TEST_CASE_ASSERT(Folder(GetTestOutputPath()).Exists());
+	TEST_CASE_ASSERT(Folder(GetTestMetadataPath()).Exists());
 }
 
 int wmain(int argc, wchar_t* argv[])
 {
 	{
-		Folder folder(GetTestOutputPath());
+		Folder folder(GetTestMetadataPath());
 		if (!folder.Exists())
 		{
 			folder.Create(false);

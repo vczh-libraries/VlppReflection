@@ -6,7 +6,7 @@ using namespace vl::filesystem;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 
-extern WString GetTestOutputPath();
+extern WString GetTestMetadataPath();
 
 #ifdef VCZH_64
 #define REFLECTION_BIN L"Reflection64.bin"
@@ -27,7 +27,7 @@ BEGIN_GLOBAL_STORAGE_CLASS(MetaonlyTypeDescriptors)
 INITIALIZE_GLOBAL_STORAGE_CLASS
 	collections::Dictionary<WString, Ptr<ISerializableType>> serializableTypes;
 	REFLECTION_PREDEFINED_SERIALIZABLE_TYPES(INSTALL_SERIALIZABLE_TYPE)
-	FileStream fileStream(GetTestOutputPath() + REFLECTION_BIN, FileStream::ReadOnly);
+	FileStream fileStream(GetTestMetadataPath() + REFLECTION_BIN, FileStream::ReadOnly);
 	typeLoader = LoadMetaonlyTypes(fileStream, serializableTypes);
 
 FINALIZE_GLOBAL_STORAGE_CLASS
@@ -68,15 +68,15 @@ TEST_FILE
 	{
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
 		{
-			FileStream fileStream(GetTestOutputPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
+			FileStream fileStream(GetTestMetadataPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
 			BomEncoder encoder(BomEncoder::Utf16);
 			EncoderStream encoderStream(fileStream, encoder);
 			StreamWriter writer(encoderStream);
 			LogTypeManager(writer);
 		}
 		{
-			auto first = File(GetTestOutputPath() + REFLECTION_BASELINE).ReadAllTextByBom();
-			auto second = File(GetTestOutputPath() + REFLECTION_OUTPUT).ReadAllTextByBom();
+			auto first = File(GetTestMetadataPath() + REFLECTION_BASELINE).ReadAllTextByBom();
+			auto second = File(GetTestMetadataPath() + REFLECTION_OUTPUT).ReadAllTextByBom();
 			TEST_ASSERT(first == second);
 		}
 		TEST_ASSERT(ResetGlobalTypeManager());

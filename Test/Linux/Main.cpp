@@ -3,14 +3,14 @@
 using namespace vl;
 using namespace vl::filesystem;
 
-WString GetTestOutputPath()
+WString GetTestMetadataPath()
 {
-    return L"../../Output/";
+    return L"../../Metadata/";
 }
 
 TEST_FILE
 {
-	TEST_CASE_ASSERT(Folder(GetTestOutputPath()).Exists());
+	TEST_CASE_ASSERT(Folder(GetTestMetadataPath()).Exists());
 }
 
 int main(int argc, char* argv[])

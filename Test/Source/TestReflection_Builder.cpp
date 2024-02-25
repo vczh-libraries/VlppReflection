@@ -5,13 +5,13 @@ using namespace vl::reflection;
 using namespace vl::reflection::description;
 using namespace vl::stream;
 
-extern WString GetTestOutputPath();
+extern WString GetTestMetadataPath();
 
 namespace reflection_test_builder
 {
 	void TestReflectionBuilder()
 	{
-		FileStream fileStream(GetTestOutputPath() + L"ReflectionWithTestTypes.txt", FileStream::WriteOnly);
+		FileStream fileStream(GetTestMetadataPath() + L"ReflectionWithTestTypes.txt", FileStream::WriteOnly);
 		BomEncoder encoder(BomEncoder::Utf16);
 		EncoderStream encoderStream(fileStream, encoder);
 		StreamWriter writer(encoderStream);

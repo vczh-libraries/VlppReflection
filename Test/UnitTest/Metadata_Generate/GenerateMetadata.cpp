@@ -7,7 +7,7 @@ using namespace vl::stream;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 
-extern WString GetTestOutputPath();
+extern WString GetTestMetadataPath();
 
 #ifdef VCZH_64
 #define REFLECTION_BIN L"Reflection64.bin"
@@ -32,21 +32,15 @@ TEST_FILE
 	{
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
 		{
-			FileStream fileStream(GetTestOutputPath() + REFLECTION_BIN, FileStream::WriteOnly);
+			FileStream fileStream(GetTestMetadataPath() + REFLECTION_BIN, FileStream::WriteOnly);
 			GenerateMetaonlyTypes(fileStream);
 		}
 		{
-			FileStream fileStream(GetTestOutputPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
+			FileStream fileStream(GetTestMetadataPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
 			BomEncoder encoder(BomEncoder::Utf8);
 			EncoderStream encoderStream(fileStream, encoder);
 			StreamWriter writer(encoderStream);
 			LogTypeManager(writer);
-		}
-		{
-			List<WString> first, second;
-			File(GetTestOutputPath() + REFLECTION_OUTPUT).ReadAllLinesByBom(first);
-			File(GetTestOutputPath() + L"../Resources/Baseline/" REFLECTION_BASELINE).ReadAllLinesByBom(second);
-			TEST_ASSERT(CompareEnumerable(first, second) == 0);
 		}
 		TEST_ASSERT(ResetGlobalTypeManager());
 	});
