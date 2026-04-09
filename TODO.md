@@ -1,15 +1,12 @@
 # TODO
 
-## Attribute Metadata
+## Attribute Metadata (Verification)
 
-- `ATTRIBUTE_TYPE`, `ATTRIBUTE_MEMBER`, `ATTRIBUTE_PARAMETER` is allowed inside a type or right after a member to add attributes.
-  - Method macros should check parameter count, if it is less than actual parameter count, all the rest should be omittable.
-  - `ATTRIBUTE_PARAMETER` should also specify the parameter name and it will be verified.
-- An attribute must be a reflectable struct, type and field values will be offered by above macros.
-- All reflection metadata object offers methods to retrieve attributes including there types and arguments.
-- `ITypeAttribute` offers attribute type and arguments instead of the whole struct.
-- Offer metadata serialization.
-- Add test only attributes and attributed metadata for testing.
+- Is attribute metadata serialized with high performance format?
+- Is attribute metadata serialized correctly in text format?
+- Method macros should check parameter count, if it is less than actual parameter count, all the rest should be omittable.
+- Check test cases.
+- Update comment/document/KB.
 
 ## 2.0
 
