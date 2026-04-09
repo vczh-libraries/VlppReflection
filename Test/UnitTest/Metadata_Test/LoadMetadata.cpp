@@ -69,7 +69,7 @@ TEST_FILE
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
 		{
 			FileStream fileStream(GetTestMetadataPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
-			BomEncoder encoder(BomEncoder::Utf16);
+			BomEncoder encoder(BomEncoder::Utf8);
 			EncoderStream encoderStream(fileStream, encoder);
 			StreamWriter writer(encoderStream);
 			LogTypeManager(writer);

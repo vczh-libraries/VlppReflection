@@ -282,6 +282,26 @@ primitive system::UInt8;
 @ValueType
 primitive system::Void;
 
+@FullName:vl::reflection::description::IAttributeBag
+interface system::reflection::AttributeBag : system::Interface {
+    property AttributeCount : system::Int32 { get:GetAttributeCount }
+
+    function GetAttribute(index : system::Int32) : system::reflection::AttributeInfo*;
+    function GetAttributeCount() : system::Int32;
+
+}
+
+@FullName:vl::reflection::description::IAttributeInfo
+interface system::reflection::AttributeInfo : system::Interface {
+    property AttributeType : system::reflection::TypeDescriptor* { get:GetAttributeType }
+    property AttributeValueCount : system::Int32 { get:GetAttributeValueCount }
+
+    function GetAttributeType() : system::reflection::TypeDescriptor*;
+    function GetAttributeValue(index : system::Int32) : system::Object;
+    function GetAttributeValueCount() : system::Int32;
+
+}
+
 @FullName:vl::reflection::description::IBoxedValue
 interface system::reflection::BoxedValue : system::Interface {
     function Copy() : system::reflection::BoxedValue^;
@@ -319,28 +339,8 @@ interface system::reflection::EventInfo : system::reflection::MemberInfo {
 
 }
 
-@FullName:vl::reflection::description::IAttributeBag
-interface system::reflection::IAttributeBag : system::Interface {
-    property AttributeCount : system::Int32 { get:GetAttributeCount }
-
-    function GetAttribute(index : system::Int32) : system::reflection::IAttributeInfo*;
-    function GetAttributeCount() : system::Int32;
-
-}
-
-@FullName:vl::reflection::description::IAttributeInfo
-interface system::reflection::IAttributeInfo : system::Interface {
-    property AttributeType : system::reflection::TypeDescriptor* { get:GetAttributeType }
-    property AttributeValueCount : system::Int32 { get:GetAttributeValueCount }
-
-    function GetAttributeType() : system::reflection::TypeDescriptor*;
-    function GetAttributeValue(index : system::Int32) : system::Object;
-    function GetAttributeValueCount() : system::Int32;
-
-}
-
 @FullName:vl::reflection::description::IMemberInfo
-interface system::reflection::MemberInfo : system::reflection::IAttributeBag {
+interface system::reflection::MemberInfo : system::reflection::AttributeBag {
     property Name : system::String { get:GetName }
     property OwnerTypeDescriptor : system::reflection::TypeDescriptor* { get:GetOwnerTypeDescriptor }
 
@@ -412,7 +412,7 @@ interface system::reflection::SerializableType : system::Interface {
 }
 
 @FullName:vl::reflection::description::ITypeDescriptor
-interface system::reflection::TypeDescriptor : system::reflection::IAttributeBag {
+interface system::reflection::TypeDescriptor : system::reflection::AttributeBag {
     property BaseTypeDescriptorCount : system::Int32 { get:GetBaseTypeDescriptorCount }
     property ConstructorGroup : system::reflection::MethodGroupInfo* { get:GetConstructorGroup }
     property EnumType : system::reflection::EnumType* { get:GetEnumType }

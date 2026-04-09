@@ -12,7 +12,7 @@ namespace reflection_test_builder
 	void TestReflectionBuilder()
 	{
 		FileStream fileStream(GetTestMetadataPath() + L"ReflectionWithTestTypes.txt", FileStream::WriteOnly);
-		BomEncoder encoder(BomEncoder::Utf16);
+		BomEncoder encoder(BomEncoder::Utf8);
 		EncoderStream encoderStream(fileStream, encoder);
 		StreamWriter writer(encoderStream);
 		LogTypeManager(writer);
