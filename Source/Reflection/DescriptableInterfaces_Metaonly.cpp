@@ -1085,14 +1085,7 @@ Attribute Metadata Helpers
 						info->AddValue(value);
 					}
 
-					if (memberInfo)
-					{
-						source->RegisterAttribute(memberInfo, info);
-					}
-					else
-					{
-						source->RegisterAttribute(nullptr, info);
-					}
+					source->RegisterAttribute(memberInfo, info);
 				}
 			}
 

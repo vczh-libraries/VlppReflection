@@ -1,0 +1,519 @@
+﻿@FullName:vl::reflection::description::IValueArray
+interface system::Array : system::ReadonlyList {
+    function Resize(size : system::Int32) : system::Void;
+    function Set(index : system::Int32, value : system::Object) : system::Void;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueArray>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueArray>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::Array^;
+    @InvokeTemplate:::vl::reflection::description::IValueArray::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueArray::Create)
+    constructor () : system::Array^;
+    @InvokeTemplate:::vl::reflection::description::IValueArray::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueArray::Create)
+    constructor (values : system::ReadonlyList^) : system::Array^;
+}
+
+@FullName:bool
+@ValueType
+@Serializable
+primitive system::Boolean;
+
+@FullName:vl::reflection::description::IValueCallStack
+interface system::CallStack : system::Interface {
+    property CapturedVariables : system::ReadonlyDictionary^ { get:GetCapturedVariables }
+    property FunctionName : system::String { get:GetFunctionName }
+    property GlobalVariables : system::ReadonlyDictionary^ { get:GetGlobalVariables }
+    property LocalArguments : system::ReadonlyDictionary^ { get:GetLocalArguments }
+    property LocalVariables : system::ReadonlyDictionary^ { get:GetLocalVariables }
+    property RowAfterCodegen : system::Int32 { get:GetRowAfterCodegen }
+    property RowBeforeCodegen : system::Int32 { get:GetRowBeforeCodegen }
+    property SourceCodeAfterCodegen : system::String { get:GetSourceCodeAfterCodegen }
+    property SourceCodeBeforeCodegen : system::String { get:GetSourceCodeBeforeCodegen }
+
+    function GetCapturedVariables() : system::ReadonlyDictionary^;
+    function GetFunctionName() : system::String;
+    function GetGlobalVariables() : system::ReadonlyDictionary^;
+    function GetLocalArguments() : system::ReadonlyDictionary^;
+    function GetLocalVariables() : system::ReadonlyDictionary^;
+    function GetRowAfterCodegen() : system::Int32;
+    function GetRowBeforeCodegen() : system::Int32;
+    function GetSourceCodeAfterCodegen() : system::String;
+    function GetSourceCodeBeforeCodegen() : system::String;
+
+}
+
+@FullName:wchar_t
+@ValueType
+@Serializable
+primitive system::Char;
+
+@FullName:vl::DateTime
+@ValueType
+@Serializable
+struct system::DateTime {
+    property day : system::Int32;
+    property dayOfWeek : system::Int32;
+    property hour : system::Int32;
+    property milliseconds : system::Int32;
+    property minute : system::Int32;
+    property month : system::Int32;
+    property osInternal : system::UInt64;
+    property osMilliseconds : system::UInt64;
+    property second : system::Int32;
+    property year : system::Int32;
+}
+
+@FullName:vl::reflection::description::IValueDictionary
+interface system::Dictionary : system::ReadonlyDictionary {
+    function Clear() : system::Void;
+    function Remove(key : system::Object) : system::Boolean;
+    function Set(key : system::Object, value : system::Object) : system::Void;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueDictionary>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueDictionary>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::Dictionary^;
+    @InvokeTemplate:::vl::reflection::description::IValueDictionary::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueDictionary::Create)
+    constructor () : system::Dictionary^;
+    @InvokeTemplate:::vl::reflection::description::IValueDictionary::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueDictionary::Create)
+    constructor (values : system::ReadonlyDictionary^) : system::Dictionary^;
+}
+
+@FullName:double
+@ValueType
+@Serializable
+primitive system::Double;
+
+@FullName:vl::reflection::description::IValueEnumerable
+interface system::Enumerable : system::Interface {
+    function CreateEnumerator() : system::Enumerator^;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueEnumerable>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueEnumerable>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::Enumerable^;
+}
+
+@FullName:vl::reflection::description::IValueEnumerator
+interface system::Enumerator : system::Interface {
+    property Current : system::Object { get:GetCurrent }
+    property Index : system::Int32 { get:GetIndex }
+
+    function GetCurrent() : system::Object;
+    function GetIndex() : system::Int32;
+    function Next() : system::Boolean;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueEnumerator>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueEnumerator>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::Enumerator^;
+}
+
+@FullName:vl::reflection::description::IValueException
+interface system::Exception : system::Interface {
+    property CallStack : system::ReadonlyList^ { get:GetCallStack }
+    property Fatal : system::Boolean { get:GetFatal }
+    property Message : system::String { get:GetMessage }
+
+    function GetCallStack() : system::ReadonlyList^;
+    function GetFatal() : system::Boolean;
+    function GetMessage() : system::String;
+
+}
+
+@FullName:vl::reflection::description::IValueFunctionProxy
+interface system::Function : system::Interface {
+    function Invoke(arguments : system::ReadonlyList^) : system::Object;
+
+}
+
+@FullName:vl::vint16_t
+@ValueType
+@Serializable
+primitive system::Int16;
+
+@FullName:vl::vint32_t
+@ValueType
+@Serializable
+primitive system::Int32;
+
+@FullName:vl::vint64_t
+@ValueType
+@Serializable
+primitive system::Int64;
+
+@FullName:vl::vint8_t
+@ValueType
+@Serializable
+primitive system::Int8;
+
+@FullName:vl::reflection::IDescriptable
+interface system::Interface {
+}
+
+@FullName:vl::reflection::description::IValueInterfaceProxy
+interface system::InterfaceProxy : system::Interface {
+    function Invoke(methodInfo : system::reflection::MethodInfo*, arguments : system::ReadonlyList^) : system::Object;
+
+}
+
+@FullName:vl::reflection::description::IValueList
+interface system::List : system::ReadonlyList {
+    function Add(value : system::Object) : system::Int32;
+    function Clear() : system::Void;
+    function Insert(index : system::Int32, value : system::Object) : system::Int32;
+    function Remove(value : system::Object) : system::Boolean;
+    function RemoveAt(index : system::Int32) : system::Boolean;
+    function Set(index : system::Int32, value : system::Object) : system::Void;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueList>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueList>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::List^;
+    @InvokeTemplate:::vl::reflection::description::IValueList::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueList::Create)
+    constructor () : system::List^;
+    @InvokeTemplate:::vl::reflection::description::IValueList::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueList::Create)
+    constructor (values : system::ReadonlyList^) : system::List^;
+}
+
+@FullName:vl::Locale
+@ValueType
+@Serializable
+primitive system::Locale;
+
+@FullName:vl::reflection::description::Value
+class system::Object {
+}
+
+@FullName:vl::reflection::description::IValueObservableList
+interface system::ObservableList : system::List {
+    event ItemChanged : system::Function<system::Void, system::Int32, system::Int32, system::Int32>^;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueObservableList>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueObservableList>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::ObservableList^;
+    @InvokeTemplate:::vl::reflection::description::IValueObservableList::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueObservableList::Create)
+    constructor () : system::ObservableList^;
+    @InvokeTemplate:::vl::reflection::description::IValueObservableList::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::IValueObservableList::Create)
+    constructor (values : system::ReadonlyList^) : system::ObservableList^;
+}
+
+@FullName:vl::reflection::description::IValueReadonlyDictionary
+interface system::ReadonlyDictionary : system::Interface {
+    property Count : system::Int32 { get:GetCount }
+    property Keys : system::ReadonlyList^ { get:GetKeys }
+    property Values : system::ReadonlyList^ { get:GetValues }
+
+    function Get(key : system::Object) : system::Object;
+    function GetCount() : system::Int32;
+    function GetKeys() : system::ReadonlyList^;
+    function GetValues() : system::ReadonlyList^;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueReadonlyDictionary>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueReadonlyDictionary>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::ReadonlyDictionary^;
+}
+
+@FullName:vl::reflection::description::IValueReadonlyList
+interface system::ReadonlyList : system::Enumerable {
+    property Count : system::Int32 { get:GetCount }
+
+    function Contains(value : system::Object) : system::Boolean;
+    function Get(index : system::Int32) : system::Object;
+    function GetCount() : system::Int32;
+    function IndexOf(value : system::Object) : system::Int32;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueReadonlyList>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueReadonlyList>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::ReadonlyList^;
+}
+
+@FullName:vl::reflection::DescriptableObject
+class system::ReferenceType {
+}
+
+@FullName:float
+@ValueType
+@Serializable
+primitive system::Single;
+
+@FullName:vl::WString
+@ValueType
+@Serializable
+primitive system::String;
+
+@FullName:vl::reflection::description::IValueSubscription
+interface system::Subscription : system::ReferenceType {
+    event ValueChanged : system::Function<system::Void, system::Object>^;
+
+    function Close() : system::Boolean;
+    function Open() : system::Boolean;
+    function Update() : system::Boolean;
+
+    @InvokeTemplate:::vl::reflection::description::ValueInterfaceProxy<IValueSubscription>::Create($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ValueInterfaceProxy<IValueSubscription>::Create)
+    constructor (proxy : system::InterfaceProxy^) : system::Subscription^;
+}
+
+@FullName:vl::vuint16_t
+@ValueType
+@Serializable
+primitive system::UInt16;
+
+@FullName:vl::vuint32_t
+@ValueType
+@Serializable
+primitive system::UInt32;
+
+@FullName:vl::vuint64_t
+@ValueType
+@Serializable
+primitive system::UInt64;
+
+@FullName:vl::vuint8_t
+@ValueType
+@Serializable
+primitive system::UInt8;
+
+@FullName:vl::reflection::description::VoidValue
+@ValueType
+primitive system::Void;
+
+@FullName:vl::reflection::description::IAttributeBag
+interface system::reflection::AttributeBag : system::Interface {
+    property AttributeCount : system::Int32 { get:GetAttributeCount }
+
+    function GetAttribute(index : system::Int32) : system::reflection::AttributeInfo*;
+    function GetAttributeCount() : system::Int32;
+
+}
+
+@FullName:vl::reflection::description::IAttributeInfo
+interface system::reflection::AttributeInfo : system::Interface {
+    property AttributeType : system::reflection::TypeDescriptor* { get:GetAttributeType }
+    property AttributeValueCount : system::Int32 { get:GetAttributeValueCount }
+
+    function GetAttributeType() : system::reflection::TypeDescriptor*;
+    function GetAttributeValue(index : system::Int32) : system::Object;
+    function GetAttributeValueCount() : system::Int32;
+
+}
+
+@FullName:vl::reflection::description::IBoxedValue
+interface system::reflection::BoxedValue : system::Interface {
+    function Copy() : system::reflection::BoxedValue^;
+
+}
+
+@FullName:vl::reflection::description::IEnumType
+interface system::reflection::EnumType : system::Interface {
+    function FromEnum(value : system::Object) : system::UInt64;
+    function GetItemCount() : system::Int32;
+    function GetItemName(index : system::Int32) : system::String;
+    function GetItemValue(index : system::Int32) : system::UInt64;
+    function IndexOfItem(name : system::String) : system::Int32;
+    function IsFlagEnum() : system::Boolean;
+    function ToEnum(value : system::UInt64) : system::Object;
+
+}
+
+@FullName:vl::reflection::description::IEventHandler
+interface system::reflection::EventHandler : system::Interface {
+    function IsAttached() : system::Boolean;
+
+}
+
+@FullName:vl::reflection::description::IEventInfo
+interface system::reflection::EventInfo : system::reflection::MemberInfo {
+    property HandlerType : system::reflection::TypeInfo* { get:GetHandlerType }
+    property ObservingPropertyCount : system::Int32 { get:GetObservingPropertyCount }
+
+    function Attach(thisObject : system::Object, handler : system::Function^) : system::reflection::EventHandler^;
+    function GetHandlerType() : system::reflection::TypeInfo*;
+    function GetObservingProperty(index : system::Int32) : system::reflection::PropertyInfo*;
+    function GetObservingPropertyCount() : system::Int32;
+    function Invoke(thisObject : system::Object, arguments : system::ReadonlyList^) : system::Void;
+
+}
+
+@FullName:vl::reflection::description::IMemberInfo
+interface system::reflection::MemberInfo : system::reflection::AttributeBag {
+    property Name : system::String { get:GetName }
+    property OwnerTypeDescriptor : system::reflection::TypeDescriptor* { get:GetOwnerTypeDescriptor }
+
+    function GetName() : system::String;
+    function GetOwnerTypeDescriptor() : system::reflection::TypeDescriptor*;
+
+}
+
+@FullName:vl::reflection::description::IMethodGroupInfo
+interface system::reflection::MethodGroupInfo : system::reflection::MemberInfo {
+    property MethodCount : system::Int32 { get:GetMethodCount }
+
+    function GetMethod(index : system::Int32) : system::reflection::MethodInfo*;
+    function GetMethodCount() : system::Int32;
+
+}
+
+@FullName:vl::reflection::description::IMethodInfo
+interface system::reflection::MethodInfo : system::reflection::MemberInfo, system::reflection::MemberInfo {
+    property OwnerMethodGroup : system::reflection::MethodGroupInfo* { get:GetOwnerMethodGroup }
+    property OwnerProperty : system::reflection::PropertyInfo* { get:GetOwnerProperty }
+    property ParameterCount : system::Int32 { get:GetParameterCount }
+    property Return : system::reflection::TypeInfo* { get:GetReturn }
+
+    function CheckArguments(arguments : system::Array<system::Object>^) : system::Void;
+    function GetOwnerMethodGroup() : system::reflection::MethodGroupInfo*;
+    function GetOwnerProperty() : system::reflection::PropertyInfo*;
+    function GetParameter(index : system::Int32) : system::reflection::ParameterInfo*;
+    function GetParameterCount() : system::Int32;
+    function GetReturn() : system::reflection::TypeInfo*;
+    function Invoke(thisObject : system::Object, arguments : system::Array<system::Object>^) : system::Object;
+    function IsStatic() : system::Boolean;
+
+}
+
+@FullName:vl::reflection::description::IParameterInfo
+interface system::reflection::ParameterInfo : system::reflection::MemberInfo {
+    property OwnerMethod : system::reflection::MethodInfo* { get:GetOwnerMethod }
+    property Type : system::reflection::TypeInfo* { get:GetType }
+
+    function GetOwnerMethod() : system::reflection::MethodInfo*;
+    function GetType() : system::reflection::TypeInfo*;
+
+}
+
+@FullName:vl::reflection::description::IPropertyInfo
+interface system::reflection::PropertyInfo : system::reflection::MemberInfo {
+    property Getter : system::reflection::MethodInfo* { get:GetGetter }
+    property Return : system::reflection::TypeInfo* { get:GetReturn }
+    property Setter : system::reflection::MethodInfo* { get:GetSetter }
+    property ValueChangedEvent : system::reflection::EventInfo* { get:GetValueChangedEvent }
+
+    function GetGetter() : system::reflection::MethodInfo*;
+    function GetReturn() : system::reflection::TypeInfo*;
+    function GetSetter() : system::reflection::MethodInfo*;
+    function GetValue(thisObject : system::Object) : system::Object;
+    function GetValueChangedEvent() : system::reflection::EventInfo*;
+    function IsReadable() : system::Boolean;
+    function IsWritable() : system::Boolean;
+    function SetValue(thisObject : system::Object, newValue : system::Object) : system::Void;
+
+}
+
+@FullName:vl::reflection::description::ISerializableType
+interface system::reflection::SerializableType : system::Interface {
+    function Deserialize(input : system::String, output : system::Object) : system::Boolean;
+    function Serialize(input : system::Object, output : system::String) : system::Boolean;
+
+}
+
+@FullName:vl::reflection::description::ITypeDescriptor
+interface system::reflection::TypeDescriptor : system::reflection::AttributeBag {
+    property BaseTypeDescriptorCount : system::Int32 { get:GetBaseTypeDescriptorCount }
+    property ConstructorGroup : system::reflection::MethodGroupInfo* { get:GetConstructorGroup }
+    property EnumType : system::reflection::EnumType* { get:GetEnumType }
+    property EventCount : system::Int32 { get:GetEventCount }
+    property MethodGroupCount : system::Int32 { get:GetMethodGroupCount }
+    property PropertyCount : system::Int32 { get:GetPropertyCount }
+    property SerializableType : system::reflection::SerializableType* { get:GetSerializableType }
+    property TypeDescriptorFlags : system::reflection::TypeDescriptorFlags { get:GetTypeDescriptorFlags }
+    property TypeName : system::String { get:GetTypeName }
+    property ValueType : system::reflection::ValueType* { get:GetValueType }
+
+    function CanConvertTo(targetType : system::reflection::TypeDescriptor*) : system::Boolean;
+    function GetBaseTypeDescriptor(index : system::Int32) : system::reflection::TypeDescriptor*;
+    function GetBaseTypeDescriptorCount() : system::Int32;
+    function GetConstructorGroup() : system::reflection::MethodGroupInfo*;
+    function GetEnumType() : system::reflection::EnumType*;
+    function GetEvent(index : system::Int32) : system::reflection::EventInfo*;
+    function GetEventByName(name : system::String, inheritable : system::Boolean) : system::reflection::EventInfo*;
+    function GetEventCount() : system::Int32;
+    function GetMethodGroup(index : system::Int32) : system::reflection::MethodGroupInfo*;
+    function GetMethodGroupByName(name : system::String, inheritable : system::Boolean) : system::reflection::MethodGroupInfo*;
+    function GetMethodGroupCount() : system::Int32;
+    function GetProperty(index : system::Int32) : system::reflection::PropertyInfo*;
+    function GetPropertyByName(name : system::String, inheritable : system::Boolean) : system::reflection::PropertyInfo*;
+    function GetPropertyCount() : system::Int32;
+    function GetSerializableType() : system::reflection::SerializableType*;
+    @InvokeTemplate:::vl::reflection::description::ITypeDescriptor_GetTypeDescriptor($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ITypeDescriptor_GetTypeDescriptor)
+    static function GetTypeDescriptor(index : system::Int32) : system::reflection::TypeDescriptor*;
+    @InvokeTemplate:::vl::reflection::description::ITypeDescriptor_GetTypeDescriptor($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ITypeDescriptor_GetTypeDescriptor)
+    static function GetTypeDescriptor(name : system::String) : system::reflection::TypeDescriptor*;
+    @InvokeTemplate:::vl::reflection::description::ITypeDescriptor_GetTypeDescriptor($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ITypeDescriptor_GetTypeDescriptor)
+    static function GetTypeDescriptor(value : system::Object) : system::reflection::TypeDescriptor*;
+    @InvokeTemplate:::vl::reflection::description::ITypeDescriptor_GetTypeDescriptorCount($Arguments)
+    @ClosureTemplate:::vl::Func<$Func>(&::vl::reflection::description::ITypeDescriptor_GetTypeDescriptorCount)
+    static function GetTypeDescriptorCount() : system::Int32;
+    function GetTypeDescriptorFlags() : system::reflection::TypeDescriptorFlags;
+    function GetTypeName() : system::String;
+    function GetValueType() : system::reflection::ValueType*;
+    function IsEventExists(name : system::String, inheritable : system::Boolean) : system::Boolean;
+    function IsMethodGroupExists(name : system::String, inheritable : system::Boolean) : system::Boolean;
+    function IsPropertyExists(name : system::String, inheritable : system::Boolean) : system::Boolean;
+
+}
+
+@FullName:vl::reflection::description::TypeDescriptorFlags
+@ValueType
+@Flags
+enum system::reflection::TypeDescriptorFlags {
+    Class = 4,
+    FlagEnum = 64,
+    IDescriptable = 2,
+    Interface = 8,
+    NormalEnum = 128,
+    Object = 1,
+    Primitive = 16,
+    Struct = 32,
+    Undefined = 0,
+}
+
+@FullName:vl::reflection::description::ITypeInfo
+interface system::reflection::TypeInfo : system::Interface {
+    property Decorator : system::reflection::TypeInfo::Decorator { get:GetDecorator }
+    property ElementType : system::reflection::TypeInfo* { get:GetElementType }
+    property GenericArgumentCount : system::Int32 { get:GetGenericArgumentCount }
+    property TypeDescriptor : system::reflection::TypeDescriptor* { get:GetTypeDescriptor }
+    property TypeFriendlyName : system::String { get:GetTypeFriendlyName }
+
+    function GetDecorator() : system::reflection::TypeInfo::Decorator;
+    function GetElementType() : system::reflection::TypeInfo*;
+    function GetGenericArgument(index : system::Int32) : system::reflection::TypeInfo*;
+    function GetGenericArgumentCount() : system::Int32;
+    function GetTypeDescriptor() : system::reflection::TypeDescriptor*;
+    function GetTypeFriendlyName() : system::String;
+
+}
+
+@FullName:vl::reflection::description::ITypeInfo::Decorator
+@ValueType
+enum system::reflection::TypeInfo::Decorator {
+    Generic = 4,
+    Nullable = 2,
+    RawPtr = 0,
+    SharedPtr = 1,
+    TypeDescriptor = 3,
+}
+
+@FullName:vl::reflection::description::IValueType
+interface system::reflection::ValueType : system::Interface {
+    function CreateDefault() : system::Object;
+
+}
+
+@FullName:vl::reflection::description::IBoxedValue::CompareResult
+@ValueType
+enum system::reflection::ValueType::CompareResult {
+    Equal = 2,
+    Greater = 1,
+    NotComparable = 3,
+    Smaller = 0,
+}
+

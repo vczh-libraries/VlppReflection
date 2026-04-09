@@ -11,7 +11,12 @@ namespace reflection_test_builder
 {
 	void TestReflectionBuilder()
 	{
-		FileStream fileStream(GetTestMetadataPath() + L"ReflectionWithTestTypes.txt", FileStream::WriteOnly);
+#ifdef VCZH_64
+#define TEST_OUTPUT L"ReflectionWithTestTypes64.txt"
+#else
+#define TEST_OUTPUT L"ReflectionWithTestTypes32.txt"
+#endif
+		FileStream fileStream(GetTestMetadataPath() + TEST_OUTPUT, FileStream::WriteOnly);
 		BomEncoder encoder(BomEncoder::Utf8);
 		EncoderStream encoderStream(fileStream, encoder);
 		StreamWriter writer(encoderStream);
