@@ -94,6 +94,80 @@ namespace vl
 			template<typename T>
 			using FUNCTIONNAME_AddPointer = T*;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
+			namespace detail
+			{
+				namespace attribute_macro
+				{
+					template<typename T>
+					Value BoxAttributeArgument(T&& arg)
+					{
+						using A = std::remove_reference_t<T>;
+						if constexpr (std::is_array_v<A> && std::is_same_v<std::remove_cv_t<std::remove_extent_t<A>>, wchar_t>)
+						{
+							return BoxValue<WString>(WString::Unmanaged(arg));
+						}
+						else if constexpr (std::is_pointer_v<std::remove_cvref_t<T>> && std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::remove_cvref_t<T>>>, wchar_t>)
+						{
+							return BoxValue<WString>(WString::Unmanaged(arg));
+						}
+						else if constexpr (std::is_integral_v<std::remove_cvref_t<T>> && !std::is_same_v<std::remove_cvref_t<T>, bool> && !std::is_same_v<std::remove_cvref_t<T>, wchar_t>)
+						{
+							return BoxValue<vint>((vint)arg);
+						}
+						else
+						{
+							return BoxValue<std::remove_cvref_t<T>>(std::forward<T>(arg));
+						}
+					}
+
+					template<typename T>
+					void AddAttributeArgument(AttributeInfoImpl* info, T&& arg)
+					{
+						auto value = BoxAttributeArgument(std::forward<T>(arg));
+						auto valueType = value.GetTypeDescriptor();
+						CHECK_ERROR(valueType && valueType->GetSerializableType(), L"ATTRIBUTE_*#Attribute argument must be a serializable reflected value.");
+						info->AddValue(value);
+					}
+
+					template<typename TAttribute, typename... TArgs>
+					Ptr<IAttributeInfo> MakeAttributeInfo(TArgs&&... args)
+					{
+						static_assert(requires { TAttribute{ std::forward<TArgs>(args)... }; }, "ATTRIBUTE_* requires TYPE{ARG1, ...} to compile.");
+
+						auto attributeType = description::GetTypeDescriptor<TAttribute>();
+						CHECK_ERROR(attributeType != nullptr, L"ATTRIBUTE_*#Failed to resolve the reflected attribute type.");
+						CHECK_ERROR(attributeType->GetTypeDescriptorFlags() == TypeDescriptorFlags::Struct, L"ATTRIBUTE_*#Attribute type must be a reflected struct.");
+
+						auto info = Ptr(new AttributeInfoImpl(attributeType));
+						(AddAttributeArgument(info.Obj(), std::forward<TArgs>(args)), ...);
+						return info;
+					}
+
+					inline IParameterInfo* FindParameter(IMethodInfo* method, const WString& parameterName, const wchar_t* macroName)
+					{
+						vint matchedCount = 0;
+						IParameterInfo* matchedParameter = nullptr;
+						for (vint i = 0; i < method->GetParameterCount(); i++)
+						{
+							auto parameter = method->GetParameter(i);
+							if (parameter->GetName() == parameterName)
+							{
+								matchedCount++;
+								matchedParameter = parameter;
+							}
+						}
+
+						CHECK_ERROR(matchedCount != 0, (WString::Unmanaged(macroName) + L"#The named parameter does not exist on the last registered method.").Buffer());
+						CHECK_ERROR(matchedCount == 1, (WString::Unmanaged(macroName) + L"#The named parameter is ambiguous on the last registered method.").Buffer());
+						return matchedParameter;
+					}
+				}
+			}
+
+#endif
+
 /***********************************************************************
 Type
 ***********************************************************************/
@@ -256,7 +330,7 @@ Struct
 			};
 
 #define STRUCT_MEMBER(FIELDNAME)\
-	fields.Add(L ## #FIELDNAME, Ptr(new StructFieldInfo<decltype(((StructType*)0)->FIELDNAME)>(this, &StructType::FIELDNAME, L ## #FIELDNAME)));
+	AddField(Ptr(new StructFieldInfo<decltype(((StructType*)0)->FIELDNAME)>(this, &StructType::FIELDNAME, L ## #FIELDNAME)));
 
 /***********************************************************************
 Class
@@ -297,6 +371,28 @@ Class
 					}\
 				};\
 			};
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
+#define ATTRIBUTE_TYPE(TYPE, ...)\
+			RegisterTypeAttribute(detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));
+
+#define ATTRIBUTE_MEMBER(TYPE, ...)\
+			{\
+				auto attributeTargetMember = GetLastRegisteredMember();\
+				CHECK_ERROR(attributeTargetMember != nullptr, L"ATTRIBUTE_MEMBER#This macro must appear after a reflected member.");\
+				RegisterMemberAttribute(attributeTargetMember, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));\
+			}
+
+#define ATTRIBUTE_PARAMETER(PARAMETER_NAME, TYPE, ...)\
+			{\
+				auto attributeTargetMethod = GetLastRegisteredMethod();\
+				CHECK_ERROR(attributeTargetMethod != nullptr, L"ATTRIBUTE_PARAMETER#This macro must appear after a reflected method or constructor.");\
+				auto attributeTargetParameter = detail::attribute_macro::FindParameter(attributeTargetMethod, WString::Unmanaged(PARAMETER_NAME), L"ATTRIBUTE_PARAMETER");\
+				RegisterMemberAttribute(attributeTargetParameter, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));\
+			}
+
+#endif
 
 /***********************************************************************
 Interface

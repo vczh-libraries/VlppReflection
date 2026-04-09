@@ -19,10 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\TestMetadataGeneration.cpp" />
+    <ClCompile Include="..\..\Source\TestReflection_Attribute.cpp" />
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
     <ClCompile Include="..\UnitTest\Main.cpp" />
     <ClCompile Include="GenerateMetadata.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\TestReflection_Attribute.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

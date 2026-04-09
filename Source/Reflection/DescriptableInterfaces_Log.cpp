@@ -17,6 +17,50 @@ namespace vl
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
+LogTypeManager (attributes)
+***********************************************************************/
+
+			WString LogTypeManager_FormatAttribute(IAttributeInfo* info)
+			{
+				WString result = info->GetAttributeType()->GetTypeName() + L"(";
+				for (vint i = 0; i < info->GetAttributeValueCount(); i++)
+				{
+					if (i > 0) result += L", ";
+					auto value = info->GetAttributeValue(i);
+					auto valueType = value.GetTypeDescriptor();
+					CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to resolve the reflected type of an attribute argument.");
+					auto serializableType = valueType->GetSerializableType();
+					CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Attribute argument must use a serializable reflected type.");
+
+					WString data;
+					CHECK_ERROR(serializableType->Serialize(value, data), L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to serialize an attribute argument.");
+					result += valueType->GetTypeName() + L":" + data;
+				}
+				result += L")";
+				return result;
+			}
+
+			void LogTypeManager_PrintAttributes(stream::TextWriter& writer, IAttributeBag* bag, const WString& prefix)
+			{
+				for (vint i = 0; i < bag->GetAttributeCount(); i++)
+				{
+					writer.WriteLine(prefix + LogTypeManager_FormatAttribute(bag->GetAttribute(i)));
+				}
+			}
+
+			void LogTypeManager_PrintParameterAttributes(stream::TextWriter& writer, IMethodInfo* info)
+			{
+				for (vint i = 0; i < info->GetParameterCount(); i++)
+				{
+					auto parameter = info->GetParameter(i);
+					for (vint j = 0; j < parameter->GetAttributeCount(); j++)
+					{
+						writer.WriteLine(L"    @ParamAttribute:" + parameter->GetName() + L":" + LogTypeManager_FormatAttribute(parameter->GetAttribute(j)));
+					}
+				}
+			}
+
+/***********************************************************************
 LogTypeManager (enum)
 ***********************************************************************/
 
@@ -43,6 +87,7 @@ LogTypeManager (struct)
 
 			void LogTypeManager_Property(stream::TextWriter& writer, IPropertyInfo* info)
 			{
+				LogTypeManager_PrintAttributes(writer, info, L"    @Attribute:");
 				if (auto cpp = info->GetCpp())
 				{
 					writer.WriteLine(L"    @ReferenceTemplate:" + cpp->GetReferenceTemplate());
@@ -112,6 +157,7 @@ LogTypeManager (class)
 				{
 					printed = true;
 					IEventInfo* info = type->GetEvent(j);
+					LogTypeManager_PrintAttributes(writer, info, L"    @Attribute:");
 					if (auto cpp = info->GetCpp())
 					{
 						writer.WriteLine(L"    @AttachTemplate:" + cpp->GetAttachTemplate());
@@ -159,11 +205,13 @@ LogTypeManager (class)
 
 			void LogTypeManager_Method(stream::TextWriter& writer, IMethodInfo* info, const wchar_t* title)
 			{
+				LogTypeManager_PrintAttributes(writer, info, L"    @Attribute:");
 				if (auto cpp = info->GetCpp())
 				{
 					writer.WriteLine(L"    @InvokeTemplate:" + cpp->GetInvokeTemplate());
 					writer.WriteLine(L"    @ClosureTemplate:" + cpp->GetClosureTemplate());
 				}
+				LogTypeManager_PrintParameterAttributes(writer, info);
 
 				writer.WriteString(L"    ");
 				writer.WriteString(title);
@@ -302,6 +350,7 @@ LogTypeManager
 					{
 						writer.WriteLine(L"@Serializable");
 					}
+					LogTypeManager_PrintAttributes(writer, type, L"@Attribute:");
 
 					switch (type->GetTypeDescriptorFlags())
 					{

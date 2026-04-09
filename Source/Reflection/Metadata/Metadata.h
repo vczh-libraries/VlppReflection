@@ -215,6 +215,20 @@ TypeInfoImp
 				void									AddGenericArgument(Ptr<ITypeInfo> value);
 			};
 
+			class AttributeInfoImpl : public Object, public IAttributeInfo
+			{
+			protected:
+				ITypeDescriptor*						attributeType = nullptr;
+				collections::List<Value>				values;
+			public:
+				AttributeInfoImpl(ITypeDescriptor* _attributeType);
+
+				ITypeDescriptor*						GetAttributeType()override;
+				vint									GetAttributeValueCount()override;
+				Value									GetAttributeValue(vint index)override;
+				void									AddValue(const Value& value);
+			};
+
 #endif
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
@@ -231,16 +245,43 @@ MemberInfoBase
 				template<typename TMemberInfo>
 				friend class MemberInfoBase;
 			protected:
+				collections::List<Ptr<IAttributeInfo>>						typeAttributes;
+				collections::Group<IMemberInfo*, Ptr<IAttributeInfo>>		memberAttributes;
+				IMemberInfo*												lastRegisteredMember = nullptr;
+				IMethodInfo*												lastRegisteredMethod = nullptr;
 
-				vint GetAttributeCountInternal(IMemberInfo* memberInfo)
+				virtual vint GetAttributeCountInternal(IMemberInfo* memberInfo)
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					if (!memberInfo)
+					{
+						return typeAttributes.Count();
+					}
+					return memberAttributes.Contains(memberInfo) ? memberAttributes.Get(memberInfo).Count() : 0;
 				}
 
-				IAttributeInfo* GetAttributeInternal(IMemberInfo* memberInfo, vint index)
+				virtual IAttributeInfo* GetAttributeInternal(IMemberInfo* memberInfo, vint index)
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					if (!memberInfo)
+					{
+						return 0 <= index && index < typeAttributes.Count() ? typeAttributes[index].Obj() : nullptr;
+					}
+					if (!memberAttributes.Contains(memberInfo))
+					{
+						return nullptr;
+					}
+					auto&& attributes = memberAttributes.Get(memberInfo);
+					return 0 <= index && index < attributes.Count() ? attributes[index].Obj() : nullptr;
 				}
+			public:
+				void									RegisterTypeAttribute(Ptr<IAttributeInfo> info);
+				void									RegisterMemberAttribute(IMemberInfo* memberInfo, Ptr<IAttributeInfo> info);
+
+				IMemberInfo*							GetLastRegisteredMember()const;
+				IMethodInfo*							GetLastRegisteredMethod()const;
+
+				void									SetLastRegisteredMember(IMemberInfo* member);
+				void									SetLastRegisteredMethod(IMethodInfo* method);
+				void									ClearLastRegisteredMethod();
 			};
 
 			template<typename TMemberInfo>
@@ -287,6 +328,7 @@ SerializableTypeDescriptor
 
 			protected:
 				const TypeInfoContent*						GetTypeInfoContentInternal();
+				virtual void								LoadForAttributeAccess();
 
 			public:
 				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
@@ -309,6 +351,7 @@ SerializableTypeDescriptor
 
 				virtual void								LoadInternal();;
 				void										Load();
+				void										LoadForAttributeAccess()override;
 			public:
 				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
 				~ValueTypeDescriptorBase();
@@ -557,6 +600,7 @@ TypeDescriptorImpl
 
 				virtual void				LoadInternal()=0;
 				void						Load();
+				void						LoadForAttributeAccess()override;
 			public:
 				TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
 				~TypeDescriptorImpl();
@@ -844,6 +888,13 @@ StructTypeDescriptor
 				collections::Dictionary<WString, Ptr<IPropertyInfo>>		fields;
 
 			public:
+				IPropertyInfo* AddField(Ptr<IPropertyInfo> value)
+				{
+					fields.Add(value->GetName(), value);
+					this->SetLastRegisteredMember(value.Obj());
+					return value.Obj();
+				}
+
 				StructTypeDescriptor()
 				{
 					this->valueType = Ptr(new StructValueType<T>());

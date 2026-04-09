@@ -1,4 +1,5 @@
 #include "../../../Source/Reflection/Reflection/Reflection.h"
+#include "../../Source/TestReflection_Attribute.h"
 
 using namespace vl;
 using namespace vl::collections;
@@ -6,6 +7,7 @@ using namespace vl::filesystem;
 using namespace vl::stream;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
+using namespace reflection_test_attribute;
 
 extern WString GetTestMetadataPath();
 
@@ -32,6 +34,7 @@ TEST_FILE
 	{
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
 		{
+			TestReflectionAttributes();
 			FileStream fileStream(GetTestMetadataPath() + REFLECTION_BIN, FileStream::WriteOnly);
 			GenerateMetaonlyTypes(fileStream);
 		}

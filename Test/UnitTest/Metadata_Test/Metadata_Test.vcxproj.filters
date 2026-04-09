@@ -18,7 +18,7 @@
     <ClCompile Include="..\UnitTest\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestMetadata.cpp">
+    <ClCompile Include="..\..\Source\TestReflection_Attribute.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp">
@@ -27,5 +27,10 @@
     <ClCompile Include="LoadMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\TestReflection_Attribute.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

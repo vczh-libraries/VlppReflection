@@ -217,9 +217,80 @@ GenericTypeInfo
 				genericArguments.Add(value);
 			}
 
+/***********************************************************************
+AttributeInfoImpl
+***********************************************************************/
+
+			AttributeInfoImpl::AttributeInfoImpl(ITypeDescriptor* _attributeType)
+				:attributeType(_attributeType)
+			{
+			}
+
+			ITypeDescriptor* AttributeInfoImpl::GetAttributeType()
+			{
+				return attributeType;
+			}
+
+			vint AttributeInfoImpl::GetAttributeValueCount()
+			{
+				return values.Count();
+			}
+
+			Value AttributeInfoImpl::GetAttributeValue(vint index)
+			{
+				return values[index];
+			}
+
+			void AttributeInfoImpl::AddValue(const Value& value)
+			{
+				values.Add(value);
+			}
+
 #endif
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
+
+/***********************************************************************
+AttributeBagSource
+***********************************************************************/
+
+			void AttributeBagSource::RegisterTypeAttribute(Ptr<IAttributeInfo> info)
+			{
+				typeAttributes.Add(info);
+			}
+
+			void AttributeBagSource::RegisterMemberAttribute(IMemberInfo* memberInfo, Ptr<IAttributeInfo> info)
+			{
+				CHECK_ERROR(memberInfo != nullptr, L"vl::reflection::description::AttributeBagSource::RegisterMemberAttribute(IMemberInfo*, Ptr<IAttributeInfo>)#memberInfo should not be nullptr.");
+				memberAttributes.Add(memberInfo, info);
+			}
+
+			IMemberInfo* AttributeBagSource::GetLastRegisteredMember()const
+			{
+				return lastRegisteredMember;
+			}
+
+			IMethodInfo* AttributeBagSource::GetLastRegisteredMethod()const
+			{
+				return lastRegisteredMethod;
+			}
+
+			void AttributeBagSource::SetLastRegisteredMember(IMemberInfo* member)
+			{
+				lastRegisteredMember = member;
+				lastRegisteredMethod = nullptr;
+			}
+
+			void AttributeBagSource::SetLastRegisteredMethod(IMethodInfo* method)
+			{
+				lastRegisteredMember = method;
+				lastRegisteredMethod = method;
+			}
+
+			void AttributeBagSource::ClearLastRegisteredMethod()
+			{
+				lastRegisteredMethod = nullptr;
+			}
 
 /***********************************************************************
 TypeDescriptorImplBase
@@ -233,6 +304,10 @@ TypeDescriptorImplBase
 			const TypeInfoContent* TypeDescriptorImplBase::GetTypeInfoContentInternal()
 			{
 				return typeInfoContent;
+			}
+
+			void TypeDescriptorImplBase::LoadForAttributeAccess()
+			{
 			}
 
 			TypeDescriptorImplBase::TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
@@ -259,11 +334,13 @@ TypeDescriptorImplBase
 
 			vint TypeDescriptorImplBase::GetAttributeCount()
 			{
+				LoadForAttributeAccess();
 				return GetAttributeCountInternal(nullptr);
 			}
 
 			IAttributeInfo* TypeDescriptorImplBase::GetAttribute(vint index)
 			{
+				LoadForAttributeAccess();
 				return GetAttributeInternal(nullptr, index);
 			}
 
@@ -297,6 +374,11 @@ ValueTypeDescriptorBase
 					loaded = true;
 					LoadInternal();
 				}
+			}
+
+			void ValueTypeDescriptorBase::LoadForAttributeAccess()
+			{
+				Load();
 			}
 
 			ValueTypeDescriptorBase::ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
@@ -1031,12 +1113,14 @@ TypeDescriptorImpl
 			IPropertyInfo* TypeDescriptorImpl::AddProperty(Ptr<IPropertyInfo> value)
 			{
 				properties.Add(value->GetName(), value);
+				SetLastRegisteredMember(value.Obj());
 				return value.Obj();
 			}
 
 			IEventInfo* TypeDescriptorImpl::AddEvent(Ptr<IEventInfo> value)
 			{
 				events.Add(value->GetName(), value);
+				SetLastRegisteredMember(value.Obj());
 				return value.Obj();
 			}
 
@@ -1045,6 +1129,7 @@ TypeDescriptorImpl
 				MethodGroupInfoImpl* methodGroup=PrepareMethodGroup(name);
 				value->SetOwnerMethodgroup(methodGroup);
 				methodGroup->AddMethod(value);
+				SetLastRegisteredMethod(value.Obj());
 				return value.Obj();
 			}
 
@@ -1053,6 +1138,7 @@ TypeDescriptorImpl
 				MethodGroupInfoImpl* methodGroup=PrepareConstructorGroup();
 				value->SetOwnerMethodgroup(methodGroup);
 				methodGroup->AddMethod(value);
+				SetLastRegisteredMethod(value.Obj());
 				return value.Obj();
 			}
 
@@ -1068,6 +1154,11 @@ TypeDescriptorImpl
 					loaded=true;
 					LoadInternal();
 				}
+			}
+
+			void TypeDescriptorImpl::LoadForAttributeAccess()
+			{
+				Load();
 			}
 
 			TypeDescriptorImpl::TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)

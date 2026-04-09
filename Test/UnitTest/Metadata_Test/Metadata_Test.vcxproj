@@ -165,10 +165,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\TestMetadata.cpp" />
+    <ClCompile Include="..\..\Source\TestReflection_Attribute.cpp" />
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
     <ClCompile Include="..\UnitTest\Main.cpp" />
     <ClCompile Include="LoadMetadata.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\TestReflection_Attribute.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
