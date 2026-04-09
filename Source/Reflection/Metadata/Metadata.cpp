@@ -257,6 +257,16 @@ TypeDescriptorImplBase
 			{
 			}
 
+			vint TypeDescriptorImplBase::GetAttributeCount()
+			{
+				CHECK_FAIL(L"Not Implemented!");
+			}
+
+			IAttributeInfo* TypeDescriptorImplBase::GetAttribute(vint index)
+			{
+				CHECK_FAIL(L"Not Implemented!");
+			}
+
 			ITypeDescriptor::ICpp* TypeDescriptorImplBase::GetCpp()
 			{
 				return typeInfoContent->cppName == TypeInfoContent::VlppType ? nullptr : this;
@@ -594,6 +604,16 @@ MethodGroupInfoImpl
 
 			MethodGroupInfoImpl::~MethodGroupInfoImpl()
 			{
+			}
+
+			vint MethodGroupInfoImpl::GetAttributeCount()
+			{
+				return 0;
+			}
+
+			IAttributeInfo* MethodGroupInfoImpl::GetAttribute(vint index)
+			{
+				return nullptr;
 			}
 
 			ITypeDescriptor* MethodGroupInfoImpl::GetOwnerTypeDescriptor()

@@ -240,6 +240,8 @@ SerializableTypeDescriptor
 				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
 				~TypeDescriptorImplBase();
 
+				vint										GetAttributeCount()override;
+				IAttributeInfo*								GetAttribute(vint index)override;
 				ITypeDescriptor::ICpp*						GetCpp()override;
 				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
 				const WString&								GetTypeName()override;
@@ -292,11 +294,26 @@ SerializableTypeDescriptor
 				}
 			};
 
+			template<typename TMemberInfo>
+			class MemberInfoBase : public Object, public TMemberInfo
+			{
+			public:
+				vint GetAttributeCount()
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IAttributeInfo* GetAttribute(vint index)
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+			};
+
 /***********************************************************************
 ParameterInfoImpl
 ***********************************************************************/
 
-			class ParameterInfoImpl : public Object, public IParameterInfo
+			class ParameterInfoImpl : public MemberInfoBase<IParameterInfo>
 			{
 			protected:
 				IMethodInfo*							ownerMethod;
@@ -316,7 +333,7 @@ ParameterInfoImpl
 MethodInfoImpl
 ***********************************************************************/
 
-			class MethodInfoImpl : public Object, public IMethodInfo
+			class MethodInfoImpl : public MemberInfoBase<IMethodInfo>
 			{
 				friend class PropertyInfoImpl;
 			protected:
@@ -361,6 +378,9 @@ MethodGroupInfoImpl
 				MethodGroupInfoImpl(ITypeDescriptor* _ownerTypeDescriptor, const WString& _name);
 				~MethodGroupInfoImpl();
 
+				vint									GetAttributeCount()override;
+				IAttributeInfo*							GetAttribute(vint index)override;
+
 				ITypeDescriptor*						GetOwnerTypeDescriptor()override;
 				const WString&							GetName()override;
 				vint									GetMethodCount()override;
@@ -372,7 +392,7 @@ MethodGroupInfoImpl
 EventInfoImpl
 ***********************************************************************/
 
-			class EventInfoImpl : public Object, public IEventInfo
+			class EventInfoImpl : public MemberInfoBase<IEventInfo>
 			{
 				friend class PropertyInfoImpl;
 
@@ -404,7 +424,7 @@ EventInfoImpl
 TypeDescriptorImpl
 ***********************************************************************/
 
-			class PropertyInfoImpl : public Object, public IPropertyInfo
+			class PropertyInfoImpl : public MemberInfoBase<IPropertyInfo>
 			{
 			protected:
 				ITypeDescriptor*						ownerTypeDescriptor;
@@ -450,7 +470,7 @@ TypeDescriptorImpl
 FieldInfoImpl
 ***********************************************************************/
 
-			class FieldInfoImpl : public Object, public IPropertyInfo
+			class FieldInfoImpl : public MemberInfoBase<IPropertyInfo>
 			{
 			protected:
 				ITypeDescriptor*						ownerTypeDescriptor;

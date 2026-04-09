@@ -163,7 +163,22 @@ ITypeDescriptor (type)
 ITypeDescriptor (basic)
 ***********************************************************************/
 
-			class IMemberInfo : public virtual IDescriptable, public Description<IMemberInfo>
+			class IAttributeInfo : public virtual IDescriptable, public Description<IAttributeInfo>
+			{
+			public:
+				virtual ITypeDescriptor*		GetAttributeType() = 0;
+				virtual vint					GetAttributeValueCount() = 0;
+				virtual Value					GetAttributeValue(vint index) = 0;
+			};
+
+			class IAttributeBag : public virtual IDescriptable, public Description<IAttributeBag>
+			{
+			public:
+				virtual vint					GetAttributeCount() = 0;
+				virtual IAttributeInfo*			GetAttribute(vint index) = 0;
+			};
+
+			class IMemberInfo : public virtual IAttributeBag, public Description<IMemberInfo>
 			{
 			public:
 				virtual ITypeDescriptor*		GetOwnerTypeDescriptor()=0;
@@ -361,7 +376,7 @@ ITypeDescriptor
 			}
 
 			/// <summary>Metadata class for reflectable types.</summary>
-			class ITypeDescriptor : public virtual IDescriptable, public Description<ITypeDescriptor>
+			class ITypeDescriptor : public virtual IAttributeBag, public Description<ITypeDescriptor>
 			{
 			public:
 				class ICpp : public virtual IDescriptable, public Description<ICpp>

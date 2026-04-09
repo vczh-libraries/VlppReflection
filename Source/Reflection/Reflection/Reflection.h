@@ -67,6 +67,8 @@ Predefined Types
 			F(ISerializableType)			\
 			F(ITypeInfo)					\
 			F(ITypeInfo::Decorator)			\
+			F(IAttributeInfo)				\
+			F(IAttributeBag)				\
 			F(IMemberInfo)					\
 			F(IEventHandler)				\
 			F(IEventInfo)					\

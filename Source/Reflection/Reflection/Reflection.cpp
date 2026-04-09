@@ -62,6 +62,8 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ISerializableType, system::reflection::SerializableType)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ITypeInfo, system::reflection::TypeInfo)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ITypeInfo::Decorator, system::reflection::TypeInfo::Decorator)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IAttributeInfo, system::reflection::IAttributeInfo)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IAttributeBag, system::reflection::IAttributeBag)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IMemberInfo, system::reflection::MemberInfo)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IEventHandler, system::reflection::EventHandler)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IEventInfo, system::reflection::EventInfo)
@@ -333,9 +335,21 @@ LoadPredefinedTypes
 				ENUM_NAMESPACE_ITEM(Nullable)
 				ENUM_NAMESPACE_ITEM(TypeDescriptor)
 				ENUM_NAMESPACE_ITEM(Generic)
-				END_ENUM_ITEM(ITypeInfo::Decorator)
+			END_ENUM_ITEM(ITypeInfo::Decorator)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IAttributeInfo)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeType)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeValueCount)
+				CLASS_MEMBER_METHOD(GetAttributeValue, { L"index" })
+			END_INTERFACE_MEMBER(IAttributeInfo)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IAttributeBag)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeCount)
+				CLASS_MEMBER_METHOD(GetAttribute, { L"index" })
+			END_INTERFACE_MEMBER(IAttributeBag)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IMemberInfo)
+				CLASS_MEMBER_BASE(IAttributeBag)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(OwnerTypeDescriptor)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Name)
 			END_INTERFACE_MEMBER(IMemberInfo)
@@ -412,6 +426,8 @@ LoadPredefinedTypes
 			END_ENUM_ITEM(TypeDescriptorFlags)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(ITypeDescriptor)
+				CLASS_MEMBER_BASE(IAttributeBag)
+
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(TypeDescriptorFlags)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(TypeName)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(ValueType)
