@@ -1,36 +1,36 @@
 ﻿@FullName:AttributeRecord
 @ValueType
 struct AttributeRecord {
-    @Attribute:MyAttribute(system::String:struct-field, system::Int32:91)
+    @MyAttribute(system::String:struct-field, system::Int32:91)
     property x : system::Int32;
-    @Attribute:EmptyAttribute()
+    @EmptyAttribute()
     property y : system::Int32;
 }
 
 @FullName:AttributeTarget
-@Attribute:MyAttribute(system::String:type, system::Int32:1)
-@Attribute:EmptyAttribute()
+@MyAttribute(system::String:type, system::Int32:1)
+@EmptyAttribute()
 class AttributeTarget : system::ReferenceType {
-    @Attribute:MyAttribute(system::String:event, system::Int32:5)
+    @MyAttribute(system::String:event, system::Int32:5)
     event Changed : system::Function<system::Void, system::Int32>^;
 
-    @Attribute:MyAttribute(system::String:property, system::Int32:7)
+    @MyAttribute(system::String:property, system::Int32:7)
     property Value : system::Int32 { get:GetValue set:SetValue }
-    @Attribute:MyAttribute(system::String:field, system::Int32:6)
-    @Attribute:EmptyAttribute()
+    @MyAttribute(system::String:field, system::Int32:6)
+    @EmptyAttribute()
     property fieldValue : system::Int32;
 
     function GetValue() : system::Int32;
     function SetValue(value : system::Int32) : system::Void;
-    @Attribute:MyAttribute(system::String:method, system::Int32:8)
-    @ParamAttribute:x:MyAttribute(system::String:param-x, system::Int32:9)
-    @ParamAttribute:y:EmptyAttribute()
+    @MyAttribute(system::String:method, system::Int32:8)
+    @(x)MyAttribute(system::String:param-x, system::Int32:9)
+    @(y)EmptyAttribute()
     function Sum(x : system::Int32, y : system::Int32) : system::Int32;
 
-    @Attribute:MyAttribute(system::String:default-ctor, system::Int32:2)
+    @MyAttribute(system::String:default-ctor, system::Int32:2)
     constructor () : AttributeTarget^;
-    @Attribute:MyAttribute(system::String:seed-ctor, system::Int32:3)
-    @ParamAttribute:seed:MyAttribute(system::String:ctor-param, system::Int32:4)
+    @MyAttribute(system::String:seed-ctor, system::Int32:3)
+    @(seed)MyAttribute(system::String:ctor-param, system::Int32:4)
     constructor (seed : system::Int32) : AttributeTarget^;
 }
 

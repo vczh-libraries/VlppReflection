@@ -44,7 +44,7 @@ LogTypeManager (attributes)
 			{
 				for (vint i = 0; i < bag->GetAttributeCount(); i++)
 				{
-					writer.WriteLine(prefix + LogTypeManager_FormatAttribute(bag->GetAttribute(i)));
+					writer.WriteLine(prefix + L"@" + LogTypeManager_FormatAttribute(bag->GetAttribute(i)));
 				}
 			}
 
@@ -55,7 +55,7 @@ LogTypeManager (attributes)
 					auto parameter = info->GetParameter(i);
 					for (vint j = 0; j < parameter->GetAttributeCount(); j++)
 					{
-						writer.WriteLine(L"    @ParamAttribute:" + parameter->GetName() + L":" + LogTypeManager_FormatAttribute(parameter->GetAttribute(j)));
+						writer.WriteLine(L"    @(" + parameter->GetName() + L")" + LogTypeManager_FormatAttribute(parameter->GetAttribute(j)));
 					}
 				}
 			}
@@ -87,7 +87,7 @@ LogTypeManager (struct)
 
 			void LogTypeManager_Property(stream::TextWriter& writer, IPropertyInfo* info)
 			{
-				LogTypeManager_PrintAttributes(writer, info, L"    @Attribute:");
+				LogTypeManager_PrintAttributes(writer, info, L"    ");
 				if (auto cpp = info->GetCpp())
 				{
 					writer.WriteLine(L"    @ReferenceTemplate:" + cpp->GetReferenceTemplate());
@@ -157,7 +157,7 @@ LogTypeManager (class)
 				{
 					printed = true;
 					IEventInfo* info = type->GetEvent(j);
-					LogTypeManager_PrintAttributes(writer, info, L"    @Attribute:");
+					LogTypeManager_PrintAttributes(writer, info, L"    ");
 					if (auto cpp = info->GetCpp())
 					{
 						writer.WriteLine(L"    @AttachTemplate:" + cpp->GetAttachTemplate());
@@ -205,7 +205,7 @@ LogTypeManager (class)
 
 			void LogTypeManager_Method(stream::TextWriter& writer, IMethodInfo* info, const wchar_t* title)
 			{
-				LogTypeManager_PrintAttributes(writer, info, L"    @Attribute:");
+				LogTypeManager_PrintAttributes(writer, info, L"    ");
 				if (auto cpp = info->GetCpp())
 				{
 					writer.WriteLine(L"    @InvokeTemplate:" + cpp->GetInvokeTemplate());
@@ -350,7 +350,7 @@ LogTypeManager
 					{
 						writer.WriteLine(L"@Serializable");
 					}
-					LogTypeManager_PrintAttributes(writer, type, L"@Attribute:");
+					LogTypeManager_PrintAttributes(writer, type, L"");
 
 					switch (type->GetTypeDescriptorFlags())
 					{
