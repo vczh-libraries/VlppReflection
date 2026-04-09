@@ -245,43 +245,31 @@ MemberInfoBase
 				template<typename TMemberInfo>
 				friend class MemberInfoBase;
 			protected:
-				collections::List<Ptr<IAttributeInfo>>						typeAttributes;
-				collections::Group<IMemberInfo*, Ptr<IAttributeInfo>>		memberAttributes;
+				collections::Group<IMemberInfo*, Ptr<IAttributeInfo>>		attributes;
 				IMemberInfo*												lastRegisteredMember = nullptr;
-				IMethodInfo*												lastRegisteredMethod = nullptr;
 
 				virtual vint GetAttributeCountInternal(IMemberInfo* memberInfo)
 				{
-					if (!memberInfo)
+					if (!attributes.Contains(memberInfo))
 					{
-						return typeAttributes.Count();
+						return 0;
 					}
-					return memberAttributes.Contains(memberInfo) ? memberAttributes.Get(memberInfo).Count() : 0;
+					return attributes.Get(memberInfo).Count();
 				}
 
 				virtual IAttributeInfo* GetAttributeInternal(IMemberInfo* memberInfo, vint index)
 				{
-					if (!memberInfo)
-					{
-						return 0 <= index && index < typeAttributes.Count() ? typeAttributes[index].Obj() : nullptr;
-					}
-					if (!memberAttributes.Contains(memberInfo))
+					if (!attributes.Contains(memberInfo))
 					{
 						return nullptr;
 					}
-					auto&& attributes = memberAttributes.Get(memberInfo);
-					return 0 <= index && index < attributes.Count() ? attributes[index].Obj() : nullptr;
+					auto&& infos = attributes.Get(memberInfo);
+					return 0 <= index && index < infos.Count() ? infos[index].Obj() : nullptr;
 				}
 			public:
-				void									RegisterTypeAttribute(Ptr<IAttributeInfo> info);
-				void									RegisterMemberAttribute(IMemberInfo* memberInfo, Ptr<IAttributeInfo> info);
-
+				void									RegisterAttribute(IMemberInfo* memberInfo, Ptr<IAttributeInfo> info);
 				IMemberInfo*							GetLastRegisteredMember()const;
-				IMethodInfo*							GetLastRegisteredMethod()const;
-
 				void									SetLastRegisteredMember(IMemberInfo* member);
-				void									SetLastRegisteredMethod(IMethodInfo* method);
-				void									ClearLastRegisteredMethod();
 			};
 
 			template<typename TMemberInfo>

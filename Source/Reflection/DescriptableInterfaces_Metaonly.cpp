@@ -1087,11 +1087,11 @@ Attribute Metadata Helpers
 
 					if (memberInfo)
 					{
-						source->RegisterMemberAttribute(memberInfo, info);
+						source->RegisterAttribute(memberInfo, info);
 					}
 					else
 					{
-						source->RegisterTypeAttribute(info);
+						source->RegisterAttribute(nullptr, info);
 					}
 				}
 			}

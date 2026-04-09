@@ -254,15 +254,9 @@ AttributeInfoImpl
 AttributeBagSource
 ***********************************************************************/
 
-			void AttributeBagSource::RegisterTypeAttribute(Ptr<IAttributeInfo> info)
+			void AttributeBagSource::RegisterAttribute(IMemberInfo* memberInfo, Ptr<IAttributeInfo> info)
 			{
-				typeAttributes.Add(info);
-			}
-
-			void AttributeBagSource::RegisterMemberAttribute(IMemberInfo* memberInfo, Ptr<IAttributeInfo> info)
-			{
-				CHECK_ERROR(memberInfo != nullptr, L"vl::reflection::description::AttributeBagSource::RegisterMemberAttribute(IMemberInfo*, Ptr<IAttributeInfo>)#memberInfo should not be nullptr.");
-				memberAttributes.Add(memberInfo, info);
+				attributes.Add(memberInfo, info);
 			}
 
 			IMemberInfo* AttributeBagSource::GetLastRegisteredMember()const
@@ -270,26 +264,9 @@ AttributeBagSource
 				return lastRegisteredMember;
 			}
 
-			IMethodInfo* AttributeBagSource::GetLastRegisteredMethod()const
-			{
-				return lastRegisteredMethod;
-			}
-
 			void AttributeBagSource::SetLastRegisteredMember(IMemberInfo* member)
 			{
 				lastRegisteredMember = member;
-				lastRegisteredMethod = nullptr;
-			}
-
-			void AttributeBagSource::SetLastRegisteredMethod(IMethodInfo* method)
-			{
-				lastRegisteredMember = method;
-				lastRegisteredMethod = method;
-			}
-
-			void AttributeBagSource::ClearLastRegisteredMethod()
-			{
-				lastRegisteredMethod = nullptr;
 			}
 
 /***********************************************************************
@@ -1129,7 +1106,7 @@ TypeDescriptorImpl
 				MethodGroupInfoImpl* methodGroup=PrepareMethodGroup(name);
 				value->SetOwnerMethodgroup(methodGroup);
 				methodGroup->AddMethod(value);
-				SetLastRegisteredMethod(value.Obj());
+				SetLastRegisteredMember(value.Obj());
 				return value.Obj();
 			}
 
@@ -1138,7 +1115,7 @@ TypeDescriptorImpl
 				MethodGroupInfoImpl* methodGroup=PrepareConstructorGroup();
 				value->SetOwnerMethodgroup(methodGroup);
 				methodGroup->AddMethod(value);
-				SetLastRegisteredMethod(value.Obj());
+				SetLastRegisteredMember(value.Obj());
 				return value.Obj();
 			}
 

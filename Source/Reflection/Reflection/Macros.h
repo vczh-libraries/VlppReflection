@@ -375,21 +375,21 @@ Class
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define ATTRIBUTE_TYPE(TYPE, ...)\
-			RegisterTypeAttribute(detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));
+			RegisterAttribute(nullptr, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));
 
 #define ATTRIBUTE_MEMBER(TYPE, ...)\
 			{\
 				auto attributeTargetMember = GetLastRegisteredMember();\
 				CHECK_ERROR(attributeTargetMember != nullptr, L"ATTRIBUTE_MEMBER#This macro must appear after a reflected member.");\
-				RegisterMemberAttribute(attributeTargetMember, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));\
+				RegisterAttribute(attributeTargetMember, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));\
 			}
 
 #define ATTRIBUTE_PARAMETER(PARAMETER_NAME, TYPE, ...)\
 			{\
-				auto attributeTargetMethod = GetLastRegisteredMethod();\
+				auto attributeTargetMethod = dynamic_cast<IMethodInfo*>(GetLastRegisteredMember());\
 				CHECK_ERROR(attributeTargetMethod != nullptr, L"ATTRIBUTE_PARAMETER#This macro must appear after a reflected method or constructor.");\
 				auto attributeTargetParameter = detail::attribute_macro::FindParameter(attributeTargetMethod, WString::Unmanaged(PARAMETER_NAME), L"ATTRIBUTE_PARAMETER");\
-				RegisterMemberAttribute(attributeTargetParameter, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));\
+				RegisterAttribute(attributeTargetParameter, detail::attribute_macro::MakeAttributeInfo<TYPE>(__VA_ARGS__));\
 			}
 
 #endif
