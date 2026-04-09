@@ -259,12 +259,12 @@ TypeDescriptorImplBase
 
 			vint TypeDescriptorImplBase::GetAttributeCount()
 			{
-				CHECK_FAIL(L"Not Implemented!");
+				return GetAttributeCountInternal(nullptr);
 			}
 
 			IAttributeInfo* TypeDescriptorImplBase::GetAttribute(vint index)
 			{
-				CHECK_FAIL(L"Not Implemented!");
+				return GetAttributeInternal(nullptr, index);
 			}
 
 			ITypeDescriptor::ICpp* TypeDescriptorImplBase::GetCpp()

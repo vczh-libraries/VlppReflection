@@ -220,10 +220,62 @@ TypeInfoImp
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
+MemberInfoBase
+***********************************************************************/
+
+			template<typename TMemberInfo>
+			class MemberInfoBase;
+
+			class AttributeBagSource : public Object
+			{
+				template<typename TMemberInfo>
+				friend class MemberInfoBase;
+			protected:
+
+				vint GetAttributeCountInternal(IMemberInfo* memberInfo)
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+
+				IAttributeInfo* GetAttributeInternal(IMemberInfo* memberInfo, vint index)
+				{
+					CHECK_FAIL(L"Not Implemented!");
+				}
+			};
+
+			template<typename TMemberInfo>
+			class MemberInfoBase : public Object, public TMemberInfo
+			{
+			protected:
+
+				AttributeBagSource* GetAttributeBagSource()
+				{
+#define ERROR_MESSAGE_PREFIX L"vl::reflection::description::MemberInfoBase<TMemberInfo>::GetAttributeBagSource()#"
+					auto owner = this->GetOwnerTypeDescriptor();
+					CHECK_ERROR(owner, ERROR_MESSAGE_PREFIX L"GetOwnerTypeDescriptor() should not return nullptr.");
+					auto source = dynamic_cast<AttributeBagSource*>(owner);
+					CHECK_ERROR(source, ERROR_MESSAGE_PREFIX L"GetOwnerTypeDescriptor() should be an AttributeBagSource instance.");
+					return source;
+#undef ERROR_MESSAGE_PREFIX
+				}
+
+			public:
+				vint GetAttributeCount()
+				{
+					return GetAttributeBagSource()->GetAttributeCountInternal(this);
+				}
+
+				IAttributeInfo* GetAttribute(vint index)
+				{
+					return GetAttributeBagSource()->GetAttributeInternal(this, index);
+				}
+			};
+
+/***********************************************************************
 SerializableTypeDescriptor
 ***********************************************************************/
 
-			class TypeDescriptorImplBase : public Object, public ITypeDescriptor, private ITypeDescriptor::ICpp
+			class TypeDescriptorImplBase : public AttributeBagSource, public ITypeDescriptor, private ITypeDescriptor::ICpp
 			{
 			private:
 				TypeDescriptorFlags							typeDescriptorFlags;
@@ -291,21 +343,6 @@ SerializableTypeDescriptor
 				TypedValueTypeDescriptorBase()
 					:ValueTypeDescriptorBase(TDFlags, &TypeInfo<T>::content)
 				{
-				}
-			};
-
-			template<typename TMemberInfo>
-			class MemberInfoBase : public Object, public TMemberInfo
-			{
-			public:
-				vint GetAttributeCount()
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IAttributeInfo* GetAttribute(vint index)
-				{
-					CHECK_FAIL(L"Not Implemented!");
 				}
 			};
 

@@ -4,6 +4,7 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "DescriptableInterfaces.h"
+#include "Metadata/Metadata.h"
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
@@ -308,29 +309,10 @@ Serialization
 			using Writer = stream::internal::Writer<Ptr<MetaonlyWriterContext>>;
 
 /***********************************************************************
-MetaOnlyMemberInfoBase
-***********************************************************************/
-
-			template<typename TMemberInfo>
-			class MetaOnlyMemberInfoBase : public Object, public TMemberInfo
-			{
-			public:
-				vint GetAttributeCount()
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-
-				IAttributeInfo* GetAttribute(vint index)
-				{
-					CHECK_FAIL(L"Not Implemented!");
-				}
-			};
-
-/***********************************************************************
 IMethodInfo
 ***********************************************************************/
 
-			class MetaonlyParameterInfo : public MetaOnlyMemberInfoBase<IParameterInfo>
+			class MetaonlyParameterInfo : public MemberInfoBase<IParameterInfo>
 			{
 			protected:
 				MetaonlyReaderContext*			context = nullptr;
@@ -368,7 +350,7 @@ IMethodInfo
 				}
 			};
 
-			class MetaonlyMethodInfo : public MetaOnlyMemberInfoBase<IMethodInfo>, protected IMethodInfo::ICpp
+			class MetaonlyMethodInfo : public MemberInfoBase<IMethodInfo>, protected IMethodInfo::ICpp
 			{
 				friend class MetaonlyMethodGroupInfo;
 			protected:
@@ -531,7 +513,7 @@ IMethodInfo
 IPropertyInfo
 ***********************************************************************/
 
-			class MetaonlyPropertyInfo : public MetaOnlyMemberInfoBase<IPropertyInfo>, protected IPropertyInfo::ICpp
+			class MetaonlyPropertyInfo : public MemberInfoBase<IPropertyInfo>, protected IPropertyInfo::ICpp
 			{
 			protected:
 				MetaonlyReaderContext*			context = nullptr;
@@ -619,7 +601,7 @@ IPropertyInfo
 IEventInfo
 ***********************************************************************/
 
-			class MetaonlyEventInfo : public MetaOnlyMemberInfoBase<IEventInfo>, protected IEventInfo::ICpp
+			class MetaonlyEventInfo : public MemberInfoBase<IEventInfo>, protected IEventInfo::ICpp
 			{
 			protected:
 				MetaonlyReaderContext*			context = nullptr;
@@ -708,7 +690,7 @@ ITypeDescriptor
 ***********************************************************************/
 
 			class MetaonlyTypeDescriptor
-				: public Object
+				: public AttributeBagSource
 				, public ITypeDescriptor
 				, protected ITypeDescriptor::ICpp
 				, protected IValueType
@@ -746,12 +728,12 @@ ITypeDescriptor
 
 				vint GetAttributeCount() override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return GetAttributeCountInternal(nullptr);
 				}
 
 				IAttributeInfo* GetAttribute(vint index) override
 				{
-					CHECK_FAIL(L"Not Implemented!");
+					return GetAttributeInternal(nullptr, index);
 				}
 
 				// ICpp
