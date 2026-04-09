@@ -69,8 +69,8 @@ TEST_FILE
 	TEST_CASE(L"Run LoadMetaonlyTypes()")
 	{
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
+		TestReflectionAttributes();
 		{
-			TestReflectionAttributes();
 			FileStream fileStream(GetTestMetadataPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
 			BomEncoder encoder(BomEncoder::Utf8);
 			EncoderStream encoderStream(fileStream, encoder);

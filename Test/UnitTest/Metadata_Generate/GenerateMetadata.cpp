@@ -24,6 +24,7 @@ extern WString GetTestMetadataPath();
 bool LoadPredefinedTypesForTestCase()
 {
 	auto result = LoadPredefinedTypes();
+	GetGlobalTypeManager()->AddTypeLoader(CreateTestTypeLoader_Attribute());
 	GetGlobalTypeManager()->Load();
 	return result;
 }
@@ -33,8 +34,8 @@ TEST_FILE
 	TEST_CASE(L"Run GenerateMetaonlyTypes()")
 	{
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
+		TestReflectionAttributes();
 		{
-			TestReflectionAttributes();
 			FileStream fileStream(GetTestMetadataPath() + REFLECTION_BIN, FileStream::WriteOnly);
 			GenerateMetaonlyTypes(fileStream);
 		}
