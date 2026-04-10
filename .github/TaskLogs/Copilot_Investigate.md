@@ -17,7 +17,7 @@ ReflectionWithTestTypes(32|64).txt are produced by UnitTest project. After your 
 
 # UPDATES
 
-# TEST
+# TEST [CONFIRMED]
 
 The existing Metadata_Generate and Metadata_Test infrastructure serves as the test for this change. There are no new test cases to write since this is a performance/serialization format improvement.
 
@@ -38,7 +38,7 @@ The existing Metadata_Generate and Metadata_Test infrastructure serves as the te
 
 # PROPOSALS
 
-- No.1 Replace WString with vint typeDescriptor indices in AttributeValueMetadata and AttributeInfoMetadata
+- No.1 Replace WString with vint typeDescriptor indices in AttributeValueMetadata and AttributeInfoMetadata [CONFIRMED]
 
 ## No.1 Replace WString with vint typeDescriptor indices in AttributeValueMetadata and AttributeInfoMetadata
 
@@ -52,4 +52,27 @@ Detailed changes:
 5. Update all call sites of both functions accordingly.
 
 ### CODE CHANGE
+
+All changes in `Source/Reflection/DescriptableInterfaces_Metaonly.cpp`:
+
+1. **Struct `AttributeValueMetadata`**: Changed `WString typeName;` to `vint typeDescriptor = -1;`.
+2. **Struct `AttributeInfoMetadata`**: Changed `WString attributeTypeName;` to `vint attributeType = -1;`.
+3. **Serialization macros**: Updated `SERIALIZE(typeName)` to `SERIALIZE(typeDescriptor)` and `SERIALIZE(attributeTypeName)` to `SERIALIZE(attributeType)`.
+4. **`GenerateMetaonlyAttributes`**: Added `MetaonlyWriterContext& context` as first parameter. Uses `context.tdIndex[info->GetAttributeType()]` and `context.tdIndex[valueType]` instead of `->GetTypeName()`.
+5. **All `GenerateMetaonlyAttributes` call sites** (5 total): Updated to pass `*writer.context.Obj()` as first argument.
+6. **`LoadMetaonlyAttributes`**: Removed `const Dictionary<WString, ITypeDescriptor*>& typeDescriptors` parameter. Uses `context->tds[attributeMetadata->attributeType]` and `context->tds[valueMetadata->typeDescriptor]` directly instead of name-based dictionary lookups. Gets `serializableType` from the resolved `reflectedValueType->GetSerializableType()` instead of `context->serializableTypes`.
+7. **All `LoadMetaonlyAttributes` call sites** (5 total): Removed `typeDescriptors` argument.
+8. **Removed unused `typeDescriptors` dictionary** construction in `LoadMetaonlyTypes`.
+
+### CONFIRMED
+
+All tests pass:
+- Metadata_Generate with Debug|Win32: 174/174 test cases passed.
+- Metadata_Generate with Debug|x64: 174/174 test cases passed.
+- Metadata_Test with Debug|x64: 174/174 test cases passed (binary round-trip verified).
+- Metadata_Test with Debug|Win32: 174/174 test cases passed.
+- UnitTest with Debug|Win32: 53/53 test cases passed.
+- UnitTest with Debug|x64: 53/53 test cases passed.
+
+Only `Reflection32.bin` and `Reflection64.bin` changed (49656 -> 49084 bytes, ~1.2% smaller). All `.txt` files (Reflection32.txt, Reflection64.txt, ReflectionWithTestTypes32.txt, ReflectionWithTestTypes64.txt) are unchanged, confirming the semantic equivalence of the serialization.
 

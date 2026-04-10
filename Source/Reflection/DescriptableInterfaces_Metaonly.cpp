@@ -157,13 +157,13 @@ Metadata
 
 			struct AttributeValueMetadata
 			{
-				WString								typeName;
+				vint								typeDescriptor = -1;
 				WString								data;
 			};
 
 			struct AttributeInfoMetadata
 			{
-				WString								attributeTypeName;
+				vint								attributeType = -1;
 				List<Ptr<AttributeValueMetadata>>	values;
 			};
 
@@ -251,12 +251,12 @@ Serialization
 			END_SERIALIZATION
 
 			BEGIN_SERIALIZATION(reflection::description::AttributeValueMetadata)
-				SERIALIZE(typeName)
+				SERIALIZE(typeDescriptor)
 				SERIALIZE(data)
 			END_SERIALIZATION
 
 			BEGIN_SERIALIZATION(reflection::description::AttributeInfoMetadata)
-				SERIALIZE(attributeTypeName)
+				SERIALIZE(attributeType)
 				SERIALIZE(values)
 			END_SERIALIZATION
 
@@ -1026,26 +1026,26 @@ ITypeDescriptor
 Attribute Metadata Helpers
 ***********************************************************************/
 
-			void GenerateMetaonlyAttributes(List<Ptr<AttributeInfoMetadata>>& metadataList, IAttributeBag* attributeBag)
+			void GenerateMetaonlyAttributes(MetaonlyWriterContext& context, List<Ptr<AttributeInfoMetadata>>& metadataList, IAttributeBag* attributeBag)
 			{
 				for (vint i = 0; i < attributeBag->GetAttributeCount(); i++)
 				{
 					auto info = attributeBag->GetAttribute(i);
 					auto attributeMetadata = Ptr(new AttributeInfoMetadata{
-						.attributeTypeName = info->GetAttributeType()->GetTypeName(),
+						.attributeType = context.tdIndex[info->GetAttributeType()],
 					});
 					for (vint j = 0; j < info->GetAttributeValueCount(); j++)
 					{
 						auto value = info->GetAttributeValue(j);
 						auto valueType = value.GetTypeDescriptor();
-						CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::GenerateMetaonlyAttributes(collections::List<AttributeInfoMetadata>&, IAttributeBag*)#Failed to resolve the reflected type of an attribute argument.");
+						CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::GenerateMetaonlyAttributes(MetaonlyWriterContext&, collections::List<AttributeInfoMetadata>&, IAttributeBag*)#Failed to resolve the reflected type of an attribute argument.");
 						auto serializableType = valueType->GetSerializableType();
-						CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::GenerateMetaonlyAttributes(collections::List<AttributeInfoMetadata>&, IAttributeBag*)#Attribute argument must use a serializable reflected type.");
+						CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::GenerateMetaonlyAttributes(MetaonlyWriterContext&, collections::List<AttributeInfoMetadata>&, IAttributeBag*)#Attribute argument must use a serializable reflected type.");
 
 						WString data;
-						CHECK_ERROR(serializableType->Serialize(value, data), L"vl::reflection::description::GenerateMetaonlyAttributes(collections::List<AttributeInfoMetadata>&, IAttributeBag*)#Failed to serialize an attribute argument.");
+						CHECK_ERROR(serializableType->Serialize(value, data), L"vl::reflection::description::GenerateMetaonlyAttributes(MetaonlyWriterContext&, collections::List<AttributeInfoMetadata>&, IAttributeBag*)#Failed to serialize an attribute argument.");
 						attributeMetadata->values.Add(Ptr(new AttributeValueMetadata{
-							.typeName = valueType->GetTypeName(),
+							.typeDescriptor = context.tdIndex[valueType],
 							.data = data,
 						}));
 					}
@@ -1057,30 +1057,26 @@ Attribute Metadata Helpers
 				MetaonlyReaderContext* context,
 				AttributeBagSource* source,
 				IMemberInfo* memberInfo,
-				const List<Ptr<AttributeInfoMetadata>>& attributeMetadataList,
-				const Dictionary<WString, ITypeDescriptor*>& typeDescriptors
+				const List<Ptr<AttributeInfoMetadata>>& attributeMetadataList
 			)
 			{
 				for (vint i = 0; i < attributeMetadataList.Count(); i++)
 				{
 					auto&& attributeMetadata = attributeMetadataList[i];
-					auto attributeTypeIndex = typeDescriptors.Keys().IndexOf(attributeMetadata->attributeTypeName);
-					CHECK_ERROR(attributeTypeIndex != -1, L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&, const collections::Dictionary<WString, ITypeDescriptor*>&)#Failed to resolve the reflected attribute type.");
-					auto attributeType = typeDescriptors.Values()[attributeTypeIndex];
+					CHECK_ERROR(0 <= attributeMetadata->attributeType && attributeMetadata->attributeType < context->tds.Count(), L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&)#Failed to resolve the reflected attribute type.");
+					auto attributeType = context->tds[attributeMetadata->attributeType].Obj();
 					auto info = Ptr(new AttributeInfoImpl(attributeType));
 
 					for (vint j = 0; j < attributeMetadata->values.Count(); j++)
 					{
 						auto&& valueMetadata = attributeMetadata->values[j];
-						auto valueTypeIndex = context->serializableTypes.Keys().IndexOf(valueMetadata->typeName);
-						CHECK_ERROR(valueTypeIndex != -1, L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&, const collections::Dictionary<WString, ITypeDescriptor*>&)#Failed to resolve the serializable type of an attribute argument.");
-						auto serializableType = context->serializableTypes.Values()[valueTypeIndex].Obj();
-						auto reflectedValueTypeIndex = typeDescriptors.Keys().IndexOf(valueMetadata->typeName);
-						CHECK_ERROR(reflectedValueTypeIndex != -1, L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&, const collections::Dictionary<WString, ITypeDescriptor*>&)#Failed to resolve the reflected value type of an attribute argument.");
-						auto reflectedValueType = typeDescriptors.Values()[reflectedValueTypeIndex];
+						CHECK_ERROR(0 <= valueMetadata->typeDescriptor && valueMetadata->typeDescriptor < context->tds.Count(), L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&)#Failed to resolve the reflected value type of an attribute argument.");
+						auto reflectedValueType = context->tds[valueMetadata->typeDescriptor].Obj();
+						auto serializableType = reflectedValueType->GetSerializableType();
+						CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&)#Failed to resolve the serializable type of an attribute argument.");
 
 						Value value;
-						CHECK_ERROR(serializableType->Deserialize(valueMetadata->data, value), L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&, const collections::Dictionary<WString, ITypeDescriptor*>&)#Failed to deserialize an attribute argument.");
+						CHECK_ERROR(serializableType->Deserialize(valueMetadata->data, value), L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&)#Failed to deserialize an attribute argument.");
 						value = Value::From(value.GetBoxedValue(), reflectedValueType);
 						info->AddValue(value);
 					}
@@ -1154,7 +1150,7 @@ GenerateMetaonlyTypes
 					metadata->constructorGroup.count = metadata->methods.Count() - metadata->constructorGroup.start;
 				}
 
-				GenerateMetaonlyAttributes(metadata->attributes, td);
+				GenerateMetaonlyAttributes(*writer.context.Obj(), metadata->attributes, td);
 				writer << metadata;
 			}
 
@@ -1178,12 +1174,12 @@ GenerateMetaonlyTypes
 					auto piMetadata = Ptr(new ParameterInfoMetadata);
 					piMetadata->name = pi->GetName();
 					piMetadata->type = Ptr(new MetaonlyTypeInfo(*writer.context.Obj(), pi->GetType()));
-					GenerateMetaonlyAttributes(piMetadata->attributes, pi);
+					GenerateMetaonlyAttributes(*writer.context.Obj(), piMetadata->attributes, pi);
 					metadata->parameters.Add(piMetadata);
 				}
 				metadata->returnType = Ptr(new MetaonlyTypeInfo(*writer.context.Obj(), mi->GetReturn()));
 				metadata->isStatic = mi->IsStatic();
-				GenerateMetaonlyAttributes(metadata->attributes, mi);
+				GenerateMetaonlyAttributes(*writer.context.Obj(), metadata->attributes, mi);
 				writer << metadata;
 			}
 
@@ -1211,7 +1207,7 @@ GenerateMetaonlyTypes
 				{
 					metadata->valueChangedEvent = writer.context->eiIndex[ei];
 				}
-				GenerateMetaonlyAttributes(metadata->attributes, pi);
+				GenerateMetaonlyAttributes(*writer.context.Obj(), metadata->attributes, pi);
 				writer << metadata;
 			}
 
@@ -1231,7 +1227,7 @@ GenerateMetaonlyTypes
 				{
 					metadata->observingProperties.Add(writer.context->piIndex[ei->GetObservingProperty(i)]);
 				}
-				GenerateMetaonlyAttributes(metadata->attributes, ei);
+				GenerateMetaonlyAttributes(*writer.context.Obj(), metadata->attributes, ei);
 				writer << metadata;
 			}
 
@@ -1395,20 +1391,13 @@ LoadMetaonlyTypes
 					}
 				}
 
-				Dictionary<WString, ITypeDescriptor*> typeDescriptors;
-				for (vint i = 0; i < context->tds.Count(); i++)
-				{
-					auto td = context->tds[i].Obj();
-					typeDescriptors.Add(td->GetTypeName(), td);
-				}
-
 				for (vint i = 0; i < context->tds.Count(); i++)
 				{
 					auto td = context->tds[i].Obj();
 					auto source = dynamic_cast<AttributeBagSource*>(td);
 					CHECK_ERROR(source != nullptr, L"vl::reflection::description::LoadMetaonlyTypes(stream::IStream&, const collections::Dictionary<WString, Ptr<ISerializableType>>&)#Metaonly type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyTypeDescriptor*>(td)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, nullptr, metadata->attributes, typeDescriptors);
+					LoadMetaonlyAttributes(context.Obj(), source, nullptr, metadata->attributes);
 				}
 
 				for (vint i = 0; i < context->mis.Count(); i++)
@@ -1417,10 +1406,10 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(method->GetOwnerTypeDescriptor());
 					CHECK_ERROR(source != nullptr, L"vl::reflection::description::LoadMetaonlyTypes(stream::IStream&, const collections::Dictionary<WString, Ptr<ISerializableType>>&)#Method owner type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyMethodInfo*>(method)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, method, metadata->attributes, typeDescriptors);
+					LoadMetaonlyAttributes(context.Obj(), source, method, metadata->attributes);
 					for (vint j = 0; j < method->GetParameterCount(); j++)
 					{
-						LoadMetaonlyAttributes(context.Obj(), source, method->GetParameter(j), metadata->parameters[j]->attributes, typeDescriptors);
+						LoadMetaonlyAttributes(context.Obj(), source, method->GetParameter(j), metadata->parameters[j]->attributes);
 					}
 				}
 
@@ -1430,7 +1419,7 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(property->GetOwnerTypeDescriptor());
 					CHECK_ERROR(source != nullptr, L"vl::reflection::description::LoadMetaonlyTypes(stream::IStream&, const collections::Dictionary<WString, Ptr<ISerializableType>>&)#Property owner type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyPropertyInfo*>(property)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, property, metadata->attributes, typeDescriptors);
+					LoadMetaonlyAttributes(context.Obj(), source, property, metadata->attributes);
 				}
 
 				for (vint i = 0; i < context->eis.Count(); i++)
@@ -1439,7 +1428,7 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(eventInfo->GetOwnerTypeDescriptor());
 					CHECK_ERROR(source != nullptr, L"vl::reflection::description::LoadMetaonlyTypes(stream::IStream&, const collections::Dictionary<WString, Ptr<ISerializableType>>&)#Event owner type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyEventInfo*>(eventInfo)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, eventInfo, metadata->attributes, typeDescriptors);
+					LoadMetaonlyAttributes(context.Obj(), source, eventInfo, metadata->attributes);
 				}
 
 				return loader;
