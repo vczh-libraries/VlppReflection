@@ -83,35 +83,35 @@ BEGIN_TYPE_INFO_NAMESPACE
 
 	BEGIN_STRUCT_MEMBER(AttributeRecord)
 		STRUCT_MEMBER(x)
-		ATTRIBUTE_MEMBER(MyAttribute, L"struct-field", vint(91))
+		ATTRIBUTE_MEMBER(MyAttribute, L"struct-field", 91)
 		STRUCT_MEMBER(y)
 		ATTRIBUTE_MEMBER(EmptyAttribute)
 	END_STRUCT_MEMBER(AttributeRecord)
 
 	BEGIN_CLASS_MEMBER(AttributeTarget)
-		ATTRIBUTE_TYPE(MyAttribute, L"type", vint(1))
+		ATTRIBUTE_TYPE(MyAttribute, L"type", 1)
 		ATTRIBUTE_TYPE(EmptyAttribute)
 
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<AttributeTarget>(), NO_PARAMETER)
-		ATTRIBUTE_MEMBER(MyAttribute, L"default-ctor", vint(2))
+		ATTRIBUTE_MEMBER(MyAttribute, L"default-ctor", 2)
 
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<AttributeTarget>(vint), {L"seed"})
-		ATTRIBUTE_MEMBER(MyAttribute, L"seed-ctor", vint(3))
-		ATTRIBUTE_PARAMETER(L"seed", MyAttribute, L"ctor-param", vint(4))
+		ATTRIBUTE_MEMBER(MyAttribute, L"seed-ctor", 3)
+		ATTRIBUTE_PARAMETER(L"seed", MyAttribute, L"ctor-param", 4)
 
 		CLASS_MEMBER_EVENT(Changed)
-		ATTRIBUTE_MEMBER(MyAttribute, L"event", vint(5))
+		ATTRIBUTE_MEMBER(MyAttribute, L"event", 5)
 
 		CLASS_MEMBER_FIELD(fieldValue)
-		ATTRIBUTE_MEMBER(MyAttribute, L"field", vint(6))
+		ATTRIBUTE_MEMBER(MyAttribute, L"field", 6)
 		ATTRIBUTE_MEMBER(EmptyAttribute)
 
 		CLASS_MEMBER_PROPERTY_FAST(Value)
-		ATTRIBUTE_MEMBER(MyAttribute, L"property", vint(7))
+		ATTRIBUTE_MEMBER(MyAttribute, L"property", 7)
 
 		CLASS_MEMBER_METHOD(Sum, {L"x" _ L"y"})
-		ATTRIBUTE_MEMBER(MyAttribute, L"method", vint(8))
-		ATTRIBUTE_PARAMETER(L"x", MyAttribute, L"param-x", vint(9))
+		ATTRIBUTE_MEMBER(MyAttribute, L"method", 8)
+		ATTRIBUTE_PARAMETER(L"x", MyAttribute, L"param-x", 9)
 		ATTRIBUTE_PARAMETER(L"y", EmptyAttribute)
 	END_CLASS_MEMBER(AttributeTarget)
 

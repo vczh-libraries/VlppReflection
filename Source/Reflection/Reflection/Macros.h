@@ -100,35 +100,138 @@ namespace vl
 			{
 				namespace attribute_macro
 				{
-					template<typename T>
-					Value BoxAttributeArgument(T&& arg)
+					struct FieldTypeDetector
 					{
-						using A = std::remove_reference_t<T>;
-						if constexpr (std::is_array_v<A> && std::is_same_v<std::remove_cv_t<std::remove_extent_t<A>>, wchar_t>)
-						{
-							return BoxValue<WString>(WString::Unmanaged(arg));
-						}
-						else if constexpr (std::is_pointer_v<std::remove_cvref_t<T>> && std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::remove_cvref_t<T>>>, wchar_t>)
-						{
-							return BoxValue<WString>(WString::Unmanaged(arg));
-						}
-						else if constexpr (std::is_integral_v<std::remove_cvref_t<T>> && !std::is_same_v<std::remove_cvref_t<T>, bool> && !std::is_same_v<std::remove_cvref_t<T>, wchar_t>)
-						{
-							return BoxValue<vint>((vint)arg);
-						}
-						else
-						{
-							return BoxValue<std::remove_cvref_t<T>>(std::forward<T>(arg));
-						}
+						template<typename T>
+						constexpr operator T() const noexcept;
+					};
+
+					template<typename T>
+					consteval std::size_t CountAggregateFields()
+					{
+						using D = FieldTypeDetector;
+						if constexpr      (requires { T{D{},D{},D{},D{},D{},D{},D{},D{},D{},D{}}; }) return 10;
+						else if constexpr (requires { T{D{},D{},D{},D{},D{},D{},D{},D{},D{}}; }) return 9;
+						else if constexpr (requires { T{D{},D{},D{},D{},D{},D{},D{},D{}}; }) return 8;
+						else if constexpr (requires { T{D{},D{},D{},D{},D{},D{},D{}}; }) return 7;
+						else if constexpr (requires { T{D{},D{},D{},D{},D{},D{}}; }) return 6;
+						else if constexpr (requires { T{D{},D{},D{},D{},D{}}; }) return 5;
+						else if constexpr (requires { T{D{},D{},D{},D{}}; }) return 4;
+						else if constexpr (requires { T{D{},D{},D{}}; }) return 3;
+						else if constexpr (requires { T{D{},D{}}; }) return 2;
+						else if constexpr (requires { T{D{}}; }) return 1;
+						else return 0;
 					}
 
 					template<typename T>
-					void AddAttributeArgument(AttributeInfoImpl* info, T&& arg)
+					void AddAttributeField(AttributeInfoImpl* info, T& field)
 					{
-						auto value = BoxAttributeArgument(std::forward<T>(arg));
+						auto value = BoxValue<std::remove_cvref_t<T>>(field);
 						auto valueType = value.GetTypeDescriptor();
 						CHECK_ERROR(valueType && valueType->GetSerializableType(), L"ATTRIBUTE_*#Attribute argument must be a serializable reflected value.");
 						info->AddValue(value);
+					}
+
+					template<std::size_t ArgCount, typename TAttribute>
+					void BoxAttributeFields(AttributeInfoImpl* info, TAttribute& instance)
+					{
+						constexpr auto N = CountAggregateFields<TAttribute>();
+						static_assert(ArgCount <= N, "ATTRIBUTE_*#Too many arguments for the attribute struct.");
+						if constexpr (N == 1)
+						{
+							auto& [f0] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+						}
+						else if constexpr (N == 2)
+						{
+							auto& [f0, f1] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+						}
+						else if constexpr (N == 3)
+						{
+							auto& [f0, f1, f2] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+						}
+						else if constexpr (N == 4)
+						{
+							auto& [f0, f1, f2, f3] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+						}
+						else if constexpr (N == 5)
+						{
+							auto& [f0, f1, f2, f3, f4] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+							if constexpr (ArgCount >= 5) AddAttributeField(info, f4);
+						}
+						else if constexpr (N == 6)
+						{
+							auto& [f0, f1, f2, f3, f4, f5] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+							if constexpr (ArgCount >= 5) AddAttributeField(info, f4);
+							if constexpr (ArgCount >= 6) AddAttributeField(info, f5);
+						}
+						else if constexpr (N == 7)
+						{
+							auto& [f0, f1, f2, f3, f4, f5, f6] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+							if constexpr (ArgCount >= 5) AddAttributeField(info, f4);
+							if constexpr (ArgCount >= 6) AddAttributeField(info, f5);
+							if constexpr (ArgCount >= 7) AddAttributeField(info, f6);
+						}
+						else if constexpr (N == 8)
+						{
+							auto& [f0, f1, f2, f3, f4, f5, f6, f7] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+							if constexpr (ArgCount >= 5) AddAttributeField(info, f4);
+							if constexpr (ArgCount >= 6) AddAttributeField(info, f5);
+							if constexpr (ArgCount >= 7) AddAttributeField(info, f6);
+							if constexpr (ArgCount >= 8) AddAttributeField(info, f7);
+						}
+						else if constexpr (N == 9)
+						{
+							auto& [f0, f1, f2, f3, f4, f5, f6, f7, f8] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+							if constexpr (ArgCount >= 5) AddAttributeField(info, f4);
+							if constexpr (ArgCount >= 6) AddAttributeField(info, f5);
+							if constexpr (ArgCount >= 7) AddAttributeField(info, f6);
+							if constexpr (ArgCount >= 8) AddAttributeField(info, f7);
+							if constexpr (ArgCount >= 9) AddAttributeField(info, f8);
+						}
+						else if constexpr (N == 10)
+						{
+							auto& [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9] = instance;
+							if constexpr (ArgCount >= 1) AddAttributeField(info, f0);
+							if constexpr (ArgCount >= 2) AddAttributeField(info, f1);
+							if constexpr (ArgCount >= 3) AddAttributeField(info, f2);
+							if constexpr (ArgCount >= 4) AddAttributeField(info, f3);
+							if constexpr (ArgCount >= 5) AddAttributeField(info, f4);
+							if constexpr (ArgCount >= 6) AddAttributeField(info, f5);
+							if constexpr (ArgCount >= 7) AddAttributeField(info, f6);
+							if constexpr (ArgCount >= 8) AddAttributeField(info, f7);
+							if constexpr (ArgCount >= 9) AddAttributeField(info, f8);
+							if constexpr (ArgCount >= 10) AddAttributeField(info, f9);
+						}
 					}
 
 					template<typename TAttribute, typename... TArgs>
@@ -141,7 +244,11 @@ namespace vl
 						CHECK_ERROR(attributeType->GetTypeDescriptorFlags() == TypeDescriptorFlags::Struct, L"ATTRIBUTE_*#Attribute type must be a reflected struct.");
 
 						auto info = Ptr(new AttributeInfoImpl(attributeType));
-						(AddAttributeArgument(info.Obj(), std::forward<TArgs>(args)), ...);
+						if constexpr (sizeof...(TArgs) > 0)
+						{
+							TAttribute instance{ std::forward<TArgs>(args)... };
+							BoxAttributeFields<sizeof...(TArgs)>(info.Obj(), instance);
+						}
 						return info;
 					}
 
