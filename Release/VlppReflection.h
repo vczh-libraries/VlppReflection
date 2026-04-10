@@ -2072,6 +2072,7 @@ ITypeDescriptor (basic)
 			public:
 				virtual ITypeDescriptor*		GetAttributeType() = 0;
 				virtual vint					GetAttributeValueCount() = 0;
+				virtual ITypeDescriptor*		GetAttributeValueType(vint index) = 0;
 				virtual Value					GetAttributeValue(vint index) = 0;
 			};
 
@@ -4176,16 +4177,18 @@ TypeInfoImp
 
 			class AttributeInfoImpl : public Object, public IAttributeInfo
 			{
+				using TypeValuePair = collections::Pair<ITypeDescriptor*, Value>;
 			protected:
 				ITypeDescriptor*						attributeType = nullptr;
-				collections::List<Value>				values;
+				collections::List<TypeValuePair>		values;
 			public:
 				AttributeInfoImpl(ITypeDescriptor* _attributeType);
 
 				ITypeDescriptor*						GetAttributeType()override;
 				vint									GetAttributeValueCount()override;
+				ITypeDescriptor*						GetAttributeValueType(vint index)override;
 				Value									GetAttributeValue(vint index)override;
-				void									AddValue(const Value& value);
+				void									AddValue(ITypeDescriptor* valueType, const Value& value);
 			};
 
 #endif
@@ -7470,7 +7473,7 @@ namespace vl
 							auto boxed = BoxValue<std::remove_cvref_t<FieldType>>(field);
 							auto valueType = boxed.GetTypeDescriptor();
 							CHECK_ERROR(valueType && valueType->GetSerializableType(), L"ATTRIBUTE_*#Attribute argument must be a serializable reflected value.");
-							info->AddValue(boxed);
+							info->AddValue(boxed.GetTypeDescriptor(), boxed);
 							return field;
 						}
 					};

@@ -347,6 +347,7 @@ interface system::reflection::AttributeInfo : system::Interface {
     function GetAttributeType() : system::reflection::TypeDescriptor*;
     function GetAttributeValue(index : system::Int32) : system::Object;
     function GetAttributeValueCount() : system::Int32;
+    function GetAttributeValueType(index : system::Int32) : system::reflection::TypeDescriptor*;
 
 }
 

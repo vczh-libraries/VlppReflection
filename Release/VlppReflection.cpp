@@ -434,7 +434,7 @@ LogTypeManager (attributes)
 				{
 					if (i > 0) result += L", ";
 					auto value = info->GetAttributeValue(i);
-					auto valueType = value.GetTypeDescriptor();
+					auto valueType = info->GetAttributeValueType(i);
 					CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to resolve the reflected type of an attribute argument.");
 					auto serializableType = valueType->GetSerializableType();
 					CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Attribute argument must use a serializable reflected type.");
@@ -1829,7 +1829,7 @@ Attribute Metadata Helpers
 					for (vint j = 0; j < info->GetAttributeValueCount(); j++)
 					{
 						auto value = info->GetAttributeValue(j);
-						auto valueType = value.GetTypeDescriptor();
+						auto valueType = info->GetAttributeValueType(j);
 						CHECK_ERROR(valueType != nullptr, ERROR_MESSAGE_PREFIX L"Failed to resolve the reflected type of an attribute argument.");
 						auto serializableType = valueType->GetSerializableType();
 						CHECK_ERROR(serializableType != nullptr, ERROR_MESSAGE_PREFIX L"Attribute argument must use a serializable reflected type.");
@@ -1872,7 +1872,7 @@ Attribute Metadata Helpers
 						Value value;
 						CHECK_ERROR(serializableType->Deserialize(valueMetadata->data, value), ERROR_MESSAGE_PREFIX L"Failed to deserialize an attribute argument.");
 						value = Value::From(value.GetBoxedValue(), reflectedValueType);
-						info->AddValue(value);
+						info->AddValue(reflectedValueType, value);
 					}
 
 					source->RegisterAttribute(memberInfo, info);
@@ -3348,14 +3348,19 @@ AttributeInfoImpl
 				return values.Count();
 			}
 
-			Value AttributeInfoImpl::GetAttributeValue(vint index)
+			ITypeDescriptor* AttributeInfoImpl::GetAttributeValueType(vint index)
 			{
-				return values[index];
+				return values[index].key;
 			}
 
-			void AttributeInfoImpl::AddValue(const Value& value)
+			Value AttributeInfoImpl::GetAttributeValue(vint index)
 			{
-				values.Add(value);
+				return values[index].value;
+			}
+
+			void AttributeInfoImpl::AddValue(ITypeDescriptor* valueType, const Value& value)
+			{
+				values.Add({ valueType,value });
 			}
 
 #endif
@@ -5216,6 +5221,7 @@ LoadPredefinedTypes
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IAttributeInfo)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeType)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeValueCount)
+				CLASS_MEMBER_METHOD(GetAttributeValueType, { L"index" })
 				CLASS_MEMBER_METHOD(GetAttributeValue, { L"index" })
 			END_INTERFACE_MEMBER(IAttributeInfo)
 
