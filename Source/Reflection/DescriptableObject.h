@@ -478,6 +478,22 @@ DescriptableObject
 		///                         CLASS_MEMBER_METHOD(SetX, {L"value"})
 		///                         CLASS_MEMBER_PROPERTY_EVENT(X, GetX, SetX, XChanged)
 		///
+		///                         // 22) Attach an attribute to the type itself. The attribute type must be a reflected struct.
+		///                         //     Each argument must be a serializable primitive value. Zero arguments are allowed.
+		///                         ATTRIBUTE_TYPE(MyAttribute, L"name", 100)
+		///                         ATTRIBUTE_TYPE(EmptyAttribute)
+		///
+		///                         // 23) Attach an attribute to the most recently registered member (field, property, event, method, or constructor).
+		///                         //     Must appear after the member registration macro it decorates.
+		///                         CLASS_MEMBER_FIELD(fieldValue)
+		///                         ATTRIBUTE_MEMBER(MyAttribute, L"field", 1)
+		///                         ATTRIBUTE_MEMBER(EmptyAttribute)
+		///
+		///                         // 24) Attach an attribute to a named parameter of the most recently registered method or constructor.
+		///                         //     The parameter name must match exactly one parameter.
+		///                         CLASS_MEMBER_METHOD(MyFunction2, {L"parameter1" _ L"parameter2"})
+		///                         ATTRIBUTE_PARAMETER(L"parameter1", MyAttribute, L"param", 2)
+		///
 		///                     END_CLASS_MEMBER(MyClass)
 		///                 ]]></code></program>
 		///                 </p>
