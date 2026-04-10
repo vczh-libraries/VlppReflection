@@ -6,6 +6,7 @@ namespace TestReflection_TestObjects_Attribute
 	{
 		WString								name;
 		vint								number;
+		ITypeDescriptor*					type = nullptr;
 
 		auto operator<=>(const MyAttribute&) const = default;
 	};
@@ -76,6 +77,7 @@ BEGIN_TYPE_INFO_NAMESPACE
 	BEGIN_STRUCT_MEMBER(MyAttribute)
 		STRUCT_MEMBER(name)
 		STRUCT_MEMBER(number)
+		STRUCT_MEMBER(type)
 	END_STRUCT_MEMBER(MyAttribute)
 
 	BEGIN_STRUCT_MEMBER(EmptyAttribute)
@@ -83,21 +85,21 @@ BEGIN_TYPE_INFO_NAMESPACE
 
 	BEGIN_STRUCT_MEMBER(AttributeRecord)
 		STRUCT_MEMBER(x)
-		ATTRIBUTE_MEMBER(MyAttribute, L"struct-field", 91)
+		ATTRIBUTE_MEMBER(MyAttribute, L"struct-field", 91, description::GetTypeDescriptor<vint>())
 		STRUCT_MEMBER(y)
 		ATTRIBUTE_MEMBER(EmptyAttribute)
 	END_STRUCT_MEMBER(AttributeRecord)
 
 	BEGIN_CLASS_MEMBER(AttributeTarget)
-		ATTRIBUTE_TYPE(MyAttribute, L"type", 1)
+		ATTRIBUTE_TYPE(MyAttribute, L"type", 1, description::GetTypeDescriptor<WString>())
 		ATTRIBUTE_TYPE(EmptyAttribute)
 
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<AttributeTarget>(), NO_PARAMETER)
 		ATTRIBUTE_MEMBER(MyAttribute, L"default-ctor", 2)
 
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<AttributeTarget>(vint), {L"seed"})
-		ATTRIBUTE_MEMBER(MyAttribute, L"seed-ctor", 3)
-		ATTRIBUTE_PARAMETER(L"seed", MyAttribute, L"ctor-param", 4)
+		ATTRIBUTE_MEMBER(MyAttribute, L"seed-ctor", 3, nullptr)
+		ATTRIBUTE_PARAMETER(L"seed", MyAttribute, L"ctor-param", 4, description::GetTypeDescriptor<bool>())
 
 		CLASS_MEMBER_EVENT(Changed)
 		ATTRIBUTE_MEMBER(MyAttribute, L"event", 5)
@@ -162,13 +164,30 @@ namespace reflection_test_attribute
 			TEST_ASSERT(info->GetAttributeValueCount() == 0);
 		}
 
-		void AssertMyAttribute(IAttributeInfo* info, const WString& name, vint number)
+		void AssertMyAttribute(IAttributeInfo* info, const WString& name, vint number, ITypeDescriptor* type = nullptr)
 		{
 			TEST_ASSERT(info != nullptr);
 			TEST_ASSERT(info->GetAttributeType()->GetTypeName() == TypeInfo<MyAttribute>::content.typeName);
-			TEST_ASSERT(info->GetAttributeValueCount() == 2);
+			TEST_ASSERT(info->GetAttributeValueCount() == 2 || info->GetAttributeValueCount() == 3);
 			TEST_ASSERT(UnboxValue<WString>(info->GetAttributeValue(0)) == name);
 			TEST_ASSERT(ReadAttributeInteger(info->GetAttributeValue(1)) == number);
+			if (info->GetAttributeValueCount() == 3)
+			{
+				auto tdValue = info->GetAttributeValue(2);
+				auto tdValueType = info->GetAttributeValueType(2);
+				TEST_ASSERT(tdValueType == GetTypeDescriptor<ITypeDescriptor>());
+				if (type == nullptr)
+				{
+					TEST_ASSERT(tdValue.GetValueType() == Value::Null);
+				}
+				else
+				{
+					TEST_ASSERT(tdValue.GetValueType() == Value::RawPtr);
+					auto rawPtr = tdValue.GetRawPtr();
+					auto actualTd = dynamic_cast<ITypeDescriptor*>(rawPtr);
+					TEST_ASSERT(actualTd == type);
+				}
+			}
 		}
 	}
 
@@ -186,7 +205,7 @@ namespace reflection_test_attribute
 		auto td = GetTypeDescriptor(TypeInfo<AttributeTarget>::content.typeName);
 		TEST_ASSERT(td != nullptr);
 		TEST_ASSERT(td->GetAttributeCount() == 2);
-		AssertMyAttribute(td->GetAttribute(0), L"type", 1);
+		AssertMyAttribute(td->GetAttribute(0), L"type", 1, GetTypeDescriptor<WString>());
 		AssertEmptyAttribute(td->GetAttribute(1));
 
 		auto eventInfo = td->GetEventByName(L"Changed", false);
@@ -220,16 +239,16 @@ namespace reflection_test_attribute
 		TEST_ASSERT(constructorGroup->GetMethodCount() == 2);
 		AssertMyAttribute(constructorGroup->GetMethod(0)->GetAttribute(0), L"default-ctor", 2);
 		auto seededCtor = constructorGroup->GetMethod(1);
-		AssertMyAttribute(seededCtor->GetAttribute(0), L"seed-ctor", 3);
+		AssertMyAttribute(seededCtor->GetAttribute(0), L"seed-ctor", 3, nullptr);
 		TEST_ASSERT(seededCtor->GetParameterCount() == 1);
-		AssertMyAttribute(seededCtor->GetParameter(0)->GetAttribute(0), L"ctor-param", 4);
+		AssertMyAttribute(seededCtor->GetParameter(0)->GetAttribute(0), L"ctor-param", 4, GetTypeDescriptor<bool>());
 
 		auto structTd = GetTypeDescriptor(TypeInfo<AttributeRecord>::content.typeName);
 		TEST_ASSERT(structTd != nullptr);
 		auto xField = structTd->GetPropertyByName(L"x", false);
 		TEST_ASSERT(xField != nullptr);
 		TEST_ASSERT(xField->GetAttributeCount() == 1);
-		AssertMyAttribute(xField->GetAttribute(0), L"struct-field", 91);
+		AssertMyAttribute(xField->GetAttribute(0), L"struct-field", 91, GetTypeDescriptor<vint>());
 
 		auto yField = structTd->GetPropertyByName(L"y", false);
 		TEST_ASSERT(yField != nullptr);

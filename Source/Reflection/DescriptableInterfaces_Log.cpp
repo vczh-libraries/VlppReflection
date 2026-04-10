@@ -29,12 +29,30 @@ LogTypeManager (attributes)
 					auto value = info->GetAttributeValue(i);
 					auto valueType = info->GetAttributeValueType(i);
 					CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to resolve the reflected type of an attribute argument.");
-					auto serializableType = valueType->GetSerializableType();
-					CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Attribute argument must use a serializable reflected type.");
 
-					WString data;
-					CHECK_ERROR(serializableType->Serialize(value, data), L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to serialize an attribute argument.");
-					result += valueType->GetTypeName() + L":" + data;
+					if (valueType->GetTypeName() == TypeInfo<ITypeDescriptor>::content.typeName)
+					{
+						if (value.GetValueType() == Value::Null)
+						{
+							result += valueType->GetTypeName() + L":null";
+						}
+						else
+						{
+							auto rawPtr = value.GetRawPtr();
+							auto td = dynamic_cast<ITypeDescriptor*>(rawPtr);
+							CHECK_ERROR(td != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#ITypeDescriptor* attribute value must point to a valid ITypeDescriptor.");
+							result += valueType->GetTypeName() + L":" + td->GetTypeName();
+						}
+					}
+					else
+					{
+						auto serializableType = valueType->GetSerializableType();
+						CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Attribute argument must use a serializable reflected type.");
+
+						WString data;
+						CHECK_ERROR(serializableType->Serialize(value, data), L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to serialize an attribute argument.");
+						result += valueType->GetTypeName() + L":" + data;
+					}
 				}
 				result += L")";
 				return result;

@@ -5,6 +5,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "DescriptableInterfaces.h"
 #include "Metadata/Metadata.h"
+#include "./Reflection/Reflection.h"
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
@@ -158,6 +159,7 @@ Metadata
 			struct AttributeValueMetadata
 			{
 				vint								typeDescriptor = -1;
+				vint								typeDescriptorValue = -1;
 				WString								data;
 			};
 
@@ -252,6 +254,7 @@ Serialization
 
 			BEGIN_SERIALIZATION(reflection::description::AttributeValueMetadata)
 				SERIALIZE(typeDescriptor)
+				SERIALIZE(typeDescriptorValue)
 				SERIALIZE(data)
 			END_SERIALIZATION
 
@@ -1029,6 +1032,7 @@ Attribute Metadata Helpers
 			void GenerateMetaonlyAttributes(MetaonlyWriterContext& context, List<Ptr<AttributeInfoMetadata>>& metadataList, IAttributeBag* attributeBag)
 			{
 #define ERROR_MESSAGE_PREFIX L"vl::reflection::description::GenerateMetaonlyAttributes(MetaonlyWriterContext&, collections::List<AttributeInfoMetadata>&, IAttributeBag*)#"
+				auto itdTypeName = WString::Unmanaged(TypeInfo<ITypeDescriptor>::content.typeName);
 				for (vint i = 0; i < attributeBag->GetAttributeCount(); i++)
 				{
 					auto info = attributeBag->GetAttribute(i);
@@ -1040,15 +1044,35 @@ Attribute Metadata Helpers
 						auto value = info->GetAttributeValue(j);
 						auto valueType = info->GetAttributeValueType(j);
 						CHECK_ERROR(valueType != nullptr, ERROR_MESSAGE_PREFIX L"Failed to resolve the reflected type of an attribute argument.");
-						auto serializableType = valueType->GetSerializableType();
-						CHECK_ERROR(serializableType != nullptr, ERROR_MESSAGE_PREFIX L"Attribute argument must use a serializable reflected type.");
 
-						WString data;
-						CHECK_ERROR(serializableType->Serialize(value, data), ERROR_MESSAGE_PREFIX L"Failed to serialize an attribute argument.");
-						attributeMetadata->values.Add(Ptr(new AttributeValueMetadata{
-							.typeDescriptor = context.tdIndex[valueType],
-							.data = data,
-						}));
+						if (valueType->GetTypeName() == itdTypeName)
+						{
+							vint tdValueIndex = -1;
+							if (value.GetValueType() != Value::Null)
+							{
+								auto rawPtr = value.GetRawPtr();
+								auto td = dynamic_cast<ITypeDescriptor*>(rawPtr);
+								CHECK_ERROR(td != nullptr, ERROR_MESSAGE_PREFIX L"ITypeDescriptor* attribute value must point to a valid ITypeDescriptor.");
+								CHECK_ERROR(context.tdIndex.Keys().Contains(td), ERROR_MESSAGE_PREFIX L"ITypeDescriptor* attribute value must point to a registered ITypeDescriptor.");
+								tdValueIndex = context.tdIndex[td];
+							}
+							attributeMetadata->values.Add(Ptr(new AttributeValueMetadata{
+								.typeDescriptor = context.tdIndex[valueType],
+								.typeDescriptorValue = tdValueIndex,
+							}));
+						}
+						else
+						{
+							auto serializableType = valueType->GetSerializableType();
+							CHECK_ERROR(serializableType != nullptr, ERROR_MESSAGE_PREFIX L"Attribute argument must use a serializable reflected type.");
+
+							WString data;
+							CHECK_ERROR(serializableType->Serialize(value, data), ERROR_MESSAGE_PREFIX L"Failed to serialize an attribute argument.");
+							attributeMetadata->values.Add(Ptr(new AttributeValueMetadata{
+								.typeDescriptor = context.tdIndex[valueType],
+								.data = data,
+							}));
+						}
 					}
 					metadataList.Add(attributeMetadata);
 				}
@@ -1063,6 +1087,7 @@ Attribute Metadata Helpers
 			)
 			{
 #define ERROR_MESSAGE_PREFIX L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&)#"
+				auto itdTypeName = WString::Unmanaged(TypeInfo<ITypeDescriptor>::content.typeName);
 				for (vint i = 0; i < attributeMetadataList.Count(); i++)
 				{
 					auto&& attributeMetadata = attributeMetadataList[i];
@@ -1075,13 +1100,31 @@ Attribute Metadata Helpers
 						auto&& valueMetadata = attributeMetadata->values[j];
 						CHECK_ERROR(0 <= valueMetadata->typeDescriptor && valueMetadata->typeDescriptor < context->tds.Count(), ERROR_MESSAGE_PREFIX L"Failed to resolve the reflected value type of an attribute argument.");
 						auto reflectedValueType = context->tds[valueMetadata->typeDescriptor].Obj();
-						auto serializableType = reflectedValueType->GetSerializableType();
-						CHECK_ERROR(serializableType != nullptr, ERROR_MESSAGE_PREFIX L"Failed to resolve the serializable type of an attribute argument.");
 
-						Value value;
-						CHECK_ERROR(serializableType->Deserialize(valueMetadata->data, value), ERROR_MESSAGE_PREFIX L"Failed to deserialize an attribute argument.");
-						value = Value::From(value.GetBoxedValue(), reflectedValueType);
-						info->AddValue(reflectedValueType, value);
+						if (reflectedValueType->GetTypeName() == itdTypeName)
+						{
+							if (valueMetadata->typeDescriptorValue >= 0)
+							{
+								CHECK_ERROR(valueMetadata->typeDescriptorValue < context->tds.Count(), ERROR_MESSAGE_PREFIX L"Failed to resolve the ITypeDescriptor* attribute value.");
+								auto referencedTd = context->tds[valueMetadata->typeDescriptorValue].Obj();
+								auto value = Value::From(dynamic_cast<DescriptableObject*>(referencedTd));
+								info->AddValue(reflectedValueType, value);
+							}
+							else
+							{
+								info->AddValue(reflectedValueType, Value());
+							}
+						}
+						else
+						{
+							auto serializableType = reflectedValueType->GetSerializableType();
+							CHECK_ERROR(serializableType != nullptr, ERROR_MESSAGE_PREFIX L"Failed to resolve the serializable type of an attribute argument.");
+
+							Value value;
+							CHECK_ERROR(serializableType->Deserialize(valueMetadata->data, value), ERROR_MESSAGE_PREFIX L"Failed to deserialize an attribute argument.");
+							value = Value::From(value.GetBoxedValue(), reflectedValueType);
+							info->AddValue(reflectedValueType, value);
+						}
 					}
 
 					source->RegisterAttribute(memberInfo, info);

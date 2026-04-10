@@ -1,14 +1,14 @@
 ﻿@FullName:AttributeRecord
 @ValueType
 struct AttributeRecord {
-    @MyAttribute(system::String:struct-field, system::Int64:91)
+    @MyAttribute(system::String:struct-field, system::Int64:91, system::reflection::TypeDescriptor:system::Int64)
     property x : system::Int64;
     @EmptyAttribute()
     property y : system::Int64;
 }
 
 @FullName:AttributeTarget
-@MyAttribute(system::String:type, system::Int64:1)
+@MyAttribute(system::String:type, system::Int64:1, system::reflection::TypeDescriptor:system::String)
 @EmptyAttribute()
 class AttributeTarget : system::ReferenceType {
     @MyAttribute(system::String:event, system::Int64:5)
@@ -29,8 +29,8 @@ class AttributeTarget : system::ReferenceType {
 
     @MyAttribute(system::String:default-ctor, system::Int64:2)
     constructor () : AttributeTarget^;
-    @MyAttribute(system::String:seed-ctor, system::Int64:3)
-    @(seed)MyAttribute(system::String:ctor-param, system::Int64:4)
+    @MyAttribute(system::String:seed-ctor, system::Int64:3, system::reflection::TypeDescriptor:null)
+    @(seed)MyAttribute(system::String:ctor-param, system::Int64:4, system::reflection::TypeDescriptor:system::Boolean)
     constructor (seed : system::Int64) : AttributeTarget^;
 }
 
@@ -44,6 +44,7 @@ struct EmptyAttribute {
 struct MyAttribute {
     property name : system::String;
     property number : system::Int64;
+    property type : system::reflection::TypeDescriptor*;
 }
 
 @FullName:vl::reflection::description::IValueArray
