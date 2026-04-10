@@ -4,7 +4,6 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Metadata.h"
-#include "../Reflection/Reflection.h"
 
 namespace vl
 {
@@ -251,18 +250,15 @@ AttributeInfoImpl
 			{
 #define ERROR_MESSAGE_PREFIX L"vl::reflection::description::AttributeInfoImpl::AddValue(ITypeDescriptor*, const Value&)#"
 				CHECK_ERROR(valueType != nullptr, ERROR_MESSAGE_PREFIX L"valueType should not be null.");
-				if (valueType->GetTypeName() == TypeInfo<ITypeDescriptor>::content.typeName)
+				if (valueType->GetSerializableType())
 				{
-					CHECK_ERROR(
-						value.GetValueType() == Value::RawPtr || value.GetValueType() == Value::Null,
-						ERROR_MESSAGE_PREFIX L"ITypeDescriptor* attribute value must be a raw pointer or null."
-					);
+					// serializable type, no additional validation needed
 				}
 				else
 				{
 					CHECK_ERROR(
-						valueType->GetSerializableType() != nullptr,
-						ERROR_MESSAGE_PREFIX L"Attribute argument must be a serializable reflected value or ITypeDescriptor*."
+						value.GetValueType() == Value::RawPtr || value.GetValueType() == Value::Null,
+						ERROR_MESSAGE_PREFIX L"ITypeDescriptor* attribute value must be a raw pointer or null."
 					);
 				}
 #undef ERROR_MESSAGE_PREFIX

@@ -14,6 +14,10 @@ Changes needed:
 
 # UPDATES
 
+## UPDATE
+
+You are going to scan through all attribute related code (not just what you have done in this session), GetTypeDescriptor<T>() or GetTypeDescriptor(typename) ensure only one instance through the process for one type, so you can just compare two ITypeDescriptor* too see if they are the same type. Comparing type names are not necessary. Avoid any `TypeInfo<T>::content.typeName` as your best effort, only leave one that can't be changed, and list all of these
+
 # TEST
 
 The existing test infrastructure covers this change:
@@ -41,7 +45,7 @@ The existing test infrastructure covers this change:
 
 # PROPOSALS
 
-- No.1 Add ITypeDescriptor* support via BoxingProxy pointer path and AddValue validation
+- No.1 Add ITypeDescriptor* support via BoxingProxy pointer path and AddValue validation [DENIED]
 
 ## No.1 Add ITypeDescriptor* support via BoxingProxy pointer path and AddValue validation
 
@@ -75,9 +79,21 @@ The existing test infrastructure covers this change:
 - Must qualify `description::GetTypeDescriptor<T>()` in test macros because `DescriptableObject::GetTypeDescriptor()` member shadows the free template
 - Metaonly type descriptors are different objects than runtime ones, so type name comparison (not pointer equality) is required
 
-### RESULT: CONFIRMED
-- All builds pass (Debug|Win32, Debug|x64)
-- Metadata_Generate: 174/174 (both platforms)
-- Metadata_Test: 174/174 (both platforms)
-- UnitTest (VlppReflection): 53/53 (x64)
+### DENIED BY USER
+All tests passed, but the user pointed out that `GetTypeDescriptor<T>()` or `GetTypeDescriptor(typename)` ensures only one instance per type throughout the process, so `ITypeDescriptor*` pointer comparison is sufficient. Using `TypeInfo<T>::content.typeName` for type name string comparison is unnecessary overhead. The code should use direct pointer equality (`== GetTypeDescriptor<ITypeDescriptor>()`) wherever possible, and only keep `TypeInfo<T>::content.typeName` in places where it truly cannot be replaced (e.g., when the type manager is not loaded yet).
+
+- No.2 Minimize TypeInfo usage: pointer comparison where possible, serializable check in AddValue [CONFIRMED]
+
+## No.2 Minimize TypeInfo usage: pointer comparison where possible, serializable check in AddValue
+
+Analysis of 4 locations using `TypeInfo<ITypeDescriptor>::content.typeName`:
+
+1. **`DescriptableInterfaces_Log.cpp:33`** (`LogTypeManager_FormatAttribute`) — Type manager IS loaded when logging. Replace with `valueType == GetTypeDescriptor<ITypeDescriptor>()`.
+2. **`Metadata.cpp:254`** (`AddValue`) — Called from both runtime (BoxingProxy) and metaonly (LoadMetaonlyAttributes) paths. In metaonly path, valueType is a MetaonlyTypeDescriptor which is a different object from `GetTypeDescriptor<ITypeDescriptor>()`. Solution: flip logic to check `valueType->GetSerializableType() != nullptr` first (serializable path), else validate ITypeDescriptor* (RawPtr/Null). No type name needed.
+3. **`DescriptableInterfaces_Metaonly.cpp:1035`** (`GenerateMetaonlyAttributes`) — Type manager IS loaded when generating. Replace with `valueType == GetTypeDescriptor<ITypeDescriptor>()`.
+4. **`DescriptableInterfaces_Metaonly.cpp:1090`** (`LoadMetaonlyAttributes`) — Type manager NOT loaded. `reflectedValueType` is a MetaonlyTypeDescriptor from `context->tds`. Cannot call `GetTypeDescriptor<ITypeDescriptor>()`. Solution: find the ITypeDescriptor td from `context->tds` by type name ONCE before the loop, then use pointer comparison inside the loop. This requires one `TypeInfo<ITypeDescriptor>::content.typeName` usage that cannot be eliminated.
+
+### CODE CHANGE
+
+(To be filled after implementation)
 

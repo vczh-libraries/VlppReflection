@@ -36,6 +36,7 @@ Context
 				List<Ptr<IMethodInfo>>					mis;
 				List<Ptr<IPropertyInfo>>				pis;
 				List<Ptr<IEventInfo>>					eis;
+				ITypeDescriptor*						itdTd = nullptr;
 			};
 
 /***********************************************************************
@@ -1032,7 +1033,7 @@ Attribute Metadata Helpers
 			void GenerateMetaonlyAttributes(MetaonlyWriterContext& context, List<Ptr<AttributeInfoMetadata>>& metadataList, IAttributeBag* attributeBag)
 			{
 #define ERROR_MESSAGE_PREFIX L"vl::reflection::description::GenerateMetaonlyAttributes(MetaonlyWriterContext&, collections::List<AttributeInfoMetadata>&, IAttributeBag*)#"
-				auto itdTypeName = WString::Unmanaged(TypeInfo<ITypeDescriptor>::content.typeName);
+				auto itdTd = GetTypeDescriptor<ITypeDescriptor>();
 				for (vint i = 0; i < attributeBag->GetAttributeCount(); i++)
 				{
 					auto info = attributeBag->GetAttribute(i);
@@ -1045,7 +1046,7 @@ Attribute Metadata Helpers
 						auto valueType = info->GetAttributeValueType(j);
 						CHECK_ERROR(valueType != nullptr, ERROR_MESSAGE_PREFIX L"Failed to resolve the reflected type of an attribute argument.");
 
-						if (valueType->GetTypeName() == itdTypeName)
+						if (valueType == itdTd)
 						{
 							vint tdValueIndex = -1;
 							if (value.GetValueType() != Value::Null)
@@ -1083,11 +1084,11 @@ Attribute Metadata Helpers
 				MetaonlyReaderContext* context,
 				AttributeBagSource* source,
 				IMemberInfo* memberInfo,
-				const List<Ptr<AttributeInfoMetadata>>& attributeMetadataList
+				const List<Ptr<AttributeInfoMetadata>>& attributeMetadataList,
+				ITypeDescriptor* itdTd
 			)
 			{
-#define ERROR_MESSAGE_PREFIX L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&)#"
-				auto itdTypeName = WString::Unmanaged(TypeInfo<ITypeDescriptor>::content.typeName);
+#define ERROR_MESSAGE_PREFIX L"vl::reflection::description::LoadMetaonlyAttributes(MetaonlyReaderContext*, AttributeBagSource*, IMemberInfo*, const collections::List<AttributeInfoMetadata>&, ITypeDescriptor*)#"
 				for (vint i = 0; i < attributeMetadataList.Count(); i++)
 				{
 					auto&& attributeMetadata = attributeMetadataList[i];
@@ -1101,7 +1102,7 @@ Attribute Metadata Helpers
 						CHECK_ERROR(0 <= valueMetadata->typeDescriptor && valueMetadata->typeDescriptor < context->tds.Count(), ERROR_MESSAGE_PREFIX L"Failed to resolve the reflected value type of an attribute argument.");
 						auto reflectedValueType = context->tds[valueMetadata->typeDescriptor].Obj();
 
-						if (reflectedValueType->GetTypeName() == itdTypeName)
+						if (itdTd != nullptr && reflectedValueType == itdTd)
 						{
 							if (valueMetadata->typeDescriptorValue >= 0)
 							{
@@ -1412,11 +1413,19 @@ LoadMetaonlyTypes
 					vint eiCount = 0;
 					reader << tdCount << miCount << piCount << eiCount;
 
-					for (vint i = 0; i < tdCount; i++)
 					{
-						Ptr<TypeDescriptorMetadata> metadata;
-						reader << metadata;
-						context->tds.Add(Ptr(new MetaonlyTypeDescriptor(context.Obj(), metadata)));
+						auto itdTypeName = WString::Unmanaged(TypeInfo<ITypeDescriptor>::content.typeName);
+						for (vint i = 0; i < tdCount; i++)
+						{
+							Ptr<TypeDescriptorMetadata> metadata;
+							reader << metadata;
+							auto td = Ptr(new MetaonlyTypeDescriptor(context.Obj(), metadata));
+							if (td->GetTypeName() == itdTypeName)
+							{
+								context->itdTd = td.Obj();
+							}
+							context->tds.Add(td);
+						}
 					}
 					for (vint i = 0; i < miCount; i++)
 					{
@@ -1445,7 +1454,7 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(td);
 					CHECK_ERROR(source != nullptr, ERROR_MESSAGE_PREFIX L"Metaonly type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyTypeDescriptor*>(td)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, nullptr, metadata->attributes);
+					LoadMetaonlyAttributes(context.Obj(), source, nullptr, metadata->attributes, context->itdTd);
 				}
 
 				for (vint i = 0; i < context->mis.Count(); i++)
@@ -1454,10 +1463,10 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(method->GetOwnerTypeDescriptor());
 					CHECK_ERROR(source != nullptr, ERROR_MESSAGE_PREFIX L"Method owner type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyMethodInfo*>(method)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, method, metadata->attributes);
+					LoadMetaonlyAttributes(context.Obj(), source, method, metadata->attributes, context->itdTd);
 					for (vint j = 0; j < method->GetParameterCount(); j++)
 					{
-						LoadMetaonlyAttributes(context.Obj(), source, method->GetParameter(j), metadata->parameters[j]->attributes);
+						LoadMetaonlyAttributes(context.Obj(), source, method->GetParameter(j), metadata->parameters[j]->attributes, context->itdTd);
 					}
 				}
 
@@ -1467,7 +1476,7 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(property->GetOwnerTypeDescriptor());
 					CHECK_ERROR(source != nullptr, ERROR_MESSAGE_PREFIX L"Property owner type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyPropertyInfo*>(property)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, property, metadata->attributes);
+					LoadMetaonlyAttributes(context.Obj(), source, property, metadata->attributes, context->itdTd);
 				}
 
 				for (vint i = 0; i < context->eis.Count(); i++)
@@ -1476,7 +1485,7 @@ LoadMetaonlyTypes
 					auto source = dynamic_cast<AttributeBagSource*>(eventInfo->GetOwnerTypeDescriptor());
 					CHECK_ERROR(source != nullptr, ERROR_MESSAGE_PREFIX L"Event owner type descriptors must provide attribute storage.");
 					auto metadata = dynamic_cast<MetaonlyEventInfo*>(eventInfo)->GetMetadata();
-					LoadMetaonlyAttributes(context.Obj(), source, eventInfo, metadata->attributes);
+					LoadMetaonlyAttributes(context.Obj(), source, eventInfo, metadata->attributes, context->itdTd);
 				}
 #undef ERROR_MESSAGE_PREFIX
 

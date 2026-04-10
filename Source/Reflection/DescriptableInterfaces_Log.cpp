@@ -30,7 +30,7 @@ LogTypeManager (attributes)
 					auto valueType = info->GetAttributeValueType(i);
 					CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to resolve the reflected type of an attribute argument.");
 
-					if (valueType->GetTypeName() == TypeInfo<ITypeDescriptor>::content.typeName)
+					if (valueType == GetTypeDescriptor<ITypeDescriptor>())
 					{
 						if (value.GetValueType() == Value::Null)
 						{
