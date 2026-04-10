@@ -13,6 +13,10 @@ from `@MyAttribute(system::String:type, system::Int64:1)` to `@MyAttribute(syste
 
 # UPDATES
 
+## UPDATE
+
+You have made a semantically correct C++ code to solve the issue which is good. But I'd like to request for a more modern (C++20) way of implementation. Could you try harder to leverage the template variadic argument feature, maybe you also need some type tuple or type list technique, so that you don't need to hard code a zero-to-ten solution? If you can't do that within BoxAttributeFields feel free to do any change, including but not limited to implement it in MakeAttributeInfo, make your own best decision.
+
 # TEST [CONFIRMED]
 
 The existing test infrastructure covers this change:
@@ -36,7 +40,7 @@ The existing test infrastructure covers this change:
 
 # PROPOSALS
 
-- No.1 Construct attribute struct then decompose fields for type-aware boxing [CONFIRMED]
+- No.1 Construct attribute struct then decompose fields for type-aware boxing [DENIED]
 
 ## No.1 Construct attribute struct then decompose fields for type-aware boxing
 
@@ -69,9 +73,11 @@ The key insight: by constructing the struct first, C++ aggregate initialization 
 Changed all `vint(xxx)` to just `xxx` in ATTRIBUTE_TYPE, ATTRIBUTE_MEMBER, and ATTRIBUTE_PARAMETER macro calls:
 - `vint(91)` → `91`, `vint(1)` → `1`, `vint(2)` → `2`, ..., `vint(9)` → `9`
 
-### CONFIRMED
+### DENIED BY USER
 
-All tests passed on both x64 and Win32:
+The approach is semantically correct and all tests pass, but the user requests a more modern C++20 implementation that eliminates the hardcoded zero-to-ten `if constexpr` chain in `BoxAttributeFields`. The `CountAggregateFields` function and the massive structured-binding decomposition with per-field `if constexpr (ArgCount >= N)` blocks are too verbose and not scalable. The user wants to leverage template variadic arguments and type list techniques instead.
+
+Original test results (all passing):
 - `Metadata_Generate` x64: 174/174 passed (includes `TestReflectionAttributes()`)
 - `Metadata_Generate` Win32: 174/174 passed
 - `Metadata_Test` x64: 174/174 passed (binary round-trip verified)
@@ -81,3 +87,47 @@ All tests passed on both x64 and Win32:
   - On Win32: integer args are correctly inferred as `vint` = `vint32_t`, boxed as `system::Int32`
   - String args (e.g., `L"type"`) are correctly inferred as `WString`
   - The special hardcoded `wchar_t*` → `WString` and integral → `vint` conversions are successfully eliminated
+
+- No.2 BoxingProxy with template conversion operator during aggregate init [CONFIRMED]
+
+## No.2 BoxingProxy with template conversion operator during aggregate init
+
+Instead of constructing the struct then decomposing it with structured bindings, use a `BoxingProxy<TArg>` wrapper with a `template<typename FieldType> operator FieldType()` conversion operator. During aggregate initialization of `TAttribute`, each proxy is placed in a field position. The compiler deduces `FieldType` from the struct's field type, the conversion operator then:
+1. Direct-initializes a `FieldType` from the forwarded argument (performing the same implicit conversion as normal aggregate init)
+2. Boxes it with `BoxValue<FieldType>()` using the correct type
+3. Returns it to satisfy the aggregate field initialization
+
+This approach needs NO structured bindings, NO field counting, NO hardcoded 0-to-10 cases. The entire mechanism is:
+- A single `BoxingProxy` struct template (~15 lines)
+- A simplified `MakeAttributeInfo` that does `TAttribute instance{ BoxingProxy<TArgs>{info, args}... };`
+
+The pack expansion `BoxingProxy<TArgs>{info, args}...` naturally handles any number of fields. The boxing happens as a side effect during aggregate initialization, leveraging C++20's template conversion operator deduction in aggregate init context.
+
+### CODE CHANGE
+
+**File: `Source/Reflection/Reflection/Macros.h`**
+
+Replaced the entire `detail::attribute_macro` section (FieldTypeDetector, CountAggregateFields, AddAttributeField, BoxAttributeFields, MakeAttributeInfo — ~140 lines) with just two things (~25 lines):
+
+1. `BoxingProxy<TArg>` — A struct template holding an `AttributeInfoImpl*` and a forwarding reference `TArg&& value`. Has a single `template<typename FieldType> operator FieldType()` conversion operator that:
+   - Direct-initializes `FieldType field(std::forward<TArg>(value))` — converting the arg to the struct's field type
+   - Boxes it with `BoxValue<std::remove_cvref_t<FieldType>>(field)` — using the correct reflected type
+   - Validates the type is serializable
+   - Adds the boxed value to the attribute info
+   - Returns the field value to complete the aggregate initialization
+
+2. Updated `MakeAttributeInfo<TAttribute>(TArgs&&... args)` — Instead of constructing the struct then decomposing it, uses pack expansion to wrap each arg in a BoxingProxy:
+   `TAttribute instance{ BoxingProxy<TArgs>{info.Obj(), std::forward<TArgs>(args)}... };`
+   The aggregate initialization drives the conversion: each proxy's `operator FieldType()` is invoked with `FieldType` deduced from the corresponding struct field type.
+
+**File: `Test/Source/TestReflection_Attribute.cpp`** — No additional changes (same as No.1).
+
+### CONFIRMED
+
+All tests passed on both x64 and Win32:
+- `Metadata_Generate` x64: 174/174 passed (includes `TestReflectionAttributes()`)
+- `Metadata_Generate` Win32: 174/174 passed
+- `Metadata_Test` x64: 174/174 passed (binary round-trip verified)
+- `UnitTest` x64: 53/53 passed
+- `git diff Test/Metadata/` shows NO changes to any Reflection*.txt files
+- The code went from ~140 lines (hardcoded 0-to-10 structured binding cases) to ~25 lines (single BoxingProxy + simplified MakeAttributeInfo), with no limit on the number of struct fields
