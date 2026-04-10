@@ -113,7 +113,7 @@ namespace vl
 							auto boxed = BoxValue<std::remove_cvref_t<FieldType>>(field);
 							auto valueType = boxed.GetTypeDescriptor();
 							CHECK_ERROR(valueType && valueType->GetSerializableType(), L"ATTRIBUTE_*#Attribute argument must be a serializable reflected value.");
-							info->AddValue(boxed);
+							info->AddValue(boxed.GetTypeDescriptor(), boxed);
 							return field;
 						}
 					};

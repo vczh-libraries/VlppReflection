@@ -168,6 +168,7 @@ ITypeDescriptor (basic)
 			public:
 				virtual ITypeDescriptor*		GetAttributeType() = 0;
 				virtual vint					GetAttributeValueCount() = 0;
+				virtual ITypeDescriptor*		GetAttributeValueType(vint index) = 0;
 				virtual Value					GetAttributeValue(vint index) = 0;
 			};
 

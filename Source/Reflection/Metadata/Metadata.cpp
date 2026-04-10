@@ -236,14 +236,19 @@ AttributeInfoImpl
 				return values.Count();
 			}
 
-			Value AttributeInfoImpl::GetAttributeValue(vint index)
+			ITypeDescriptor* AttributeInfoImpl::GetAttributeValueType(vint index)
 			{
-				return values[index];
+				return values[index].key;
 			}
 
-			void AttributeInfoImpl::AddValue(const Value& value)
+			Value AttributeInfoImpl::GetAttributeValue(vint index)
 			{
-				values.Add(value);
+				return values[index].value;
+			}
+
+			void AttributeInfoImpl::AddValue(ITypeDescriptor* valueType, const Value& value)
+			{
+				values.Add({ valueType,value });
 			}
 
 #endif

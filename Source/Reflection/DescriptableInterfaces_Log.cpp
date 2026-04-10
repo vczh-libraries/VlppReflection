@@ -27,7 +27,7 @@ LogTypeManager (attributes)
 				{
 					if (i > 0) result += L", ";
 					auto value = info->GetAttributeValue(i);
-					auto valueType = value.GetTypeDescriptor();
+					auto valueType = info->GetAttributeValueType(i);
 					CHECK_ERROR(valueType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Failed to resolve the reflected type of an attribute argument.");
 					auto serializableType = valueType->GetSerializableType();
 					CHECK_ERROR(serializableType != nullptr, L"vl::reflection::description::LogTypeManager_FormatAttribute(IAttributeInfo*)#Attribute argument must use a serializable reflected type.");

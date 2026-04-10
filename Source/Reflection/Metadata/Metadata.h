@@ -217,16 +217,18 @@ TypeInfoImp
 
 			class AttributeInfoImpl : public Object, public IAttributeInfo
 			{
+				using TypeValuePair = collections::Pair<ITypeDescriptor*, Value>;
 			protected:
 				ITypeDescriptor*						attributeType = nullptr;
-				collections::List<Value>				values;
+				collections::List<TypeValuePair>		values;
 			public:
 				AttributeInfoImpl(ITypeDescriptor* _attributeType);
 
 				ITypeDescriptor*						GetAttributeType()override;
 				vint									GetAttributeValueCount()override;
+				ITypeDescriptor*						GetAttributeValueType(vint index)override;
 				Value									GetAttributeValue(vint index)override;
-				void									AddValue(const Value& value);
+				void									AddValue(ITypeDescriptor* valueType, const Value& value);
 			};
 
 #endif

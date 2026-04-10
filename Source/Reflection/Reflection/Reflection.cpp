@@ -340,6 +340,7 @@ LoadPredefinedTypes
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IAttributeInfo)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeType)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(AttributeValueCount)
+				CLASS_MEMBER_METHOD(GetAttributeValueType, { L"index" })
 				CLASS_MEMBER_METHOD(GetAttributeValue, { L"index" })
 			END_INTERFACE_MEMBER(IAttributeInfo)
 
