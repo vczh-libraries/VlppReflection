@@ -3,8 +3,6 @@
 ## Attribute Metadata (Verification)
 
 - `ATTRIBUTE_*` when a attribute field type is `vint`, argument `10` should work instead of having to write `vint(10)`.
-- `AttributeValueMetadata` and `AttributeInfoMetadata` using `WString` as type name is not a high performance choice.
-  - `MetaonlyTypeInfo` uses `vint typeDescriptor;`, align with this.
 - Update comment/document/KB.
 
 ## 2.0
