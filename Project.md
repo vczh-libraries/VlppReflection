@@ -32,3 +32,14 @@ If the schema of reflected types has changed, the baseline `.txt` file may no lo
 This is expected. To update the baseline, re-run `Metadata_Generate` for both Win32 and x64,
 which overwrites `Test/UnitTest/Metadata/Reflection{32,64}.txt` with the updated type information.
 Then re-run `Metadata_Test` to confirm the round-trip is correct.
+
+## Linux Specific
+
+`REPO-ROOT/Test/Linux` stores linux configurations for:
+- `Metadata_Generate`: `Metadata_Generate.vcxproj`.
+- `Metadata_Test`: `Metadata_Test.vcxproj`.
+- `UnitTest`: `UnitTest.vcxproj`.
+
+You need to build, test and debug in that specific folder, otherwise the unit test will not function properly.
+On Linux, only configuration "debug x64" is available, no need to build or run projects with other configurations.
+Unlike Windows, building have to be done in each folder separately.
