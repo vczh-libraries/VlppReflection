@@ -514,7 +514,7 @@ IMethodInfo
 					return 0;
 				}
 
-				IAttributeInfo* GetAttribute(vint index)
+				IAttributeInfo* GetAttribute(vint index) override
 				{
 					return nullptr;
 				}
