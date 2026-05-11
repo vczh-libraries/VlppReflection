@@ -13,7 +13,6 @@
 ../../../Source/Reflection/Predefined/PredefinedTypes.cpp
 ../../../Source/Reflection/Predefined/TypedValueSerializerProvider.cpp
 ../../../Source/Reflection/Reflection/Reflection.cpp
-../../Source/TestReflection_Attribute.cpp
 ../../Source/TestPredefinedTypes.cpp
 ../../UnitTest/Metadata_Test/LoadMetadata.cpp
 ../Main.cpp
