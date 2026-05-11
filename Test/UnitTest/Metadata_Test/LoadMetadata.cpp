@@ -1,12 +1,10 @@
 #include "../../../Source/Reflection/Reflection/Reflection.h"
-#include "../../Source/TestReflection_Attribute.h"
 
 using namespace vl;
 using namespace vl::stream;
 using namespace vl::filesystem;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
-using namespace reflection_test_attribute;
 
 extern WString GetTestMetadataPath();
 
@@ -69,7 +67,6 @@ TEST_FILE
 	TEST_CASE(L"Run LoadMetaonlyTypes()")
 	{
 		TEST_ASSERT(LoadPredefinedTypesForTestCase());
-		TestReflectionAttributes();
 		{
 			FileStream fileStream(GetTestMetadataPath() + REFLECTION_OUTPUT, FileStream::WriteOnly);
 			BomEncoder encoder(BomEncoder::Utf8);

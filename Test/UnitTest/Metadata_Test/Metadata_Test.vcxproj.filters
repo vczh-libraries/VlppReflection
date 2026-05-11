@@ -18,19 +18,11 @@
     <ClCompile Include="..\UnitTest\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestReflection_Attribute.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LoadMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Source\TestReflection_Attribute.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
