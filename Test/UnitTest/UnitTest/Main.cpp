@@ -46,8 +46,6 @@ int wmain(int argc, wchar_t* argv[])
 	}
 	int result = unittest::UnitTest::RunAndDisposeTests(argc, argv);
 	FinalizeGlobalStorage();
-#ifdef VCZH_CHECK_MEMORY_LEAKS
-	_CrtDumpMemoryLeaks();
-#endif
+	unittest::UnitTest::DumpMemoryLeak(argc, argv);
 	return result;
 }
