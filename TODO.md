@@ -1,9 +1,5 @@
 # TODO
 
-## Attribute Metadata (Verification)
-
-- Update comment/document/KB.
-
 ## 2.0
 
 - Dump and reload type metadata with some types not included.
