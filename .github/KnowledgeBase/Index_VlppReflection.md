@@ -107,7 +107,7 @@ Proxy generation for interfaces to enable inheritance in Workflow scripts.
 
 Attach metadata attributes to types, members, and method parameters during reflection registration.
 
-Attributes are instances of reflectable structs whose constructor arguments are serializable primitive values.
+Attributes are instances of reflectable structs whose constructor arguments are serializable values, with `ITypeDescriptor*` as the explicit descriptor-reference exception.
 They are stored centrally in the owning type descriptor and can be queried at runtime via the `IAttributeBag` / `IAttributeInfo` interfaces.
 Attributes survive metaonly metadata serialization and deserialization, and appear in the logged text output.
 

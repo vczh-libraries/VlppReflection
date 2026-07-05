@@ -99,7 +99,7 @@ END_CLASS_MEMBER(MyClass)
 - Use `ATTRIBUTE_MEMBER(TYPE, ...)` after any member registration to attach an attribute to that member
 - Use `ATTRIBUTE_PARAMETER(PARAMETER_NAME, TYPE, ...)` after a method or constructor registration to attach an attribute to a named parameter
 - The attribute type must be a reflected struct
-- Each argument must be a serializable primitive value
+- Each ordinary argument must be serializable; `ITypeDescriptor*` is supported as a raw-pointer descriptor reference
 - Multiple attributes can be attached to the same target
 - See [Attribute Registration](./KB_VlppReflection_AttributeRegistration.md) for full details
 
