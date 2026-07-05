@@ -61,6 +61,7 @@ Use the `IAttributeBag` interface (inherited by `ITypeDescriptor`, `IMemberInfo`
 Use `IAttributeInfo` to inspect an attribute:
 - `GetAttributeType()` — returns the `ITypeDescriptor` of the attribute struct.
 - `GetAttributeValueCount()` — returns the number of constructor argument values.
+- `GetAttributeValueType(index)` — returns the reflected type descriptor used to serialize or interpret the argument value.
 - `GetAttributeValue(index)` — returns the boxed `Value` of the argument at the given index.
 
 ## Metaonly Metadata
