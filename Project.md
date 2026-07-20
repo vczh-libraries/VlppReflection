@@ -33,7 +33,7 @@ This is expected. To update the baseline, re-run `Metadata_Generate` for both Wi
 which overwrites `Test/UnitTest/Metadata/Reflection{32,64}.txt` with the updated type information.
 Then re-run `Metadata_Test` to confirm the round-trip is correct.
 
-## Linux Specific
+## Linux/macOS Specific
 
 `REPO-ROOT/Test/Linux` stores linux configurations for:
 - `Metadata_Generate`: `Metadata_Generate.vcxproj`.
