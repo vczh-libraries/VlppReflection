@@ -1233,7 +1233,7 @@ GenerateMetaonlyTypes
 
 			void GenerateMetaonlyPropertyInfo(Writer& writer, IPropertyInfo* pi)
 			{
-				auto metadata = Ptr(new PropertyInfoMetadata);;
+				auto metadata = Ptr(new PropertyInfoMetadata);
 				if (auto cpp = pi->GetCpp())
 				{
 					metadata->referenceTemplate = cpp->GetReferenceTemplate();
