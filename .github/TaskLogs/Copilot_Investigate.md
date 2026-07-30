@@ -193,7 +193,7 @@ The writer will validate the exclusion snapshot against the loaded global manage
 
 The reader will resolve the dependency header before reading any counts, retain those descriptors in `MetaonlyReaderContext::tds`, record the first local descriptor index, and append new descriptors after the foreign prefix. Loader registration and type-level attribute reconstruction will start at that local boundary. `ITypeDescriptor` will be resolved from the combined table so descriptor-valued attributes keep their special representation.
 
-`CollectRegisteredTypes` will provide a replace-not-append snapshot API for callers that capture a completed base layer. API comments and the attribute-registration knowledge page will document the loaded-manager lifetime contract, registered-name identity, deterministic ordering, and base-before-dependent loading requirement.
+`CollectRegisteredTypes` will provide a replace-not-append snapshot API for callers that capture a completed base layer. API comments and a dedicated `GenerateMetaonlyTypes` knowledge page will document the loaded-manager lifetime contract, registered-name identity, deterministic ordering, and base-before-dependent loading requirement.
 
 VlppReflection metadata tests will generate separate base and attribute files, reject the attribute layer by itself with `TEST_ERROR`, compare each stage immediately, and inspect the dependency header produced from a deliberately reversed exclusion list. `Project.md` will describe the actual `Test/Metadata` artifacts and both architecture round trips.
 
@@ -205,7 +205,7 @@ After regenerating `VlppReflection/Release`, the generated files will be copied 
 - Validated a loaded manager plus non-null, unique, exactly registered exclusions; serialized one sorted `List<WString>` dependency header; assigned foreign type indices before deterministic local indices; emitted records only for local descriptors.
 - Added a reader-context local boundary, resolved and retained foreign descriptors before existing counts, registered and reconstructed attributes only for local descriptors, and resolved `ITypeDescriptor` from the combined table.
 - Split VlppReflection metadata generation/loading into base and attribute layers, deliberately reversed the caller exclusion order, inspected dependency headers and local counts, added controlled missing-dependency coverage, and compared base and combined snapshots immediately.
-- Updated the predefined-type shared test path, `Project.md`, API comments, and the attribute-registration knowledge page.
+- Updated the predefined-type shared test path, `Project.md`, API comments, and a dedicated `GenerateMetaonlyTypes` knowledge page linked from the VlppReflection knowledge-base index.
 - Regenerated `VlppReflection/Release` and copied the generated header and source directly to the VlppParser2, Workflow, and GacUI imports.
 - Split Workflow metadata into self-contained `Reflection{32,64}.bin` base files and dependent `ReflectionCppTypes{32,64}.bin` files, with immediate base/combined comparisons and independent-layer rejection tests.
 - Updated both GacUI metadata generators to pass an empty exclusion list, regenerated the four independently loadable metadata binaries, and refreshed their Tools copies.

@@ -69,14 +69,7 @@ Use `IAttributeInfo` to inspect an attribute:
 Attributes are serialized into metaonly binary metadata by `GenerateMetaonlyTypes` and deserialized by `LoadMetaonlyTypes`.
 Ordinary attribute values are serialized through `ISerializableType::Serialize` and deserialized through `ISerializableType::Deserialize`.
 `ITypeDescriptor*` attribute values are encoded separately as referenced type-descriptor indices with empty serialized data.
-
-`GenerateMetaonlyTypes` can produce layered metadata by accepting descriptors that belong to previously generated layers:
-- Call `CollectRegisteredTypes` only after the global type manager is loaded to capture a base-layer snapshot. The function replaces the output list.
-- Every excluded descriptor must remain registered and unchanged while generating the dependent layer.
-- Dependencies are identified by `ITypeDescriptor::GetTypeName()`, the registered reflection name, and serialized in ascending name order independently of caller or type-manager enumeration order.
-- Excluded descriptors can be referenced by local base types, signatures, generic arguments, attributes, and `ITypeDescriptor*` attribute values, but their metadata records are not repeated in the dependent layer.
-- When loading, register and activate every base layer before calling `LoadMetaonlyTypes` for a dependent layer. Missing registered names raise an error while the dependent file is being read.
-- Pass an empty excluded list for a self-contained file. Loading such a file does not require pre-existing reflection state.
+For general metadata generation, dependency layers, and loading order, see [GenerateMetaonlyTypes](./KB_VlppReflection_GenerateMetaonlyTypes.md).
 
 Attributes appear in the logged text output (`.txt` baseline files) in the format:
 ```
