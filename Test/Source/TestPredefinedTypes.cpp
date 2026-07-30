@@ -250,13 +250,20 @@ namespace test
 }
 using namespace test;
 
+#ifdef VCZH_DEBUG_METAONLY_REFLECTION
 extern bool LoadPredefinedTypesForTestCase();
+#endif
 
 TEST_FILE
 {
 	TEST_CATEGORY(L"Predefined types")
 	{
+#ifdef VCZH_DEBUG_METAONLY_REFLECTION
 		TEST_CASE_ASSERT(LoadPredefinedTypesForTestCase());
+#else
+		TEST_CASE_ASSERT(LoadPredefinedTypes());
+		TEST_CASE_ASSERT(GetGlobalTypeManager()->Load());
+#endif
 		TestInt<vint8_t>();
 		TestInt<vint16_t>();
 		TestInt<vint32_t>();

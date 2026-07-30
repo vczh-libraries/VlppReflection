@@ -183,9 +183,9 @@ The implementation will add and run these tests and verification conditions:
 
 # PROPOSALS
 
-- No.1 ADD A SORTED REGISTERED-NAME DEPENDENCY PREFIX AND LOAD METADATA IN LAYERS
+- No.1 ADD A SORTED REGISTERED-NAME DEPENDENCY PREFIX AND LOAD METADATA IN LAYERS [CONFIRMED]
 
-## No.1 ADD A SORTED REGISTERED-NAME DEPENDENCY PREFIX AND LOAD METADATA IN LAYERS
+## No.1 ADD A SORTED REGISTERED-NAME DEPENDENCY PREFIX AND LOAD METADATA IN LAYERS [CONFIRMED]
 
 Treat every metadata binary as one layer. Its header contains the sorted registered reflection names of descriptors supplied by previously loaded layers; all following method, property, event, attribute, and type-descriptor records remain local to the current layer.
 
@@ -201,4 +201,34 @@ After regenerating `VlppReflection/Release`, the generated files will be copied 
 
 ### CODE CHANGE
 
-Pending implementation and verification.
+- Added `CollectRegisteredTypes` and changed `GenerateMetaonlyTypes` to accept an exclusion snapshot before the output stream.
+- Validated a loaded manager plus non-null, unique, exactly registered exclusions; serialized one sorted `List<WString>` dependency header; assigned foreign type indices before deterministic local indices; emitted records only for local descriptors.
+- Added a reader-context local boundary, resolved and retained foreign descriptors before existing counts, registered and reconstructed attributes only for local descriptors, and resolved `ITypeDescriptor` from the combined table.
+- Split VlppReflection metadata generation/loading into base and attribute layers, deliberately reversed the caller exclusion order, inspected dependency headers and local counts, added controlled missing-dependency coverage, and compared base and combined snapshots immediately.
+- Updated the predefined-type shared test path, `Project.md`, API comments, and the attribute-registration knowledge page.
+- Regenerated `VlppReflection/Release` and copied the generated header and source directly to the VlppParser2, Workflow, and GacUI imports.
+- Split Workflow metadata into self-contained `Reflection{32,64}.bin` base files and dependent `ReflectionCppTypes{32,64}.bin` files, with immediate base/combined comparisons and independent-layer rejection tests.
+- Updated both GacUI metadata generators to pass an empty exclusion list, regenerated the four independently loadable metadata binaries, and refreshed their Tools copies.
+- The first Win32 compile exposed that the dynamic missing-name diagnostic must pass a `WString::Buffer()` to `CHECK_ERROR`; the final implementation retains the required name-bearing message in a local `WString`.
+- Linking the shared attribute assertions into `Metadata_Test` exposed two pre-existing full-reflection assumptions in that shared file. Its custom `TypeInfo` definitions and registrations now compile only in the generator, while metaonly assertions resolve custom descriptors by registered name and obtain argument types from `IAttributeInfo::GetAttributeValueType`.
+- The first VlppParser2 compatibility invocation exposed that its build helper discovers `UnitTest.sln` from the current directory. Invoking it from `Test/UnitTest` then exposed an existing naming mismatch: the solution offers `Debug|x86`, while the helper accepts `Win32` and rejects `x86`. Downstream verification used the helper for `x64` and the same Visual Studio/MSBuild environment directly for the solution's `x86` configuration.
+- The first Workflow loader run exposed that resource baselines retain the generator's historical trailing-blank-line formatting, while a direct `LogTypeManager` output does not. The generator reconciles and verifies resource baselines; the immediate loader round trip now compares `[2]` to the corresponding generated snapshot, preserving Workflow's established two-stage contract.
+- The GacUI unit-test stage rewrote the unrelated `Application/Dialog_File/OpenAndSelect` snapshot with shifted asynchronous frame IDs and a reordered transient render sequence. The test passed, the snapshot group was clean before the run, and this task changes neither file-dialog behavior nor rendering; those generated side effects were excluded from the task changeset.
+- Once the new metadata snapshots were staged, `git diff --check` reported their generator-produced trailing blank line at EOF: four VlppReflection attribute logs and six Workflow C++-type logs/baselines. This is the same `LogTypeManager` output in each baseline and `[2]` round trip, so the generated files remain unchanged; every hand-edited file passes the whitespace check.
+
+### CONFIRMED
+
+The proposal is confirmed by direct format assertions, staged loader tests, complete downstream builds, and artifact review:
+
+- VlppReflection passed Debug Win32 and x64 builds with zero errors. On each architecture, `UnitTest` passed 53/53, `Metadata_Generate` passed 175/175, and `Metadata_Test` passed 174/174 with no memory-leak report.
+- The generator verified that `CollectRegisteredTypes` replaces a pre-populated list, deliberately reversed the exclusion snapshot, and then verified an ascending unique dependency header and the exact local descriptor count. The loader's attribute-layer-only call passed through `TEST_ERROR` on both architectures.
+- The base and dependent attribute layers loaded in order and exercised foreign base/signature references plus non-null, null, and value-type `ITypeDescriptor*` attribute values. All four VlppReflection base/combined text round trips are byte-identical.
+- The regenerated VlppReflection release diff contains the same API and implementation changes as the owning source. Its header and source are byte-identical to every direct import in VlppParser2, Workflow, and GacUI.
+- VlppParser2 built successfully in Debug x86 and x64 with zero errors. The x86 solution configuration was invoked directly because the repository helper accepts `Win32` while this solution names the configuration `x86`.
+- Workflow passed Debug Win32 and x64 builds; `LibraryTest` passed 15/15, `RuntimeTest` passed 261/261, and `CppTest`, `CppTest_Metaonly`, and `CppTest_Reflection` each passed 229/229 on both hosts. `CompilerTest_GenerateMetadata` passed 2/2, and `CompilerTest_LoadAndCompile` passed 709/709 for both its x86 and x64 scenarios on both hosts, including dependent-layer rejection.
+- Workflow TypeScript preparation and compilation passed. The complete `Tools/Tools/Build.ps1 Workflow` pipeline passed twice, and the clean rerun reproduced the same reviewed artifacts. All four Workflow base/combined text round trips are byte-identical.
+- `Tools/Tools/Build.ps1 GacUI` completed successfully after rebuilding both Release architectures, running metadata generation/loading and unit tests on each, regenerating the release, and refreshing tool artifacts. The separate repository CLI execution of the x64 `GacUI_Compiler` completed successfully while driving both x86 and x64 resource generation.
+- GacUI produced no `*.UI.errors.txt` and no generated C++ changes. Each of its four metadata binaries begins with the expected empty dependency list, and every binary is byte-identical to its copy under `Tools/Tools`.
+- Final non-generated source/test searches across all four repositories found no one-argument `GenerateMetaonlyTypes` call. Whitespace checks passed in every hand-edited file and all non-text generated artifacts; only the ten new generator-produced text snapshots/baselines report their intentional trailing blank line. Tools is clean, and every remaining change in the other repositories is an expected source, generated release/import, metadata, or baseline artifact.
+
+The registered-name dependency prefix therefore preserves stable type-descriptor indices across layers while preventing foreign metadata from being serialized or registered twice. Resolving and retaining dependencies before local records makes the base-before-dependent contract fail early and keeps all foreign references valid for the dependent loader's lifetime.

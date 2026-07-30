@@ -67,12 +67,12 @@ using namespace TestReflection_TestObjects_Attribute;
 	F(AttributeRecord)\
 	F(AttributeTarget)\
 
+#if !defined(VCZH_DEBUG_NO_REFLECTION) && !defined(VCZH_DEBUG_METAONLY_REFLECTION)
+
 BEGIN_TYPE_INFO_NAMESPACE
 
 	TYPE_LIST(DECL_TYPE_INFO)
 	TYPE_LIST(IMPL_CPP_TYPE_INFO)
-
-#if !defined(VCZH_DEBUG_NO_REFLECTION) && !defined(VCZH_DEBUG_METAONLY_REFLECTION)
 
 	BEGIN_STRUCT_MEMBER(MyAttribute)
 		STRUCT_MEMBER(name)
@@ -130,9 +130,9 @@ BEGIN_TYPE_INFO_NAMESPACE
 		}
 	};
 
-#endif
-
 END_TYPE_INFO_NAMESPACE
+
+#endif
 
 #undef TYPE_LIST
 #undef _
@@ -141,17 +141,17 @@ namespace reflection_test_attribute
 {
 	namespace
 	{
-		vint64_t ReadAttributeInteger(const Value& value)
+		vint64_t ReadAttributeInteger(IAttributeInfo* info, vint index)
 		{
-			auto td = value.GetTypeDescriptor();
+			auto td = info->GetAttributeValueType(index);
 			TEST_ASSERT(td != nullptr);
 			if (td == GetTypeDescriptor<vint32_t>())
 			{
-				return UnboxValue<vint32_t>(value);
+				return UnboxValue<vint32_t>(info->GetAttributeValue(index));
 			}
 			if (td == GetTypeDescriptor<vint64_t>())
 			{
-				return UnboxValue<vint64_t>(value);
+				return UnboxValue<vint64_t>(info->GetAttributeValue(index));
 			}
 			TEST_ASSERT(false);
 			return 0;
@@ -160,17 +160,17 @@ namespace reflection_test_attribute
 		void AssertEmptyAttribute(IAttributeInfo* info)
 		{
 			TEST_ASSERT(info != nullptr);
-			TEST_ASSERT(info->GetAttributeType()->GetTypeName() == TypeInfo<EmptyAttribute>::content.typeName);
+			TEST_ASSERT(info->GetAttributeType()->GetTypeName() == L"EmptyAttribute");
 			TEST_ASSERT(info->GetAttributeValueCount() == 0);
 		}
 
 		void AssertMyAttribute(IAttributeInfo* info, const WString& name, vint number, ITypeDescriptor* type = nullptr)
 		{
 			TEST_ASSERT(info != nullptr);
-			TEST_ASSERT(info->GetAttributeType()->GetTypeName() == TypeInfo<MyAttribute>::content.typeName);
+			TEST_ASSERT(info->GetAttributeType()->GetTypeName() == L"MyAttribute");
 			TEST_ASSERT(info->GetAttributeValueCount() == 2 || info->GetAttributeValueCount() == 3);
 			TEST_ASSERT(UnboxValue<WString>(info->GetAttributeValue(0)) == name);
-			TEST_ASSERT(ReadAttributeInteger(info->GetAttributeValue(1)) == number);
+			TEST_ASSERT(ReadAttributeInteger(info, 1) == number);
 			if (info->GetAttributeValueCount() == 3)
 			{
 				auto tdValue = info->GetAttributeValue(2);
@@ -202,7 +202,7 @@ namespace reflection_test_attribute
 
 	void TestReflectionAttributes()
 	{
-		auto td = GetTypeDescriptor(TypeInfo<AttributeTarget>::content.typeName);
+		auto td = GetTypeDescriptor(L"AttributeTarget");
 		TEST_ASSERT(td != nullptr);
 		TEST_ASSERT(td->GetAttributeCount() == 2);
 		AssertMyAttribute(td->GetAttribute(0), L"type", 1, GetTypeDescriptor<WString>());
@@ -243,7 +243,7 @@ namespace reflection_test_attribute
 		TEST_ASSERT(seededCtor->GetParameterCount() == 1);
 		AssertMyAttribute(seededCtor->GetParameter(0)->GetAttribute(0), L"ctor-param", 4, GetTypeDescriptor<bool>());
 
-		auto structTd = GetTypeDescriptor(TypeInfo<AttributeRecord>::content.typeName);
+		auto structTd = GetTypeDescriptor(L"AttributeRecord");
 		TEST_ASSERT(structTd != nullptr);
 		auto xField = structTd->GetPropertyByName(L"x", false);
 		TEST_ASSERT(xField != nullptr);
