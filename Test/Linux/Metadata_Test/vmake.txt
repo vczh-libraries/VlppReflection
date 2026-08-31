@@ -14,5 +14,6 @@
 ../../../Source/Reflection/Predefined/TypedValueSerializerProvider.cpp
 ../../../Source/Reflection/Reflection/Reflection.cpp
 ../../Source/TestPredefinedTypes.cpp
+../../Source/TestReflection_Attribute.cpp
 ../../UnitTest/Metadata_Test/LoadMetadata.cpp
 ../Main.cpp

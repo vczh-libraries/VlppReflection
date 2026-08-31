@@ -18,7 +18,7 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/DescriptableValue_Comparison.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/TypedValueSerializerProvider.o ./Obj/Reflection.o ./Obj/TestPredefinedTypes.o ./Obj/LoadMetadata.o ./Obj/Main.o
+./Bin/UnitTest:./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/DescriptableValue_Comparison.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/TypedValueSerializerProvider.o ./Obj/Reflection.o ./Obj/TestPredefinedTypes.o ./Obj/TestReflection_Attribute.o ./Obj/LoadMetadata.o ./Obj/Main.o
 	$(CPP_LINK)
 
 ./Obj/Vlpp.o: ../../../Import/Vlpp.cpp
@@ -67,6 +67,9 @@ all:pre-build ./Bin/UnitTest
 	$(CPP_COMPILE)
 
 ./Obj/TestPredefinedTypes.o: ../../Source/TestPredefinedTypes.cpp
+	$(CPP_COMPILE)
+
+./Obj/TestReflection_Attribute.o: ../../Source/TestReflection_Attribute.cpp
 	$(CPP_COMPILE)
 
 ./Obj/LoadMetadata.o: ../../UnitTest/Metadata_Test/LoadMetadata.cpp
