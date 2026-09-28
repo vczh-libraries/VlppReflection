@@ -52,8 +52,5 @@ Unlike Windows, building have to be done in each folder separately.
 
 ## WebAssembly
 
-Only `Test/Linux/UnitTest` opts in through `WASM=YES` in its `vbuild` file. From that folder, run `../../../.github/Ubuntu/build.sh -bw` for an incremental Wasm build or `-fbw` for a full rebuild. Emscripten builds with 32 preloaded pthread workers for the imported VlppOS backend.
-
-Run `./Bin/app.sh` with Node.js installed and open the printed URL. The launcher supplies the COOP/COEP headers required for pthreads. All retained tests must pass with exactly one `wasm_main returns 0.` line.
-
-`TestReflection_Builder.cpp` and the shared entry point's metadata-directory check remain native-only because they access the filesystem. All other UnitTest test files run in WebAssembly. `Metadata_Generate` and `Metadata_Test` remain native-only projects.
+The following unit test projects could be built to web assembly and run with a browser:
+- `REPO-ROOT/Test/Linux/UnitTest`
