@@ -1,6 +1,9 @@
 .PHONY: all clean pre-build
 .DEFAULT_GOAL := all
 
+CPP_TARGET=./Bin/UnitTest
+CPP_OBJECTS=./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/DescriptableValue_Comparison.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/TypedValueSerializerProvider.o ./Obj/Reflection.o ./Obj/TestReflection_Attribute.o ./Obj/TestPredefinedTypes.o ./Obj/GenerateMetadata.o ./Obj/Main.o
+
 CPP_COMPILE_OPTIONS=-I ../../../Import
 include $(VCPROOT)/vl/makefile-cpp
 
@@ -11,6 +14,7 @@ pre-build:
 	if ! [ -d ../../Output ]; then mkdir ../../Output; fi
 
 clean:
+	rm -f "$(CPP_TARGET)" "$(dir $(CPP_TARGET))app.mjs" "$(dir $(CPP_TARGET))app.wasm" "$(dir $(CPP_TARGET))app.worker.js" "$(dir $(CPP_TARGET))app.html" "$(dir $(CPP_TARGET))app.sh" "$(dir $(CPP_TARGET))index.html"
 	if [ -d ./Bin ]; then rm -r ./Bin; fi
 	if [ -d ./Obj ]; then rm -r ./Obj; fi
 	if [ -d ./Coverage ]; then rm -r ./Coverage; fi
@@ -18,7 +22,9 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/DescriptableValue_Comparison.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/TypedValueSerializerProvider.o ./Obj/Reflection.o ./Obj/TestReflection_Attribute.o ./Obj/TestPredefinedTypes.o ./Obj/GenerateMetadata.o ./Obj/Main.o
+$(CPP_TARGET) $(CPP_OBJECTS): | pre-build
+
+$(CPP_TARGET):$(CPP_OBJECTS)
 	$(CPP_LINK)
 
 ./Obj/Vlpp.o: ../../../Import/Vlpp.cpp

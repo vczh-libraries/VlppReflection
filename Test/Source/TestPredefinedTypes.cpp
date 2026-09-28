@@ -46,7 +46,7 @@ namespace test
 					}
 					{
 						T n = UnboxValue<T>(value);
-#ifdef VCZH_MSVC
+#if defined VCZH_MSVC
 						TEST_ASSERT(n == (T)i);
 #endif
 					}

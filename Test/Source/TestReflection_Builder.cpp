@@ -1,5 +1,7 @@
 #include "Common.h"
 
+#if defined VCZH_MSVC || defined VCZH_GCC
+
 using namespace vl;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
@@ -76,3 +78,5 @@ TEST_FILE
 {
 	TEST_CASE_REFLECTION(TestReflectionBuilder)
 }
+
+#endif
