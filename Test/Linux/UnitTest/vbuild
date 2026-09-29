@@ -1,1 +1,8 @@
-WASM=YES
+{
+  "WASM=YES": {
+    "rootFolder": "../../",
+    "folders": [
+      "Metadata"
+    ]
+  }
+}

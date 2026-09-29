@@ -1,20 +1,26 @@
 #include <VlppOS.h>
 
 using namespace vl;
-#if defined VCZH_GCC
 using namespace vl::filesystem;
+
+#if defined VCZH_GCC
 
 WString GetTestMetadataPath()
 {
 	return L"../../Metadata/";
 }
 
+#elif defined VCZH_WASM
+WString GetTestMetadataPath()
+{
+	return L"/Metadata/";
+}
+#endif
+
 TEST_FILE
 {
 	TEST_CASE_ASSERT(Folder(GetTestMetadataPath()).Exists());
 }
-
-#endif
 
 #if defined VCZH_WASM
 #include <emscripten.h>

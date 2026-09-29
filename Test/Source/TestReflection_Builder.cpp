@@ -1,6 +1,6 @@
 #include "Common.h"
 
-#if defined VCZH_MSVC || defined VCZH_GCC
+#if defined VCZH_MSVC || defined VCZH_GCC || defined VCZH_WASM
 
 using namespace vl;
 using namespace vl::reflection;
