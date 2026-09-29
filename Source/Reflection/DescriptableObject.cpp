@@ -135,6 +135,9 @@ DescriptableObject
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			, objectSize(0)
 			, typeDescriptor(0)
+#ifdef VCZH_WASM
+			, typeDescriptorFallback(nullptr)
+#endif
 			, destructing(false)
 			, aggregationInfo(nullptr)
 			, aggregationSize(-1)
@@ -178,6 +181,14 @@ DescriptableObject
 				}
 				delete[] aggregationInfo;
 			}
+#ifdef VCZH_WASM
+			while (typeDescriptorFallback)
+			{
+				auto fallback = typeDescriptorFallback;
+				typeDescriptorFallback = fallback->next;
+				delete fallback;
+			}
+#endif
 #endif
 		}
 #if defined(__clang__)
@@ -190,7 +201,16 @@ DescriptableObject
 
 		description::ITypeDescriptor* DescriptableObject::GetTypeDescriptor()
 		{
+#ifdef VCZH_WASM
+			if (typeDescriptor && *typeDescriptor) return *typeDescriptor;
+			for (auto fallback = typeDescriptorFallback; fallback; fallback = fallback->next)
+			{
+				if (*fallback->typeDescriptor) return *fallback->typeDescriptor;
+			}
+			return nullptr;
+#else
 			return typeDescriptor ? *typeDescriptor : 0;
+#endif
 		}
 
 #endif

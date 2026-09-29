@@ -102,6 +102,16 @@ DescriptableObject
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 			size_t									objectSize;
 			description::ITypeDescriptor**			typeDescriptor;
+
+#ifdef VCZH_WASM
+			struct TypeDescriptorFallback
+			{
+				description::ITypeDescriptor**		typeDescriptor;
+				TypeDescriptorFallback*				next;
+			};
+
+			TypeDescriptorFallback*					typeDescriptorFallback;
+#endif
 #endif
 			Ptr<InternalPropertyMap>				internalProperties;
 
@@ -631,6 +641,21 @@ DescriptableObject
 			{
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 
+#ifdef VCZH_WASM
+				// A derived class can reuse base padding without increasing sizeof.
+				if (objectSize == sizeof(T))
+				{
+					if (!typeDescriptor || !*typeDescriptor || associatedTypeDescriptor)
+					{
+						// Before registration, either equally sized base may be the reflectable one.
+						if (typeDescriptor && !*typeDescriptor && !associatedTypeDescriptor)
+						{
+							typeDescriptorFallback = new TypeDescriptorFallback{ typeDescriptor,typeDescriptorFallback };
+						}
+						typeDescriptor = &associatedTypeDescriptor;
+					}
+				}
+#endif
 				if(objectSize<sizeof(T))
 				{
 					objectSize=sizeof(T);

@@ -86,6 +86,33 @@ namespace TestReflection_TestObjects
 		void SetC(Nullable<WString> value){c=value;}
 	};
 
+#ifdef VCZH_WASM
+	class alignas(64) PaddedBase : public Object, public Description<PaddedBase>
+	{
+	public:
+		double value = 0;
+	};
+
+	class PaddedDerived : public PaddedBase, public Description<PaddedDerived>
+	{
+	};
+
+	class UnregisteredPaddedDerived : public PaddedBase, public Description<UnregisteredPaddedDerived>
+	{
+	};
+
+	template<vint Index>
+	class alignas(64) UnregisteredPaddedSibling : public Description<UnregisteredPaddedSibling<Index>>
+	{
+	public:
+		double value = 0;
+	};
+
+	class PaddedMultiple : public PaddedBase, public UnregisteredPaddedSibling<0>, public UnregisteredPaddedSibling<1>
+	{
+	};
+#endif
+
 	class BaseSummer : public Description<BaseSummer>
 	{
 	protected:
@@ -155,7 +182,17 @@ using namespace TestReflection_TestObjects;
 
 #define _ ,
 
+#ifdef VCZH_WASM
+#define WASM_TYPE_LIST(F)\
+	F(PaddedBase)\
+	F(PaddedDerived)\
+
+#else
+#define WASM_TYPE_LIST(F)
+#endif
+
 #define TYPE_LIST(F)\
+	WASM_TYPE_LIST(F)\
 	F(Season)\
 	F(ResetOption)\
 	F(Base)\
@@ -246,6 +283,17 @@ BEGIN_TYPE_INFO_NAMESPACE
 		thisObject->SetBases(baseArray);
 	}
 
+#ifdef VCZH_WASM
+	BEGIN_CLASS_MEMBER(PaddedBase)
+		CLASS_MEMBER_CONSTRUCTOR(Ptr<PaddedBase>(), NO_PARAMETER)
+	END_CLASS_MEMBER(PaddedBase)
+
+	BEGIN_CLASS_MEMBER(PaddedDerived)
+		CLASS_MEMBER_BASE(PaddedBase)
+		CLASS_MEMBER_CONSTRUCTOR(Ptr<PaddedDerived>(), NO_PARAMETER)
+	END_CLASS_MEMBER(PaddedDerived)
+#endif
+
 	BEGIN_CLASS_MEMBER(BaseSummer)
 		CLASS_MEMBER_CONSTRUCTOR(Ptr<BaseSummer>(), NO_PARAMETER)
 		CLASS_MEMBER_METHOD(Sum, NO_PARAMETER)
@@ -280,6 +328,7 @@ BEGIN_TYPE_INFO_NAMESPACE
 END_TYPE_INFO_NAMESPACE
 
 #undef TYPE_LIST
+#undef WASM_TYPE_LIST
 
 namespace reflection_test
 {
@@ -800,6 +849,42 @@ using namespace reflection_test;
 
 TEST_FILE
 {
+#ifdef VCZH_WASM
+	TEST_CASE(L"Derived descriptions may occupy base class padding")
+	{
+		TEST_ASSERT(sizeof(PaddedBase) == sizeof(PaddedDerived));
+		TEST_ASSERT(sizeof(PaddedBase) == sizeof(UnregisteredPaddedDerived));
+		TEST_ASSERT(sizeof(PaddedBase) == sizeof(UnregisteredPaddedSibling<0>));
+		auto beforeRegistration = Ptr(new PaddedDerived);
+		auto beforeMultiple = Ptr(new PaddedMultiple);
+		TEST_ASSERT(beforeRegistration->GetTypeDescriptor() == nullptr);
+		TEST_ASSERT(beforeMultiple->GetTypeDescriptor() == nullptr);
+		TEST_ASSERT(LoadPredefinedTypes());
+		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(Ptr(new TestTypeLoader)));
+		TEST_ASSERT(GetGlobalTypeManager()->Load());
+		{
+			auto baseType = description::GetTypeDescriptor<PaddedBase>();
+			auto derivedType = description::GetTypeDescriptor<PaddedDerived>();
+			TEST_ASSERT(beforeRegistration->GetTypeDescriptor() == derivedType);
+			TEST_ASSERT(beforeMultiple->GetTypeDescriptor() == baseType);
+			auto base = Ptr(new PaddedBase);
+			auto derived = Ptr(new PaddedDerived);
+			auto unregistered = Ptr(new UnregisteredPaddedDerived);
+			auto multiple = Ptr(new PaddedMultiple);
+			TEST_ASSERT(base->GetTypeDescriptor() == baseType);
+			TEST_ASSERT(derived->GetTypeDescriptor() == derivedType);
+			TEST_ASSERT(unregistered->GetTypeDescriptor() == baseType);
+			TEST_ASSERT(multiple->GetTypeDescriptor() == baseType);
+			auto value = Value::Create(L"PaddedDerived");
+			TEST_ASSERT(value.GetTypeDescriptor() == derivedType);
+			TEST_ASSERT(UnboxValue<Ptr<PaddedDerived>>(value));
+		}
+		TEST_ASSERT(ResetGlobalTypeManager());
+		TEST_ASSERT(beforeRegistration->GetTypeDescriptor() == nullptr);
+		TEST_ASSERT(beforeMultiple->GetTypeDescriptor() == nullptr);
+	});
+#endif
+
 	TEST_CASE_REFLECTION(TestReflectionInvoke)
 	TEST_CASE_REFLECTION(TestReflectionInvokeIndirect)
 	TEST_CASE_REFLECTION(TestReflectionEnum)
