@@ -38,6 +38,14 @@ END_TYPE_INFO_NAMESPACE
 
 TEST_FILE
 {
+	TEST_CASE(L"Test variant parameter classification")
+	{
+		using T = Variant<vint, WString>;
+		TEST_ASSERT(TypeInfoRetriver<T>::TypeFlag != TypeFlags::NonGenericType);
+		TEST_ASSERT(TypeInfoRetriver<const T&>::TypeFlag == TypeInfoRetriver<T>::TypeFlag);
+		TEST_ASSERT(TypeInfoRetriver<T&>::Hint == TypeInfoHint::Normal);
+	});
+
 	TEST_CASE(L"Test DescriptableObject: ReferenceCounterOperator")
 	{
 		TEST_ASSERT((!std::is_convertible_v<vint*, DescriptableObject*>));
