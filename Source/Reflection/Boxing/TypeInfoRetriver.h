@@ -30,6 +30,7 @@ TypeFlagTester
 				ObservableListType		=1<<5,
 				ReadonlyDictionaryType	=1<<6,
 				DictionaryType			=1<<7,
+				VariantType				=1<<8,
 			};
 
 			template<typename T>
@@ -48,6 +49,17 @@ TypeFlagTester
 			struct TypeFlagTester
 			{
 				static const TypeFlags									Result=TypeFlags::NonGenericType;
+			};
+
+			template<typename TDerived>
+			struct TypeFlagTester<TDerived, TypeFlags::VariantType>
+			{
+				template<typename ...T>
+				static void* Inherit(const Variant<T...>* source) { return {}; }
+				static char Inherit(void* source) { return {}; }
+				static char Inherit(const void* source) { return {}; }
+
+				static const TypeFlags Result = sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer)) == sizeof(void*) ? TypeFlags::VariantType : TypeFlags::NonGenericType;
 			};
 
 			template<typename TDerived>
@@ -159,6 +171,12 @@ TypeFlagSelector
 			};
 
 			template<typename T>
+			struct TypeFlagSelectorCase<T, TypeFlags::VariantType>
+			{
+				static const TypeFlags Result = TypeFlags::VariantType;
+			};
+
+			template<typename T>
 			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::FunctionType)>
 			{
 				static const  TypeFlags									Result=TypeFlags::FunctionType;
@@ -214,6 +232,7 @@ TypeFlagSelector
 					T, 
 					(TypeFlags)
 					( (vint)TypeFlagTester<T, TypeFlags::FunctionType>::Result
+					| (vint)TypeFlagTester<T, TypeFlags::VariantType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::EnumerableType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ReadonlyListType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ArrayType>::Result
@@ -245,6 +264,12 @@ TypeHintTester
 			struct TypeHintTesterForReference<TypeFlags::NonGenericType>
 			{
 				static const TypeInfoHint								Result = TypeInfoHint::Normal;
+			};
+
+			template<>
+			struct TypeHintTesterForReference<TypeFlags::VariantType>
+			{
+				static const TypeInfoHint Result = TypeInfoHint::Normal;
 			};
 
 			template<>
@@ -509,6 +534,26 @@ Functions
 					internal_helper::GenericArgumentAdder<TypeTuple<TArgs...>>::Add(genericType);
 
 					auto type = Ptr(new SharedPtrTypeInfo(genericType));
+					return type;
+				}
+#endif
+			};
+
+/***********************************************************************
+Variants
+***********************************************************************/
+
+			template<typename ...T>
+			struct DetailTypeInfoRetriver<Variant<T...>, TypeFlags::VariantType>
+			{
+				static_assert(((TypeFlagSelector<T>::Result != TypeFlags::VariantType) && ...), "A reflected variant cannot contain a variant option.");
+				static const ITypeInfo::Decorator Decorator = ITypeInfo::Variant;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					auto type = Ptr(new VariantTypeInfo);
+					(type->AddGenericArgument(TypeInfoRetriver<T>::CreateTypeInfo()), ...);
 					return type;
 				}
 #endif

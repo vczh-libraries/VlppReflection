@@ -73,6 +73,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\FunctionWrappers.h">
       <Filter>Wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Wrappers\VariantWrappers.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Boxing\BoxingParameter_Variant.h">
+      <Filter>Boxing</Filter>
+    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableObject.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\DescriptableValue.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\Source\Reflection\Predefined\TypedValueSerializerProvider.h">

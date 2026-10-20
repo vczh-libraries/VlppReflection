@@ -218,6 +218,71 @@ GenericTypeInfo
 			}
 
 /***********************************************************************
+VariantTypeInfo
+***********************************************************************/
+
+			ITypeInfo::Decorator VariantTypeInfo::GetDecorator()
+			{
+				return ITypeInfo::Variant;
+			}
+
+			TypeInfoHint VariantTypeInfo::GetHint()
+			{
+				return TypeInfoHint::Normal;
+			}
+
+			ITypeInfo* VariantTypeInfo::GetElementType()
+			{
+				return nullptr;
+			}
+
+			ITypeDescriptor* VariantTypeInfo::GetTypeDescriptor()
+			{
+				return nullptr;
+			}
+
+			vint VariantTypeInfo::GetGenericArgumentCount()
+			{
+				return genericArguments.Count();
+			}
+
+			ITypeInfo* VariantTypeInfo::GetGenericArgument(vint index)
+			{
+				return genericArguments[index].Obj();
+			}
+
+			WString VariantTypeInfo::GetTypeFriendlyName()
+			{
+				WString result = L"Variant<";
+				for (auto [type, i] : indexed(genericArguments))
+				{
+					if (i > 0) result += L", ";
+					result += type->GetTypeFriendlyName();
+				}
+				return result + L">";
+			}
+
+			void VariantTypeInfo::AddGenericArgument(Ptr<ITypeInfo> value)
+			{
+				genericArguments.Add(value);
+			}
+
+			bool IsSameTypeInfo(ITypeInfo* first, ITypeInfo* second)
+			{
+				if (first == second) return true;
+				if (!first || !second) return false;
+				if (first->GetDecorator() != second->GetDecorator()) return false;
+				if (first->GetTypeDescriptor() != second->GetTypeDescriptor()) return false;
+				if (!IsSameTypeInfo(first->GetElementType(), second->GetElementType())) return false;
+				if (first->GetGenericArgumentCount() != second->GetGenericArgumentCount()) return false;
+				for (vint i = 0; i < first->GetGenericArgumentCount(); i++)
+				{
+					if (!IsSameTypeInfo(first->GetGenericArgument(i), second->GetGenericArgument(i))) return false;
+				}
+				return true;
+			}
+
+/***********************************************************************
 AttributeInfoImpl
 ***********************************************************************/
 

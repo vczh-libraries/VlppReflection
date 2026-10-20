@@ -166,6 +166,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\TestPredefinedTypes.cpp" />
+    <ClCompile Include="..\..\Source\TestBoxing.cpp" />
     <ClCompile Include="..\..\Source\TestReflection_Attribute.cpp" />
     <ClCompile Include="..\UnitTest\Main.cpp" />
     <ClCompile Include="LoadMetadata.cpp" />

@@ -149,7 +149,7 @@ Containers
 						collections::From(object)
 						.Select([](const T& item)
 							{
-								return BoxValue<T>(item);
+								return description::BoxParameter(item);
 							})
 					);
 

@@ -148,6 +148,7 @@ ITypeDescriptor (type)
 					Nullable,
 					TypeDescriptor,
 					Generic,
+					Variant,
 				};
 
 				virtual Decorator				GetDecorator() = 0;

@@ -215,6 +215,25 @@ TypeInfoImp
 				void									AddGenericArgument(Ptr<ITypeInfo> value);
 			};
 
+			class VariantTypeInfo : public Object, public ITypeInfo
+			{
+			protected:
+				collections::List<Ptr<ITypeInfo>>		genericArguments;
+
+			public:
+				Decorator							GetDecorator()override;
+				TypeInfoHint						GetHint()override;
+				ITypeInfo*							GetElementType()override;
+				ITypeDescriptor*					GetTypeDescriptor()override;
+				vint								GetGenericArgumentCount()override;
+				ITypeInfo*							GetGenericArgument(vint index)override;
+				WString								GetTypeFriendlyName()override;
+
+				void								AddGenericArgument(Ptr<ITypeInfo> value);
+			};
+
+			extern bool								IsSameTypeInfo(ITypeInfo* first, ITypeInfo* second);
+
 			class AttributeInfoImpl : public Object, public IAttributeInfo
 			{
 				using TypeValuePair = collections::Pair<ITypeDescriptor*, Value>;
@@ -849,7 +868,7 @@ StructTypeDescriptor
 						{
 							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
 						}
-						return BoxValue<TField>(structValue->value.*field);
+						return BoxParameter(structValue->value.*field);
 					}
 
 					void SetValueInternal(Value& thisObject, const Value& newValue)override
@@ -859,7 +878,8 @@ StructTypeDescriptor
 						{
 							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
 						}
-						(structValue->value.*field) = UnboxValue<TField>(newValue);
+						auto unboxed = UnboxParameter<TField>(newValue);
+						(structValue->value.*field) = unboxed.Ref();
 					}
 				public:
 					StructFieldInfo(ITypeDescriptor* _ownerTypeDescriptor, TField T::* _field, const WString& _name)

@@ -61,7 +61,7 @@ MetaonlyTypeInfo
 				MetaonlyTypeInfo(MetaonlyWriterContext& _context, ITypeInfo* typeInfo)
 					: decorator(typeInfo->GetDecorator())
 					, hint(typeInfo->GetHint())
-					, typeDecriptor(_context.tdIndex[typeInfo->GetTypeDescriptor()])
+					, typeDecriptor(typeInfo->GetTypeDescriptor() ? _context.tdIndex[typeInfo->GetTypeDescriptor()] : -1)
 				{
 					if (auto et = typeInfo->GetElementType())
 					{
@@ -104,7 +104,7 @@ MetaonlyTypeInfo
 
 				ITypeDescriptor* GetTypeDescriptor() override
 				{
-					return context->tds[typeDecriptor].Obj();
+					return typeDecriptor == -1 ? nullptr : context->tds[typeDecriptor].Obj();
 				}
 
 				vint GetGenericArgumentCount() override
@@ -127,7 +127,7 @@ MetaonlyTypeInfo
 					case TypeDescriptor: return GetTypeDescriptor()->GetTypeName();
 					default:;
 					}
-					WString result = elementType->GetTypeFriendlyName() + L"<";
+					WString result = (decorator == Variant ? WString(L"Variant") : elementType->GetTypeFriendlyName()) + L"<";
 					// TODO: (enumerable) Linq:Aggregate
 					for (auto [type, i] : indexed(genericArguments))
 					{

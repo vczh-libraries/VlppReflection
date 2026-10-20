@@ -335,6 +335,7 @@ LoadPredefinedTypes
 				ENUM_NAMESPACE_ITEM(Nullable)
 				ENUM_NAMESPACE_ITEM(TypeDescriptor)
 				ENUM_NAMESPACE_ITEM(Generic)
+				ENUM_NAMESPACE_ITEM(Variant)
 			END_ENUM_ITEM(ITypeInfo::Decorator)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IAttributeInfo)

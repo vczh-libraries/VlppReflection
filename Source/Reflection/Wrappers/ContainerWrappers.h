@@ -69,7 +69,7 @@ Enumerable Wrappers
 					if(enumerator->Next())
 					{
 						index++;
-						value=UnboxValue<T>(enumerator->GetCurrent());
+						value=UnboxParameter<T>(enumerator->GetCurrent()).Ref();
 						return true;
 					}
 					else
@@ -105,7 +105,7 @@ Enumerable Wrappers
 				return collections::Range<vint>(0, value->GetCount())
 					.Select([value](vint i)
 					{
-						return UnboxValue<T>(value->Get(i));
+						return UnboxParameter<T>(value->Get(i)).Ref();
 					});
 			}
 
@@ -150,7 +150,7 @@ Enumerable Wrappers
 				return collections::Range<vint>(0, value->GetCount())
 					.Select([value](vint i)
 					{
-						return collections::Pair<K, V>(UnboxValue<K>(value->GetKeys()->Get(i)), UnboxValue<V>(value->GetValues()->Get(i)));
+						return collections::Pair<K, V>(UnboxParameter<K>(value->GetKeys()->Get(i)).Ref(), UnboxParameter<V>(value->GetValues()->Get(i)).Ref());
 					});
 			}
 
@@ -230,7 +230,7 @@ Collection Wrappers
 					if (!enumerableWrapper->wrapperPointer) throw ObjectDisposedException();
 					return ConvertCollectionError([&]()
 					{
-						return BoxValue<ElementType>(wrapperPointer->Current());
+						return BoxParameter(wrapperPointer->Current());
 					});
 				}
 
@@ -331,28 +331,48 @@ Collection Wrappers
 					ENSURE_WRAPPER_POINTER;
 					return ConvertCollectionError([&]()
 					{
-						return BoxValue<ElementType>(WRAPPER_POINTER->Get(index));
+						return BoxParameter(WRAPPER_POINTER->Get(index));
 					});
 				}
 
 				bool Contains(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementKeyType item = UnboxValue<ElementKeyType>(value);
-					return ConvertCollectionError([&]()
+					if constexpr (TypeInfoRetriver<ElementType>::Decorator == ITypeInfo::Variant)
 					{
-						return WRAPPER_POINTER->Contains(item);
-					});
+						return IndexOf(value) != -1;
+					}
+					else
+					{
+						ElementKeyType item = UnboxParameter<ElementKeyType>(value).Ref();
+						return ConvertCollectionError([&]()
+						{
+							return WRAPPER_POINTER->Contains(item);
+						});
+					}
 				}
 
 				vint IndexOf(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementKeyType item = UnboxValue<ElementKeyType>(value);
-					return ConvertCollectionError([&]()
+					if constexpr (TypeInfoRetriver<ElementType>::Decorator == ITypeInfo::Variant)
 					{
-						return WRAPPER_POINTER->IndexOf(item);
-					});
+						auto item = UnboxParameter<ElementType>(value);
+						auto boxed = BoxParameter(item.Ref());
+						for (vint i = 0; i < WRAPPER_POINTER->Count(); i++)
+						{
+							if (BoxParameter(WRAPPER_POINTER->Get(i)) == boxed) return i;
+						}
+						return -1;
+					}
+					else
+					{
+						ElementKeyType item = UnboxParameter<ElementKeyType>(value).Ref();
+						return ConvertCollectionError([&]()
+						{
+							return WRAPPER_POINTER->IndexOf(item);
+						});
+					}
 				}
 			};
 
@@ -373,7 +393,7 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					ConvertCollectionError([&]()
 					{
 						WRAPPER_POINTER->Set(index, item);
@@ -407,7 +427,7 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					ConvertCollectionError([&]()
 					{
 						WRAPPER_POINTER->Set(index, item);
@@ -417,7 +437,7 @@ Collection Wrappers
 				vint Add(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					return ConvertCollectionError([&]()
 					{
 						return WRAPPER_POINTER->Add(item);
@@ -427,7 +447,7 @@ Collection Wrappers
 				vint Insert(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					return ConvertCollectionError([&]()
 					{
 						return WRAPPER_POINTER->Insert(index, item);
@@ -437,11 +457,20 @@ Collection Wrappers
 				bool Remove(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementKeyType item = UnboxValue<ElementKeyType>(value);
-					return ConvertCollectionError([&]()
+					if constexpr (TypeInfoRetriver<ElementType>::Decorator == ITypeInfo::Variant)
 					{
-						return WRAPPER_POINTER->Remove(item);
-					});
+						auto index = this->IndexOf(value);
+						if (index == -1) return false;
+						return WRAPPER_POINTER->RemoveAt(index);
+					}
+					else
+					{
+						ElementKeyType item = UnboxParameter<ElementKeyType>(value).Ref();
+						return ConvertCollectionError([&]()
+						{
+							return WRAPPER_POINTER->Remove(item);
+						});
+					}
 				}
 
 				bool RemoveAt(vint index)override
@@ -529,11 +558,11 @@ Collection Wrappers
 				Value Get(const Value& key)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KeyKeyType item = UnboxValue<KeyKeyType>(key);
+					KeyKeyType item = UnboxParameter<KeyKeyType>(key).Ref();
 					return ConvertCollectionError([&]()
 					{
 						ValueType result = wrapperPointer->Get(item);
-						return BoxValue<ValueType>(result);
+						return BoxParameter(result);
 					});
 				}
 
@@ -573,8 +602,8 @@ Collection Wrappers
 				void Set(const Value& key, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KEY_VALUE_TYPE item = UnboxValue<KEY_VALUE_TYPE>(key);
-					VALUE_TYPE result = UnboxValue<VALUE_TYPE>(value);
+					KEY_VALUE_TYPE item = UnboxParameter<KEY_VALUE_TYPE>(key).Ref();
+					VALUE_TYPE result = UnboxParameter<VALUE_TYPE>(value).Ref();
 					ConvertCollectionError([&]()
 					{
 						WRAPPER_POINTER->Set(item, result);
@@ -584,7 +613,7 @@ Collection Wrappers
 				bool Remove(const Value& key)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KEY_KEY_TYPE item = UnboxValue<KEY_KEY_TYPE>(key);
+					KEY_KEY_TYPE item = UnboxParameter<KEY_KEY_TYPE>(key).Ref();
 					return ConvertCollectionError([&]()
 					{
 						return WRAPPER_POINTER->Remove(item);

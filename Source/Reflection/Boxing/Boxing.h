@@ -8,5 +8,6 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "BoxingParameter_Containers.h"
 #include "BoxingParameter_Functions.h"
+#include "BoxingParameter_Variant.h"
 
 #endif

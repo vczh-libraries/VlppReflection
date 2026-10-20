@@ -147,6 +147,10 @@ description::Value
 				case SharedPtr:
 					return L"Ptr<"+GetTypeDescriptor()->GetTypeName()+L">";
 				case BoxedValue:
+					if (auto box = boxedValue.Cast<IValueType::TypedBox<DynamicVariantBox>>())
+					{
+						return L"Variant<" + box->value.type->GetTypeFriendlyName() + L">";
+					}
 					return GetTypeDescriptor()->GetTypeName();
 				default:
 					return L"null";
@@ -175,6 +179,17 @@ description::Value
 
 			bool Value::CanConvertTo(ITypeInfo* targetType)const
 			{
+				if (targetType->GetDecorator() == ITypeInfo::Variant)
+				{
+					if (auto box = boxedValue.Cast<IValueType::TypedBox<DynamicVariantBox>>())
+					{
+						for (vint i = 0; i < targetType->GetGenericArgumentCount(); i++)
+						{
+							if (IsSameTypeInfo(box->value.type.Obj(), targetType->GetGenericArgument(i))) return true;
+						}
+					}
+					return false;
+				}
 				if(valueType==Null && targetType->GetDecorator()==ITypeInfo::Nullable)
 				{
 					return true;
