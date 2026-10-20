@@ -2078,6 +2078,7 @@ ITypeDescriptor (type)
 					Nullable,
 					TypeDescriptor,
 					Generic,
+					Variant,
 				};
 
 				virtual Decorator				GetDecorator() = 0;
@@ -4223,6 +4224,25 @@ TypeInfoImp
 				void									AddGenericArgument(Ptr<ITypeInfo> value);
 			};
 
+			class VariantTypeInfo : public Object, public ITypeInfo
+			{
+			protected:
+				collections::List<Ptr<ITypeInfo>>		genericArguments;
+
+			public:
+				Decorator							GetDecorator()override;
+				TypeInfoHint						GetHint()override;
+				ITypeInfo*							GetElementType()override;
+				ITypeDescriptor*					GetTypeDescriptor()override;
+				vint								GetGenericArgumentCount()override;
+				ITypeInfo*							GetGenericArgument(vint index)override;
+				WString								GetTypeFriendlyName()override;
+
+				void								AddGenericArgument(Ptr<ITypeInfo> value);
+			};
+
+			extern bool								IsSameTypeInfo(ITypeInfo* first, ITypeInfo* second);
+
 			class AttributeInfoImpl : public Object, public IAttributeInfo
 			{
 				using TypeValuePair = collections::Pair<ITypeDescriptor*, Value>;
@@ -4857,7 +4877,7 @@ StructTypeDescriptor
 						{
 							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
 						}
-						return BoxValue<TField>(structValue->value.*field);
+						return BoxParameter(structValue->value.*field);
 					}
 
 					void SetValueInternal(Value& thisObject, const Value& newValue)override
@@ -4867,7 +4887,8 @@ StructTypeDescriptor
 						{
 							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
 						}
-						(structValue->value.*field) = UnboxValue<TField>(newValue);
+						auto unboxed = UnboxParameter<TField>(newValue);
+						(structValue->value.*field) = unboxed.Ref();
 					}
 				public:
 					StructFieldInfo(ITypeDescriptor* _ownerTypeDescriptor, TField T::* _field, const WString& _name)
@@ -4969,6 +4990,7 @@ TypeFlagTester
 				ObservableListType		=1<<5,
 				ReadonlyDictionaryType	=1<<6,
 				DictionaryType			=1<<7,
+				VariantType				=1<<8,
 			};
 
 			template<typename T>
@@ -4987,6 +5009,17 @@ TypeFlagTester
 			struct TypeFlagTester
 			{
 				static const TypeFlags									Result=TypeFlags::NonGenericType;
+			};
+
+			template<typename TDerived>
+			struct TypeFlagTester<TDerived, TypeFlags::VariantType>
+			{
+				template<typename ...T>
+				static void* Inherit(const Variant<T...>* source) { return {}; }
+				static char Inherit(void* source) { return {}; }
+				static char Inherit(const void* source) { return {}; }
+
+				static const TypeFlags Result = sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer)) == sizeof(void*) ? TypeFlags::VariantType : TypeFlags::NonGenericType;
 			};
 
 			template<typename TDerived>
@@ -5098,6 +5131,12 @@ TypeFlagSelector
 			};
 
 			template<typename T>
+			struct TypeFlagSelectorCase<T, TypeFlags::VariantType>
+			{
+				static const TypeFlags Result = TypeFlags::VariantType;
+			};
+
+			template<typename T>
 			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::FunctionType)>
 			{
 				static const  TypeFlags									Result=TypeFlags::FunctionType;
@@ -5153,6 +5192,7 @@ TypeFlagSelector
 					T, 
 					(TypeFlags)
 					( (vint)TypeFlagTester<T, TypeFlags::FunctionType>::Result
+					| (vint)TypeFlagTester<T, TypeFlags::VariantType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::EnumerableType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ReadonlyListType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ArrayType>::Result
@@ -5184,6 +5224,12 @@ TypeHintTester
 			struct TypeHintTesterForReference<TypeFlags::NonGenericType>
 			{
 				static const TypeInfoHint								Result = TypeInfoHint::Normal;
+			};
+
+			template<>
+			struct TypeHintTesterForReference<TypeFlags::VariantType>
+			{
+				static const TypeInfoHint Result = TypeInfoHint::Normal;
 			};
 
 			template<>
@@ -5448,6 +5494,26 @@ Functions
 					internal_helper::GenericArgumentAdder<TypeTuple<TArgs...>>::Add(genericType);
 
 					auto type = Ptr(new SharedPtrTypeInfo(genericType));
+					return type;
+				}
+#endif
+			};
+
+/***********************************************************************
+Variants
+***********************************************************************/
+
+			template<typename ...T>
+			struct DetailTypeInfoRetriver<Variant<T...>, TypeFlags::VariantType>
+			{
+				static_assert(((TypeFlagSelector<T>::Result != TypeFlags::VariantType) && ...), "A reflected variant cannot contain a variant option.");
+				static const ITypeInfo::Decorator Decorator = ITypeInfo::Variant;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					auto type = Ptr(new VariantTypeInfo);
+					(type->AddGenericArgument(TypeInfoRetriver<T>::CreateTypeInfo()), ...);
 					return type;
 				}
 #endif
@@ -6083,7 +6149,7 @@ Enumerable Wrappers
 					if(enumerator->Next())
 					{
 						index++;
-						value=UnboxValue<T>(enumerator->GetCurrent());
+						value=UnboxParameter<T>(enumerator->GetCurrent()).Ref();
 						return true;
 					}
 					else
@@ -6119,7 +6185,7 @@ Enumerable Wrappers
 				return collections::Range<vint>(0, value->GetCount())
 					.Select([value](vint i)
 					{
-						return UnboxValue<T>(value->Get(i));
+						return UnboxParameter<T>(value->Get(i)).Ref();
 					});
 			}
 
@@ -6164,7 +6230,7 @@ Enumerable Wrappers
 				return collections::Range<vint>(0, value->GetCount())
 					.Select([value](vint i)
 					{
-						return collections::Pair<K, V>(UnboxValue<K>(value->GetKeys()->Get(i)), UnboxValue<V>(value->GetValues()->Get(i)));
+						return collections::Pair<K, V>(UnboxParameter<K>(value->GetKeys()->Get(i)).Ref(), UnboxParameter<V>(value->GetValues()->Get(i)).Ref());
 					});
 			}
 
@@ -6244,7 +6310,7 @@ Collection Wrappers
 					if (!enumerableWrapper->wrapperPointer) throw ObjectDisposedException();
 					return ConvertCollectionError([&]()
 					{
-						return BoxValue<ElementType>(wrapperPointer->Current());
+						return BoxParameter(wrapperPointer->Current());
 					});
 				}
 
@@ -6345,28 +6411,48 @@ Collection Wrappers
 					ENSURE_WRAPPER_POINTER;
 					return ConvertCollectionError([&]()
 					{
-						return BoxValue<ElementType>(WRAPPER_POINTER->Get(index));
+						return BoxParameter(WRAPPER_POINTER->Get(index));
 					});
 				}
 
 				bool Contains(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementKeyType item = UnboxValue<ElementKeyType>(value);
-					return ConvertCollectionError([&]()
+					if constexpr (TypeInfoRetriver<ElementType>::Decorator == ITypeInfo::Variant)
 					{
-						return WRAPPER_POINTER->Contains(item);
-					});
+						return IndexOf(value) != -1;
+					}
+					else
+					{
+						ElementKeyType item = UnboxParameter<ElementKeyType>(value).Ref();
+						return ConvertCollectionError([&]()
+						{
+							return WRAPPER_POINTER->Contains(item);
+						});
+					}
 				}
 
 				vint IndexOf(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementKeyType item = UnboxValue<ElementKeyType>(value);
-					return ConvertCollectionError([&]()
+					if constexpr (TypeInfoRetriver<ElementType>::Decorator == ITypeInfo::Variant)
 					{
-						return WRAPPER_POINTER->IndexOf(item);
-					});
+						auto item = UnboxParameter<ElementType>(value);
+						auto boxed = BoxParameter(item.Ref());
+						for (vint i = 0; i < WRAPPER_POINTER->Count(); i++)
+						{
+							if (BoxParameter(WRAPPER_POINTER->Get(i)) == boxed) return i;
+						}
+						return -1;
+					}
+					else
+					{
+						ElementKeyType item = UnboxParameter<ElementKeyType>(value).Ref();
+						return ConvertCollectionError([&]()
+						{
+							return WRAPPER_POINTER->IndexOf(item);
+						});
+					}
 				}
 			};
 
@@ -6387,7 +6473,7 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					ConvertCollectionError([&]()
 					{
 						WRAPPER_POINTER->Set(index, item);
@@ -6421,7 +6507,7 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					ConvertCollectionError([&]()
 					{
 						WRAPPER_POINTER->Set(index, item);
@@ -6431,7 +6517,7 @@ Collection Wrappers
 				vint Add(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					return ConvertCollectionError([&]()
 					{
 						return WRAPPER_POINTER->Add(item);
@@ -6441,7 +6527,7 @@ Collection Wrappers
 				vint Insert(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxValue<ElementType>(value);
+					ElementType item = UnboxParameter<ElementType>(value).Ref();
 					return ConvertCollectionError([&]()
 					{
 						return WRAPPER_POINTER->Insert(index, item);
@@ -6451,11 +6537,20 @@ Collection Wrappers
 				bool Remove(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementKeyType item = UnboxValue<ElementKeyType>(value);
-					return ConvertCollectionError([&]()
+					if constexpr (TypeInfoRetriver<ElementType>::Decorator == ITypeInfo::Variant)
 					{
-						return WRAPPER_POINTER->Remove(item);
-					});
+						auto index = this->IndexOf(value);
+						if (index == -1) return false;
+						return WRAPPER_POINTER->RemoveAt(index);
+					}
+					else
+					{
+						ElementKeyType item = UnboxParameter<ElementKeyType>(value).Ref();
+						return ConvertCollectionError([&]()
+						{
+							return WRAPPER_POINTER->Remove(item);
+						});
+					}
 				}
 
 				bool RemoveAt(vint index)override
@@ -6543,11 +6638,11 @@ Collection Wrappers
 				Value Get(const Value& key)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KeyKeyType item = UnboxValue<KeyKeyType>(key);
+					KeyKeyType item = UnboxParameter<KeyKeyType>(key).Ref();
 					return ConvertCollectionError([&]()
 					{
 						ValueType result = wrapperPointer->Get(item);
-						return BoxValue<ValueType>(result);
+						return BoxParameter(result);
 					});
 				}
 
@@ -6587,8 +6682,8 @@ Collection Wrappers
 				void Set(const Value& key, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KEY_VALUE_TYPE item = UnboxValue<KEY_VALUE_TYPE>(key);
-					VALUE_TYPE result = UnboxValue<VALUE_TYPE>(value);
+					KEY_VALUE_TYPE item = UnboxParameter<KEY_VALUE_TYPE>(key).Ref();
+					VALUE_TYPE result = UnboxParameter<VALUE_TYPE>(value).Ref();
 					ConvertCollectionError([&]()
 					{
 						WRAPPER_POINTER->Set(item, result);
@@ -6598,7 +6693,7 @@ Collection Wrappers
 				bool Remove(const Value& key)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KEY_KEY_TYPE item = UnboxValue<KEY_KEY_TYPE>(key);
+					KEY_KEY_TYPE item = UnboxParameter<KEY_KEY_TYPE>(key).Ref();
 					return ConvertCollectionError([&]()
 					{
 						return WRAPPER_POINTER->Remove(item);
@@ -6793,7 +6888,7 @@ Containers
 						collections::From(object)
 						.Select([](const T& item)
 							{
-								return BoxValue<T>(item);
+								return description::BoxParameter(item);
 							})
 					);
 
@@ -7051,6 +7146,242 @@ Functions
  
 			template<typename R, typename ...TArgs>
 			struct ParameterAccessor<const Func<R(TArgs...)>, TypeFlags::FunctionType> : ParameterAccessor<Func<R(TArgs...)>, TypeFlags::FunctionType>
+			{
+			};
+		}
+	}
+}
+
+#endif
+
+
+/***********************************************************************
+.\WRAPPERS\VARIANTWRAPPERS.H
+***********************************************************************/
+/***********************************************************************
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
+***********************************************************************/
+
+#ifndef VCZH_REFLECTION_WRAPPERS_VARIANTWRAPPERS
+#define VCZH_REFLECTION_WRAPPERS_VARIANTWRAPPERS
+
+
+namespace vl
+{
+	namespace reflection
+	{
+		namespace description
+		{
+/***********************************************************************
+Variant Wrappers
+***********************************************************************/
+
+			template<typename T>
+			T CopyVariantOption(const T& value)
+			{
+				if constexpr (std::is_copy_constructible_v<T>)
+				{
+					return T(value);
+				}
+				else
+				{
+					T result;
+					collections::CopyFrom(result, value);
+					return result;
+				}
+			}
+
+			template<typename T>
+			struct StaticVariantBox
+			{
+				T							value;
+
+				StaticVariantBox(const T& _value)
+					:value(CopyVariantOption(_value))
+				{
+				}
+
+				StaticVariantBox(const StaticVariantBox<T>& box)
+					:value(CopyVariantOption(box.value))
+				{
+				}
+
+				std::partial_ordering operator<=>(const StaticVariantBox<T>& box)const
+				{
+					if constexpr (TypeInfoRetriver<T>::TypeFlag == TypeFlags::FunctionType)
+					{
+						return std::partial_ordering::unordered;
+					}
+					else if constexpr (requires { value <=> box.value; })
+					{
+						return value <=> box.value;
+					}
+					else
+					{
+						return std::partial_ordering::unordered;
+					}
+				}
+
+				bool operator==(const StaticVariantBox<T>& box)const
+				{
+					return (*this <=> box) == 0;
+				}
+			};
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+			struct DynamicVariantBox
+			{
+				Value						value;
+				Ptr<ITypeInfo>				type;
+
+				std::partial_ordering operator<=>(const DynamicVariantBox& box)const
+				{
+					return value <=> box.value;
+				}
+
+				bool operator==(const DynamicVariantBox& box)const
+				{
+					return (*this <=> box) == 0;
+				}
+			};
+#endif
+		}
+	}
+}
+
+#endif
+
+
+/***********************************************************************
+.\BOXING\BOXINGPARAMETER_VARIANT.H
+***********************************************************************/
+/***********************************************************************
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
+***********************************************************************/
+
+#ifndef VCZH_REFLECTION_BOXING_BOXINGPARAMETER_VARIANT
+#define VCZH_REFLECTION_BOXING_BOXINGPARAMETER_VARIANT
+
+
+namespace vl
+{
+	namespace reflection
+	{
+		namespace description
+		{
+/***********************************************************************
+Variants
+***********************************************************************/
+
+			template<typename T>
+			Value BoxVariantOption(const T& value)
+			{
+				constexpr auto flag = TypeInfoRetriver<T>::TypeFlag;
+				if constexpr (
+					flag == TypeFlags::ReadonlyListType ||
+					flag == TypeFlags::ArrayType ||
+					flag == TypeFlags::ListType ||
+					flag == TypeFlags::ObservableListType ||
+					flag == TypeFlags::ReadonlyDictionaryType ||
+					flag == TypeFlags::DictionaryType)
+				{
+					auto copy = Ptr(new T(CopyVariantOption(value)));
+					if constexpr (flag == TypeFlags::ReadonlyListType)
+					{
+						return Value::From(Ptr(new ValueReadonlyListWrapper<Ptr<T>>(copy)));
+					}
+					else if constexpr (flag == TypeFlags::ArrayType)
+					{
+						return Value::From(Ptr(new ValueArrayWrapper<Ptr<T>>(copy)));
+					}
+					else if constexpr (flag == TypeFlags::ListType)
+					{
+						return Value::From(Ptr(new ValueListWrapper<Ptr<T>>(copy)));
+					}
+					else if constexpr (flag == TypeFlags::ObservableListType)
+					{
+						return Value::From(Ptr(new ValueObservableListWrapper<Ptr<T>>(copy)));
+					}
+					else if constexpr (flag == TypeFlags::ReadonlyDictionaryType)
+					{
+						return Value::From(Ptr(new ValueReadonlyDictionaryWrapper<Ptr<T>>(copy)));
+					}
+					else
+					{
+						return Value::From(Ptr(new ValueDictionaryWrapper<Ptr<T>>(copy)));
+					}
+				}
+				else
+				{
+					return description::BoxParameter(value);
+				}
+			}
+
+			template<typename ...T>
+			struct ParameterAccessor<Variant<T...>, TypeFlags::VariantType>
+			{
+				using VariantType = Variant<T...>;
+
+				static Value BoxParameter(const VariantType& object, ITypeDescriptor* typeDescriptor)
+				{
+					Value result;
+					object.Apply([&]<typename TOption>(const TOption& option)
+					{
+#ifdef VCZH_DEBUG_NO_REFLECTION
+						using Box = IValueType::TypedBox<StaticVariantBox<TOption>>;
+						result = Value::From(Ptr(new Box(StaticVariantBox<TOption>(option))), nullptr);
+#else
+						DynamicVariantBox box;
+						box.type = TypeInfoRetriver<TOption>::CreateTypeInfo();
+						box.value = BoxVariantOption(option);
+						result = Value::From(Ptr(new IValueType::TypedBox<DynamicVariantBox>(box)), nullptr);
+#endif
+					});
+					return result;
+				}
+
+				static Unboxed<VariantType> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					VariantType* result = nullptr;
+					auto tryOption = [&]<typename TOption>()
+					{
+#ifdef VCZH_DEBUG_NO_REFLECTION
+						if (auto box = value.GetBoxedValue().Cast<IValueType::TypedBox<StaticVariantBox<TOption>>>())
+						{
+							result = new VariantType(CopyVariantOption(box->value.value));
+							return true;
+						}
+#else
+						if (auto box = value.GetBoxedValue().Cast<IValueType::TypedBox<DynamicVariantBox>>())
+						{
+							auto type = TypeInfoRetriver<TOption>::CreateTypeInfo();
+							if (IsSameTypeInfo(type.Obj(), box->value.type.Obj()))
+							{
+								auto option = description::UnboxParameter<TOption>(box->value.value);
+								result = new VariantType(CopyVariantOption(option.Ref()));
+								return true;
+							}
+						}
+#endif
+						return false;
+					};
+					if (!(tryOption.template operator()<T>() || ...))
+					{
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+						auto type = TypeInfoRetriver<VariantType>::CreateTypeInfo();
+						throw ArgumentTypeMismtatchException(valueName, type.Obj(), value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxParameter()#Argument type mismatch.");
+#endif
+					}
+					return { result, true };
+				}
+			};
+
+			template<typename ...T>
+			struct ParameterAccessor<const Variant<T...>, TypeFlags::VariantType> : ParameterAccessor<Variant<T...>, TypeFlags::VariantType>
 			{
 			};
 		}

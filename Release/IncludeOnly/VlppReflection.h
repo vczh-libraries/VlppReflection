@@ -21,6 +21,8 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Reflection\Boxing\BoxingParameter_Containers.h"
 #include "..\..\Source\Reflection\Wrappers\FunctionWrappers.h"
 #include "..\..\Source\Reflection\Boxing\BoxingParameter_Functions.h"
+#include "..\..\Source\Reflection\Wrappers\VariantWrappers.h"
+#include "..\..\Source\Reflection\Boxing\BoxingParameter_Variant.h"
 #include "..\..\Source\Reflection\Boxing\Boxing.h"
 #include "..\..\Source\Reflection\Metadata\Metadata_Member.h"
 #include "..\..\Source\Reflection\Metadata\Metadata_Event.h"

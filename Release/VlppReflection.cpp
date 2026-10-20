@@ -722,7 +722,7 @@ LogTypeManager
 					{
 						if (IMethodInfo* info = group->GetMethod(0))
 						{
-							if (info->GetParameterCount() == 1 && info->GetParameter(0)->GetType()->GetTypeDescriptor()->GetTypeName() == TypeInfo<IValueInterfaceProxy>::content.typeName)
+							if (info->GetParameterCount() == 1 && info->GetParameter(0)->GetType()->GetTypeDescriptor() == GetTypeDescriptor<IValueInterfaceProxy>())
 							{
 								acceptProxy = true;
 								return true;
@@ -869,7 +869,7 @@ MetaonlyTypeInfo
 				MetaonlyTypeInfo(MetaonlyWriterContext& _context, ITypeInfo* typeInfo)
 					: decorator(typeInfo->GetDecorator())
 					, hint(typeInfo->GetHint())
-					, typeDecriptor(_context.tdIndex[typeInfo->GetTypeDescriptor()])
+					, typeDecriptor(typeInfo->GetTypeDescriptor() ? _context.tdIndex[typeInfo->GetTypeDescriptor()] : -1)
 				{
 					if (auto et = typeInfo->GetElementType())
 					{
@@ -912,7 +912,7 @@ MetaonlyTypeInfo
 
 				ITypeDescriptor* GetTypeDescriptor() override
 				{
-					return context->tds[typeDecriptor].Obj();
+					return typeDecriptor == -1 ? nullptr : context->tds[typeDecriptor].Obj();
 				}
 
 				vint GetGenericArgumentCount() override
@@ -935,7 +935,7 @@ MetaonlyTypeInfo
 					case TypeDescriptor: return GetTypeDescriptor()->GetTypeName();
 					default:;
 					}
-					WString result = elementType->GetTypeFriendlyName() + L"<";
+					WString result = (decorator == Variant ? WString(L"Variant") : elementType->GetTypeFriendlyName()) + L"<";
 					// TODO: (enumerable) Linq:Aggregate
 					for (auto [type, i] : indexed(genericArguments))
 					{
@@ -2832,6 +2832,10 @@ description::Value
 				case SharedPtr:
 					return L"Ptr<"+GetTypeDescriptor()->GetTypeName()+L">";
 				case BoxedValue:
+					if (auto box = boxedValue.Cast<IValueType::TypedBox<DynamicVariantBox>>())
+					{
+						return L"Variant<" + box->value.type->GetTypeFriendlyName() + L">";
+					}
 					return GetTypeDescriptor()->GetTypeName();
 				default:
 					return L"null";
@@ -2860,6 +2864,17 @@ description::Value
 
 			bool Value::CanConvertTo(ITypeInfo* targetType)const
 			{
+				if (targetType->GetDecorator() == ITypeInfo::Variant)
+				{
+					if (auto box = boxedValue.Cast<IValueType::TypedBox<DynamicVariantBox>>())
+					{
+						for (vint i = 0; i < targetType->GetGenericArgumentCount(); i++)
+						{
+							if (IsSameTypeInfo(box->value.type.Obj(), targetType->GetGenericArgument(i))) return true;
+						}
+					}
+					return false;
+				}
 				if(valueType==Null && targetType->GetDecorator()==ITypeInfo::Nullable)
 				{
 					return true;
@@ -3489,6 +3504,71 @@ GenericTypeInfo
 			void GenericTypeInfo::AddGenericArgument(Ptr<ITypeInfo> value)
 			{
 				genericArguments.Add(value);
+			}
+
+/***********************************************************************
+VariantTypeInfo
+***********************************************************************/
+
+			ITypeInfo::Decorator VariantTypeInfo::GetDecorator()
+			{
+				return ITypeInfo::Variant;
+			}
+
+			TypeInfoHint VariantTypeInfo::GetHint()
+			{
+				return TypeInfoHint::Normal;
+			}
+
+			ITypeInfo* VariantTypeInfo::GetElementType()
+			{
+				return nullptr;
+			}
+
+			ITypeDescriptor* VariantTypeInfo::GetTypeDescriptor()
+			{
+				return nullptr;
+			}
+
+			vint VariantTypeInfo::GetGenericArgumentCount()
+			{
+				return genericArguments.Count();
+			}
+
+			ITypeInfo* VariantTypeInfo::GetGenericArgument(vint index)
+			{
+				return genericArguments[index].Obj();
+			}
+
+			WString VariantTypeInfo::GetTypeFriendlyName()
+			{
+				WString result = L"Variant<";
+				for (auto [type, i] : indexed(genericArguments))
+				{
+					if (i > 0) result += L", ";
+					result += type->GetTypeFriendlyName();
+				}
+				return result + L">";
+			}
+
+			void VariantTypeInfo::AddGenericArgument(Ptr<ITypeInfo> value)
+			{
+				genericArguments.Add(value);
+			}
+
+			bool IsSameTypeInfo(ITypeInfo* first, ITypeInfo* second)
+			{
+				if (first == second) return true;
+				if (!first || !second) return false;
+				if (first->GetDecorator() != second->GetDecorator()) return false;
+				if (first->GetTypeDescriptor() != second->GetTypeDescriptor()) return false;
+				if (!IsSameTypeInfo(first->GetElementType(), second->GetElementType())) return false;
+				if (first->GetGenericArgumentCount() != second->GetGenericArgumentCount()) return false;
+				for (vint i = 0; i < first->GetGenericArgumentCount(); i++)
+				{
+					if (!IsSameTypeInfo(first->GetGenericArgument(i), second->GetGenericArgument(i))) return false;
+				}
+				return true;
 			}
 
 /***********************************************************************
@@ -5392,6 +5472,7 @@ LoadPredefinedTypes
 				ENUM_NAMESPACE_ITEM(Nullable)
 				ENUM_NAMESPACE_ITEM(TypeDescriptor)
 				ENUM_NAMESPACE_ITEM(Generic)
+				ENUM_NAMESPACE_ITEM(Variant)
 			END_ENUM_ITEM(ITypeInfo::Decorator)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IAttributeInfo)
