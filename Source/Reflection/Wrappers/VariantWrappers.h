@@ -19,19 +19,13 @@ Variant Wrappers
 ***********************************************************************/
 
 			template<typename T>
-			T CopyVariantOption(const T& value)
-			{
-				if constexpr (std::is_copy_constructible_v<T>)
-				{
-					return T(value);
-				}
-				else
-				{
-					T result;
-					collections::CopyFrom(result, value);
-					return result;
-				}
-			}
+			constexpr bool IsVariantNativeCollection =
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ReadonlyListType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ArrayType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ListType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ObservableListType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ReadonlyDictionaryType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::DictionaryType;
 
 			template<typename T>
 			struct StaticVariantBox
@@ -39,12 +33,19 @@ Variant Wrappers
 				T							value;
 
 				StaticVariantBox(const T& _value)
-					:value(CopyVariantOption(_value))
+					requires(!IsVariantNativeCollection<T>)
+					:value(_value)
 				{
 				}
 
+				StaticVariantBox(const T& _value)
+					requires(IsVariantNativeCollection<T>)
+				{
+					collections::CopyFrom(value, _value);
+				}
+
 				StaticVariantBox(const StaticVariantBox<T>& box)
-					:value(CopyVariantOption(box.value))
+					:StaticVariantBox(box.value)
 				{
 				}
 

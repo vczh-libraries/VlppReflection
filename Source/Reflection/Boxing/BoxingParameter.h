@@ -48,6 +48,20 @@ BoxParameter, UnboxParameter
 				return ParameterAccessor<T, TIR::TypeFlag>::UnboxParameter(value, typeDescriptor, valueName);
 			}
 
+			template<typename T>
+			decltype(auto) ForwardUnboxedParameter(Unboxed<std::remove_cvref_t<T>>&& unboxed)
+			{
+				if constexpr (!std::is_reference_v<T> && TypeInfoRetriver<std::remove_cvref_t<T>>::TypeFlag == TypeFlags::VariantType)
+				{
+					// Unboxing a variant always creates an owned copy, including its native containers.
+					return std::move(unboxed.Ref());
+				}
+				else
+				{
+					return unboxed.Ref();
+				}
+			}
+
 /***********************************************************************
 BoxParametersToList
 ***********************************************************************/

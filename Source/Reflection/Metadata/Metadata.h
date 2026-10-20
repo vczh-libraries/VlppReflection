@@ -68,6 +68,9 @@ namespace vl
 			template<typename T>
 			Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"));
 
+			template<typename T>
+			decltype(auto) ForwardUnboxedParameter(Unboxed<std::remove_cvref_t<T>>&& unboxed);
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
@@ -672,7 +675,7 @@ CustomFieldInfoImpl
 						if (object)
 						{
 							auto result = UnboxParameter<TField>(newValue, GetReturn()->GetTypeDescriptor(), L"newValue");
-							object->*fieldRef = result.Ref();
+							object->*fieldRef = ForwardUnboxedParameter<TField>(std::move(result));
 						}
 					}
 					else
@@ -879,7 +882,7 @@ StructTypeDescriptor
 							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
 						}
 						auto unboxed = UnboxParameter<TField>(newValue);
-						(structValue->value.*field) = unboxed.Ref();
+						(structValue->value.*field) = ForwardUnboxedParameter<TField>(std::move(unboxed));
 					}
 				public:
 					StructFieldInfo(ITypeDescriptor* _ownerTypeDescriptor, TField T::* _field, const WString& _name)

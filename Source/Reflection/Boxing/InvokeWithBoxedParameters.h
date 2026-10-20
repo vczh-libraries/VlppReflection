@@ -63,30 +63,30 @@ UnboxAndCall
 					static auto AndCallObject(TFunction&& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
-						return function(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return function(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments->Get(TArgPacks::Index),
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...);
+							))...);
 					}
 
 					template<typename TFunction>
 					static auto AndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
-						return function(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return function(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments[TArgPacks::Index],
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...);
+							))...);
 					}
 
 					template<typename TClass, typename TFunction>
 					static auto AndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// (object->*function)(arguments)
-						return (object->*function)(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return (object->*function)(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments[TArgPacks::Index],
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...);
+							))...);
 					}
 
 					template<typename TClass, typename TFunction>
@@ -95,10 +95,10 @@ UnboxAndCall
 						// function(object, arguments)
 						return function(
 							object,
-							UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+							ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 								arguments[TArgPacks::Index],
 								(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-								).Ref()...
+								))...
 							);
 					}
 
@@ -106,10 +106,10 @@ UnboxAndCall
 					static R AndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 					{
 						// new TClass(arguments)
-						return R(new TClass(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return R(new TClass(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments[TArgPacks::Index],
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...));
+							))...));
 					}
 				};
 			}

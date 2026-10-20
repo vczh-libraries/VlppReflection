@@ -58,7 +58,7 @@ Functions
 									{
 										CHECK_ERROR(!unboxed.IsOwned(), L"It is impossible to return a reference from a unboxed value, when the unboxing has to call new T(...).");
 									}
-									return unboxed.Ref();
+									return ForwardUnboxedParameter<R>(std::move(unboxed));
 								}
 							}), true };
 						}

@@ -123,6 +123,21 @@ void TestVariantParameters()
 		TEST_ASSERT(first.IsOwned());
 		TEST_ASSERT(first.Ref().Index() == source.Index());
 		TEST_ASSERT(second.Ref().Index() == source.Index());
+		auto arguments = IValueList::Create();
+		arguments->Add(box);
+		Func<T(T)> byValue = [](T input) { return input; };
+		Func<T(const T&)> byConst = [](const T& input) { return input; };
+		Func<T(T&)> byRef = [](T& input) { return input; };
+		for (auto callable : { BoxParameter(byValue), BoxParameter(byConst), BoxParameter(byRef) })
+		{
+			auto proxy = UnboxValue<Ptr<IValueFunctionProxy>>(callable);
+			auto result = UnboxParameter<T>(proxy->Invoke(arguments));
+			TEST_ASSERT(result.Ref().Index() == source.Index());
+			source.Apply([&]<typename TOption>(const TOption& option)
+			{
+				TEST_ASSERT(result.Ref().Get<TOption>() == option);
+			});
+		}
 		source.Apply([&]<typename TOption>(const TOption& option)
 		{
 			TEST_ASSERT(first.Ref().Get<TOption>() == option);
@@ -191,6 +206,78 @@ void TestVariantCollectionAndFunction()
 	T function = Func<vint(vint)>([](vint value) { return value + 1; });
 	auto functionBox = BoxParameter(function);
 	TEST_ASSERT(UnboxParameter<T>(functionBox).Ref().Get<Func<vint(vint)>>()(10) == 11);
+
+	Func<T(T)> echo = [](T input) { return input; };
+	auto proxy = UnboxValue<Ptr<IValueFunctionProxy>>(BoxParameter(echo));
+	auto arguments = IValueList::Create();
+	arguments->Add(saved);
+	auto echoed = UnboxParameter<T>(proxy->Invoke(arguments));
+	TEST_ASSERT(echoed.Ref().Get<List<vint>>()[0] == 10);
+	echoed.Ref().Get<List<vint>>().Set(0, 30);
+	TEST_ASSERT(UnboxParameter<T>(saved).Ref().Get<List<vint>>()[0] == 10);
+
+	Func<T(const T&)> echoConst = [](const T& input)
+	{
+		List<vint> copy;
+		CopyFrom(copy, input.Get<List<vint>>());
+		return T(std::move(copy));
+	};
+	proxy = UnboxValue<Ptr<IValueFunctionProxy>>(BoxParameter(echoConst));
+	TEST_ASSERT(UnboxParameter<T>(proxy->Invoke(arguments)).Ref().Get<List<vint>>()[0] == 10);
+	Func<T(T&)> echoRef = [](T& input) { return std::move(input); };
+	proxy = UnboxValue<Ptr<IValueFunctionProxy>>(BoxParameter(echoRef));
+	TEST_ASSERT(UnboxParameter<T>(proxy->Invoke(arguments)).Ref().Get<List<vint>>()[0] == 10);
+	TEST_ASSERT(UnboxParameter<T>(saved).Ref().Get<List<vint>>()[0] == 10);
+}
+
+void TestVariantCollectionOptions()
+{
+	auto check = []<typename TCollection>(TCollection&& source)
+	{
+		using T = Variant<vint, TCollection>;
+		T input(VariantIndex<1>{});
+		if constexpr (std::is_copy_assignable_v<TCollection>)
+		{
+			input.template Get<TCollection>() = source;
+		}
+		else
+		{
+			CopyFrom(input.template Get<TCollection>(), source);
+		}
+		auto box = BoxParameter(input);
+		input = vint(0);
+		auto copied = Value::From(box.GetBoxedValue()->Copy(), nullptr);
+		auto first = UnboxParameter<T>(box);
+		auto second = UnboxParameter<T>(copied);
+		TEST_ASSERT(first.Ref().Index() == 1);
+		TEST_ASSERT(second.Ref().Index() == 1);
+		TEST_ASSERT(From(first.Ref().template Get<TCollection>()).First() == From(second.Ref().template Get<TCollection>()).First());
+		auto arguments = IValueList::Create();
+		arguments->Add(box);
+		Func<vint(const T&)> count = [](const T& input) { return From(input.template Get<TCollection>()).Count(); };
+		auto proxy = UnboxValue<Ptr<IValueFunctionProxy>>(BoxParameter(count));
+		TEST_ASSERT(UnboxValue<vint>(proxy->Invoke(arguments)) == 1);
+		if constexpr (std::is_move_constructible_v<TCollection>)
+		{
+			Func<T(T)> echo = [](T input) { return input; };
+			proxy = UnboxValue<Ptr<IValueFunctionProxy>>(BoxParameter(echo));
+			auto result = UnboxParameter<T>(proxy->Invoke(arguments));
+			TEST_ASSERT(From(result.Ref().template Get<TCollection>()).First() == From(second.Ref().template Get<TCollection>()).First());
+		}
+	};
+	Array<vint> array(1);
+	array.Set(0, 10);
+	check(std::move(array));
+	SortedList<vint> sorted;
+	sorted.Add(10);
+	check(std::move(sorted));
+	ObservableList<vint> observable;
+	observable.Add(10);
+	check(std::move(observable));
+	Dictionary<vint, WString> dictionary;
+	dictionary.Add(10, L"ten");
+	check(std::move(dictionary));
+	check(Range<vint>(10, 1));
 }
 
 void TestVariantComparison()
@@ -224,28 +311,34 @@ void TestVariantComparison()
 	TEST_ASSERT(pointer != nullPointer);
 }
 
-#ifndef VCZH_DEBUG_NO_REFLECTION
 void TestVariantFailures()
 {
+	auto expectMismatch = [](auto&& action)
+	{
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+		TEST_EXCEPTION(action(), ArgumentTypeMismtatchException, [](auto&&) {});
+#else
+		TEST_EXCEPTION(action(), Error, [](auto&&) {});
+#endif
+	};
 	using T = Variant<IDescriptable*, IValueList*, Ptr<IDescriptable>, Ptr<IValueList>, Nullable<vint>, Value>;
 	using U = Variant<IValueList*, vint>;
 	auto list = IValueList::Create();
 	T source = static_cast<IDescriptable*>(list.Obj());
 	auto box = BoxParameter(source);
 	TEST_ASSERT(UnboxParameter<T>(box).Ref().Index() == 0);
-#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
-	TEST_EXCEPTION(UnboxParameter<U>(box), ArgumentTypeMismtatchException, [](auto&&) {});
-	TEST_EXCEPTION(UnboxParameter<T>(BoxValue<vint>(1)), ArgumentTypeMismtatchException, [](auto&&) {});
-	TEST_EXCEPTION(UnboxValue<vint>(box), ArgumentTypeMismtatchException, [](auto&&) {});
+	expectMismatch([&]() { UnboxParameter<U>(box); });
+	expectMismatch([&]() { UnboxParameter<T>(BoxValue<vint>(1)); });
+	expectMismatch([&]() { UnboxValue<vint>(box); });
 	source = static_cast<IDescriptable*>(nullptr);
-	TEST_EXCEPTION(UnboxParameter<U>(BoxParameter(source)), ArgumentTypeMismtatchException, [](auto&&) {});
-#endif
+	expectMismatch([&]() { UnboxParameter<U>(BoxParameter(source)); });
 	source = static_cast<IValueList*>(nullptr);
 	TEST_ASSERT(UnboxParameter<U>(BoxParameter(source)).Ref().Get<IValueList*>() == nullptr);
 	auto reordered = UnboxParameter<Variant<Value, Nullable<vint>, Ptr<IValueList>, Ptr<IDescriptable>, IValueList*, IDescriptable*>>(BoxParameter(source));
 	TEST_ASSERT(reordered.Ref().Index() == 4);
 }
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 void TestVariantTypeInfo()
 {
 	using T = Variant<vint, WString, Nullable<vint>>;
@@ -340,6 +433,7 @@ TEST_FILE
 #ifndef VCZH_DEBUG_NO_REFLECTION
 	TEST_CASE_VARIANT(TestVariantParameters)
 	TEST_CASE_VARIANT(TestVariantCollectionAndFunction)
+	TEST_CASE_VARIANT(TestVariantCollectionOptions)
 	TEST_CASE_VARIANT(TestVariantComparison)
 	TEST_CASE_VARIANT(TestVariantTypeInfo)
 	TEST_CASE_VARIANT(TestVariantFailures)
@@ -359,6 +453,14 @@ TEST_FILE
 	TEST_CASE(L"TestVariantComparison")
 	{
 		TestVariantComparison();
+	});
+	TEST_CASE(L"TestVariantCollectionOptions")
+	{
+		TestVariantCollectionOptions();
+	});
+	TEST_CASE(L"TestVariantFailures")
+	{
+		TestVariantFailures();
 	});
 #endif
 	TEST_CASE(L"Test variant parameter classification")

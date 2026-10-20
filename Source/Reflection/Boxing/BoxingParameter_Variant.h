@@ -24,15 +24,10 @@ Variants
 			Value BoxVariantOption(const T& value)
 			{
 				constexpr auto flag = TypeInfoRetriver<T>::TypeFlag;
-				if constexpr (
-					flag == TypeFlags::ReadonlyListType ||
-					flag == TypeFlags::ArrayType ||
-					flag == TypeFlags::ListType ||
-					flag == TypeFlags::ObservableListType ||
-					flag == TypeFlags::ReadonlyDictionaryType ||
-					flag == TypeFlags::DictionaryType)
+				if constexpr (IsVariantNativeCollection<T>)
 				{
-					auto copy = Ptr(new T(CopyVariantOption(value)));
+					auto copy = Ptr(new T);
+					collections::CopyFrom(*copy.Obj(), value);
 					if constexpr (flag == TypeFlags::ReadonlyListType)
 					{
 						return Value::From(Ptr(new ValueReadonlyListWrapper<Ptr<T>>(copy)));
@@ -69,6 +64,21 @@ Variants
 			{
 				using VariantType = Variant<T...>;
 
+				template<typename TOption>
+				static VariantType* CopyOption(const TOption& option)
+				{
+					if constexpr (!IsVariantNativeCollection<TOption>)
+					{
+						return new VariantType(option);
+					}
+					else
+					{
+						auto result = new VariantType(VariantIndex<VariantType::template IndexOf<TOption>>{});
+						collections::CopyFrom(result->template Get<TOption>(), option);
+						return result;
+					}
+				}
+
 				static Value BoxParameter(const VariantType& object, ITypeDescriptor* typeDescriptor)
 				{
 					Value result;
@@ -95,7 +105,7 @@ Variants
 #ifdef VCZH_DEBUG_NO_REFLECTION
 						if (auto box = value.GetBoxedValue().Cast<IValueType::TypedBox<StaticVariantBox<TOption>>>())
 						{
-							result = new VariantType(CopyVariantOption(box->value.value));
+							result = CopyOption(box->value.value);
 							return true;
 						}
 #else
@@ -105,7 +115,7 @@ Variants
 							if (IsSameTypeInfo(type.Obj(), box->value.type.Obj()))
 							{
 								auto option = description::UnboxParameter<TOption>(box->value.value);
-								result = new VariantType(CopyVariantOption(option.Ref()));
+								result = CopyOption(option.Ref());
 								return true;
 							}
 						}

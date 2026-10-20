@@ -393,10 +393,10 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					ConvertCollectionError([&]()
 					{
-						WRAPPER_POINTER->Set(index, item);
+						WRAPPER_POINTER->Set(index, ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
@@ -427,30 +427,30 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					ConvertCollectionError([&]()
 					{
-						WRAPPER_POINTER->Set(index, item);
+						WRAPPER_POINTER->Set(index, ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
 				vint Add(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					return ConvertCollectionError([&]()
 					{
-						return WRAPPER_POINTER->Add(item);
+						return WRAPPER_POINTER->Add(ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
 				vint Insert(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					return ConvertCollectionError([&]()
 					{
-						return WRAPPER_POINTER->Insert(index, item);
+						return WRAPPER_POINTER->Insert(index, ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
@@ -561,7 +561,7 @@ Collection Wrappers
 					KeyKeyType item = UnboxParameter<KeyKeyType>(key).Ref();
 					return ConvertCollectionError([&]()
 					{
-						ValueType result = wrapperPointer->Get(item);
+						const auto& result = wrapperPointer->Get(item);
 						return BoxParameter(result);
 					});
 				}
@@ -602,11 +602,11 @@ Collection Wrappers
 				void Set(const Value& key, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KEY_VALUE_TYPE item = UnboxParameter<KEY_VALUE_TYPE>(key).Ref();
-					VALUE_TYPE result = UnboxParameter<VALUE_TYPE>(value).Ref();
+					auto item = UnboxParameter<KEY_VALUE_TYPE>(key);
+					auto result = UnboxParameter<VALUE_TYPE>(value);
 					ConvertCollectionError([&]()
 					{
-						WRAPPER_POINTER->Set(item, result);
+						WRAPPER_POINTER->Set(ForwardUnboxedParameter<KEY_VALUE_TYPE>(std::move(item)), ForwardUnboxedParameter<VALUE_TYPE>(std::move(result)));
 					});
 				}
 
