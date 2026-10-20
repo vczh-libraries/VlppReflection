@@ -301,6 +301,18 @@ void TestVariantComparison()
 	TEST_ASSERT(!(unordered > first));
 	TEST_ASSERT(!(unordered >= first));
 
+	auto integer = BoxValue<vint>(1);
+	auto floating = BoxValue<double>(1.0);
+	TEST_ASSERT(CompareVariantPayloads(integer, floating) == std::partial_ordering::equivalent);
+	TEST_ASSERT(CompareVariantPayloads(BoxValue<vint>(-1), BoxValue<vuint64_t>(0)) == std::partial_ordering::less);
+	TEST_ASSERT(CompareVariantPayloads(BoxValue<vuint64_t>(_UI64_MAX), integer) == std::partial_ordering::greater);
+	TEST_ASSERT(CompareVariantPayloads(integer, BoxValue<double>(std::numeric_limits<double>::quiet_NaN())) == std::partial_ordering::unordered);
+#ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
+	TEST_ASSERT(integer == floating);
+#else
+	TEST_ASSERT((integer <=> floating) == std::partial_ordering::unordered);
+#endif
+
 	using P = Variant<IValueList*, vint>;
 	auto instance = IValueList::Create();
 	auto pointer = BoxParameter(P(instance.Obj()));

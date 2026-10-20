@@ -18,6 +18,10 @@ namespace vl
 Variant Wrappers
 ***********************************************************************/
 
+			// Compare extracted payloads with numeric promotion in every reflection mode.
+			// Ordinary Value comparison retains its existing mode-dependent behavior.
+			extern std::partial_ordering CompareVariantPayloads(const Value& a, const Value& b);
+
 			template<typename T>
 			constexpr bool IsVariantNativeCollection =
 				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ReadonlyListType ||
