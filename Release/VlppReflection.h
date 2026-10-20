@@ -4077,6 +4077,9 @@ namespace vl
 			template<typename T>
 			Unboxed<T> UnboxParameter(const Value& value, ITypeDescriptor* typeDescriptor = nullptr, const WString& valueName = WString::Unmanaged(L"value"));
 
+			template<typename T>
+			decltype(auto) ForwardUnboxedParameter(Unboxed<std::remove_cvref_t<T>>&& unboxed);
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
@@ -4681,7 +4684,7 @@ CustomFieldInfoImpl
 						if (object)
 						{
 							auto result = UnboxParameter<TField>(newValue, GetReturn()->GetTypeDescriptor(), L"newValue");
-							object->*fieldRef = result.Ref();
+							object->*fieldRef = ForwardUnboxedParameter<TField>(std::move(result));
 						}
 					}
 					else
@@ -4888,7 +4891,7 @@ StructTypeDescriptor
 							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
 						}
 						auto unboxed = UnboxParameter<TField>(newValue);
-						(structValue->value.*field) = unboxed.Ref();
+						(structValue->value.*field) = ForwardUnboxedParameter<TField>(std::move(unboxed));
 					}
 				public:
 					StructFieldInfo(ITypeDescriptor* _ownerTypeDescriptor, TField T::* _field, const WString& _name)
@@ -5814,6 +5817,20 @@ BoxParameter, UnboxParameter
 				return ParameterAccessor<T, TIR::TypeFlag>::UnboxParameter(value, typeDescriptor, valueName);
 			}
 
+			template<typename T>
+			decltype(auto) ForwardUnboxedParameter(Unboxed<std::remove_cvref_t<T>>&& unboxed)
+			{
+				if constexpr (!std::is_reference_v<T> && TypeInfoRetriver<std::remove_cvref_t<T>>::TypeFlag == TypeFlags::VariantType)
+				{
+					// Unboxing a variant always creates an owned copy, including its native containers.
+					return std::move(unboxed.Ref());
+				}
+				else
+				{
+					return unboxed.Ref();
+				}
+			}
+
 /***********************************************************************
 BoxParametersToList
 ***********************************************************************/
@@ -5948,30 +5965,30 @@ UnboxAndCall
 					static auto AndCallObject(TFunction&& function, IMethodInfo* methodInfo, const Ptr<IValueReadonlyList>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
-						return function(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return function(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments->Get(TArgPacks::Index),
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...);
+							))...);
 					}
 
 					template<typename TFunction>
 					static auto AndCallFunction(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments) -> decltype(function(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// function(arguments)
-						return function(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return function(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments[TArgPacks::Index],
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...);
+							))...);
 					}
 
 					template<typename TClass, typename TFunction>
 					static auto AndCallMethod(TFunction function, IMethodInfo* methodInfo, collections::Array<Value>& arguments, TClass* object) -> decltype((object->*function)(std::declval<typename TArgPacks::TArg>()...))
 					{
 						// (object->*function)(arguments)
-						return (object->*function)(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return (object->*function)(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments[TArgPacks::Index],
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...);
+							))...);
 					}
 
 					template<typename TClass, typename TFunction>
@@ -5980,10 +5997,10 @@ UnboxAndCall
 						// function(object, arguments)
 						return function(
 							object,
-							UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+							ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 								arguments[TArgPacks::Index],
 								(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-								).Ref()...
+								))...
 							);
 					}
 
@@ -5991,10 +6008,10 @@ UnboxAndCall
 					static R AndNew(IMethodInfo* methodInfo, collections::Array<Value>& arguments)
 					{
 						// new TClass(arguments)
-						return R(new TClass(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
+						return R(new TClass(ForwardUnboxedParameter<typename TArgPacks::TArg>(UnboxParameter<std::remove_cvref_t<typename TArgPacks::TArg>>(
 							arguments[TArgPacks::Index],
 							(methodInfo ? methodInfo->GetParameter(TArgPacks::Index)->GetType()->GetTypeDescriptor() : nullptr)
-							).Ref()...));
+							))...));
 					}
 				};
 			}
@@ -6075,6 +6092,7 @@ Invoke
 }
 
 #endif
+
 
 /***********************************************************************
 .\WRAPPERS\CONTAINERWRAPPERS.H
@@ -6473,10 +6491,10 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					ConvertCollectionError([&]()
 					{
-						WRAPPER_POINTER->Set(index, item);
+						WRAPPER_POINTER->Set(index, ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
@@ -6507,30 +6525,30 @@ Collection Wrappers
 				void Set(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					ConvertCollectionError([&]()
 					{
-						WRAPPER_POINTER->Set(index, item);
+						WRAPPER_POINTER->Set(index, ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
 				vint Add(const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					return ConvertCollectionError([&]()
 					{
-						return WRAPPER_POINTER->Add(item);
+						return WRAPPER_POINTER->Add(ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
 				vint Insert(vint index, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					ElementType item = UnboxParameter<ElementType>(value).Ref();
+					auto item = UnboxParameter<ElementType>(value);
 					return ConvertCollectionError([&]()
 					{
-						return WRAPPER_POINTER->Insert(index, item);
+						return WRAPPER_POINTER->Insert(index, ForwardUnboxedParameter<ElementType>(std::move(item)));
 					});
 				}
 
@@ -6641,7 +6659,7 @@ Collection Wrappers
 					KeyKeyType item = UnboxParameter<KeyKeyType>(key).Ref();
 					return ConvertCollectionError([&]()
 					{
-						ValueType result = wrapperPointer->Get(item);
+						const auto& result = wrapperPointer->Get(item);
 						return BoxParameter(result);
 					});
 				}
@@ -6682,11 +6700,11 @@ Collection Wrappers
 				void Set(const Value& key, const Value& value)override
 				{
 					ENSURE_WRAPPER_POINTER;
-					KEY_VALUE_TYPE item = UnboxParameter<KEY_VALUE_TYPE>(key).Ref();
-					VALUE_TYPE result = UnboxParameter<VALUE_TYPE>(value).Ref();
+					auto item = UnboxParameter<KEY_VALUE_TYPE>(key);
+					auto result = UnboxParameter<VALUE_TYPE>(value);
 					ConvertCollectionError([&]()
 					{
-						WRAPPER_POINTER->Set(item, result);
+						WRAPPER_POINTER->Set(ForwardUnboxedParameter<KEY_VALUE_TYPE>(std::move(item)), ForwardUnboxedParameter<VALUE_TYPE>(std::move(result)));
 					});
 				}
 
@@ -7132,7 +7150,7 @@ Functions
 									{
 										CHECK_ERROR(!unboxed.IsOwned(), L"It is impossible to return a reference from a unboxed value, when the unboxing has to call new T(...).");
 									}
-									return unboxed.Ref();
+									return ForwardUnboxedParameter<R>(std::move(unboxed));
 								}
 							}), true };
 						}
@@ -7178,19 +7196,13 @@ Variant Wrappers
 ***********************************************************************/
 
 			template<typename T>
-			T CopyVariantOption(const T& value)
-			{
-				if constexpr (std::is_copy_constructible_v<T>)
-				{
-					return T(value);
-				}
-				else
-				{
-					T result;
-					collections::CopyFrom(result, value);
-					return result;
-				}
-			}
+			constexpr bool IsVariantNativeCollection =
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ReadonlyListType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ArrayType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ListType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ObservableListType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::ReadonlyDictionaryType ||
+				TypeInfoRetriver<T>::TypeFlag == TypeFlags::DictionaryType;
 
 			template<typename T>
 			struct StaticVariantBox
@@ -7198,12 +7210,19 @@ Variant Wrappers
 				T							value;
 
 				StaticVariantBox(const T& _value)
-					:value(CopyVariantOption(_value))
+					requires(!IsVariantNativeCollection<T>)
+					:value(_value)
 				{
 				}
 
+				StaticVariantBox(const T& _value)
+					requires(IsVariantNativeCollection<T>)
+				{
+					collections::CopyFrom(value, _value);
+				}
+
 				StaticVariantBox(const StaticVariantBox<T>& box)
-					:value(CopyVariantOption(box.value))
+					:StaticVariantBox(box.value)
 				{
 				}
 
@@ -7279,15 +7298,10 @@ Variants
 			Value BoxVariantOption(const T& value)
 			{
 				constexpr auto flag = TypeInfoRetriver<T>::TypeFlag;
-				if constexpr (
-					flag == TypeFlags::ReadonlyListType ||
-					flag == TypeFlags::ArrayType ||
-					flag == TypeFlags::ListType ||
-					flag == TypeFlags::ObservableListType ||
-					flag == TypeFlags::ReadonlyDictionaryType ||
-					flag == TypeFlags::DictionaryType)
+				if constexpr (IsVariantNativeCollection<T>)
 				{
-					auto copy = Ptr(new T(CopyVariantOption(value)));
+					auto copy = Ptr(new T);
+					collections::CopyFrom(*copy.Obj(), value);
 					if constexpr (flag == TypeFlags::ReadonlyListType)
 					{
 						return Value::From(Ptr(new ValueReadonlyListWrapper<Ptr<T>>(copy)));
@@ -7324,6 +7338,21 @@ Variants
 			{
 				using VariantType = Variant<T...>;
 
+				template<typename TOption>
+				static VariantType* CopyOption(const TOption& option)
+				{
+					if constexpr (!IsVariantNativeCollection<TOption>)
+					{
+						return new VariantType(option);
+					}
+					else
+					{
+						auto result = new VariantType(VariantIndex<VariantType::template IndexOf<TOption>>{});
+						collections::CopyFrom(result->template Get<TOption>(), option);
+						return result;
+					}
+				}
+
 				static Value BoxParameter(const VariantType& object, ITypeDescriptor* typeDescriptor)
 				{
 					Value result;
@@ -7350,7 +7379,7 @@ Variants
 #ifdef VCZH_DEBUG_NO_REFLECTION
 						if (auto box = value.GetBoxedValue().Cast<IValueType::TypedBox<StaticVariantBox<TOption>>>())
 						{
-							result = new VariantType(CopyVariantOption(box->value.value));
+							result = CopyOption(box->value.value);
 							return true;
 						}
 #else
@@ -7360,7 +7389,7 @@ Variants
 							if (IsSameTypeInfo(type.Obj(), box->value.type.Obj()))
 							{
 								auto option = description::UnboxParameter<TOption>(box->value.value);
-								result = new VariantType(CopyVariantOption(option.Ref()));
+								result = CopyOption(option.Ref());
 								return true;
 							}
 						}
