@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := all
 
 CPP_TARGET=./Bin/UnitTest
-CPP_OBJECTS=./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/DescriptableValue_Comparison.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/TypedValueSerializerProvider.o ./Obj/Reflection.o ./Obj/TestPredefinedTypes.o ./Obj/TestReflection_Attribute.o ./Obj/LoadMetadata.o ./Obj/Main.o
+CPP_OBJECTS=./Obj/Vlpp.o ./Obj/Vlpp.Linux.o ./Obj/VlppOS.o ./Obj/VlppOS.Linux.o ./Obj/VlppRegex.o ./Obj/DescriptableObject.o ./Obj/DescriptableValue.o ./Obj/DescriptableInterfaces.o ./Obj/DescriptableInterfaces_Log.o ./Obj/DescriptableInterfaces_Metaonly.o ./Obj/DescriptableValue_Comparison.o ./Obj/Metadata.o ./Obj/PredefinedTypes.o ./Obj/TypedValueSerializerProvider.o ./Obj/Reflection.o ./Obj/TestPredefinedTypes.o ./Obj/TestBoxing.o ./Obj/TestReflection_Attribute.o ./Obj/LoadMetadata.o ./Obj/Main.o
 
 CPP_COMPILE_OPTIONS=-I ../../../Import -DVCZH_DEBUG_METAONLY_REFLECTION
 include $(VCPROOT)/vl/makefile-cpp
@@ -72,6 +72,9 @@ $(CPP_TARGET):$(CPP_OBJECTS)
 	$(CPP_COMPILE)
 
 ./Obj/TestPredefinedTypes.o: ../../Source/TestPredefinedTypes.cpp
+	$(CPP_COMPILE)
+
+./Obj/TestBoxing.o: ../../Source/TestBoxing.cpp
 	$(CPP_COMPILE)
 
 ./Obj/TestReflection_Attribute.o: ../../Source/TestReflection_Attribute.cpp
